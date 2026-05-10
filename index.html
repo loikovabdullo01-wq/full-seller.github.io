@@ -6,6 +6,9 @@
     <title>FULL SELLER | Носки Оптом – интернет-магазин</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Firebase Compat (версия 12.13.0) -->
+    <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-auth-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -289,7 +292,6 @@
             transform: scale(1.02);
         }
 
-        /* Отзывы */
         .stars i {
             color: #ccc;
             cursor: pointer;
@@ -498,7 +500,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно отправки заказа -->
     <div class="modal" id="orderModal">
         <div class="modal-content">
             <span class="modal-close" id="closeOrderModal">&times;</span>
@@ -525,17 +526,20 @@
                     <input type="email" id="loginEmail" placeholder="Email" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <input type="password" id="loginPassword" placeholder="Пароль" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <button class="btn" id="loginSubmit" style="width:100%; margin-top:8px;">Войти</button>
+                    <div id="loginError" style="color:#e53e3e; margin-top:8px; text-align:center;"></div>
                     <div class="toggle-link" id="switchToRegisterEmail" style="text-align:center; margin-top:12px; color:var(--accent); cursor:pointer;">Нет аккаунта? Зарегистрироваться</div>
                 </div>
                 <div id="registerFormEmail" style="display:none;">
                     <h4>Регистрация по Email</h4>
                     <input type="text" id="regNameEmail" placeholder="Ваше имя" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <input type="email" id="regEmailEmail" placeholder="Email" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
-                    <input type="password" id="regPasswordEmail" placeholder="Пароль" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                    <input type="password" id="regPasswordEmail" placeholder="Пароль (мин. 6 символов)" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <button class="btn" id="registerSubmitEmail" style="width:100%; margin-top:8px;">Зарегистрироваться</button>
+                    <div id="registerError" style="color:#e53e3e; margin-top:8px; text-align:center;"></div>
                     <div class="toggle-link" id="switchToLoginEmail" style="text-align:center; margin-top:12px; color:var(--accent); cursor:pointer;">Уже есть аккаунт? Войти</div>
                 </div>
             </div>
+            <!-- Телефонный блок оставлен как мок -->
             <div id="phoneForms" style="display:none;">
                 <div id="loginPhoneForm">
                     <h4>Вход по номеру</h4>
@@ -621,7 +625,20 @@
     </footer>
 
     <script>
-        const products = [
+        // ------------------- FIREBASE INIT -------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhiwklrTbPHfhkx5ePR9mtxNzvN4C5-dw",
+            authDomain: "full-seller.firebaseapp.com",
+            projectId: "full-seller",
+            storageBucket: "full-seller.firebasestorage.app",
+            messagingSenderId: "858609506770",
+            appId: "1:858609506770:web:b83498774cfe14f1cbd00b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // ------------------- GLOBAL STATE -------------------
+        const PRODUCTS = [
             { id: 1, name: "Adidas спортивные", price: 899, desc: "Оригинальные носки Adidas, дышащий хлопок.", imageUrl: "5.jpg", material: "Хлопок 78%, полиэстер", size: "39-45" },
             { id: 2, name: "Reebok повседневные", price: 749, desc: "Мягкие носки Reebok на каждый день.", imageUrl: "4.jpg", material: "Хлопок 80%", size: "39-46" },
             { id: 3, name: "Ralph Lauren Polo", price: 1299, desc: "Элегантные носки Ralph Lauren, премиум качество.", imageUrl: "7.jpg", material: "Мерсеризованный хлопок", size: "39-45" },
@@ -632,50 +649,30 @@
             { id: 8, name: "Детские яркие", price: 75, desc: "Мягкие, с весёлым принтом, гипоаллергенные.", icon: "fa-socks", imageUrl: "12.webp", material: "Хлопок 90%", size: "22-35" }
         ];
 
-        let cart = JSON.parse(localStorage.getItem('fullseller_cart')) || [];
+        const CART_KEY = 'fullseller_cart';
+        const REVIEWS_KEY = 'fullseller_reviews';
+        const PROFILE_PREFIX = 'fullseller_profile_';
 
-        function saveCart() { localStorage.setItem('fullseller_cart', JSON.stringify(cart)); }
+        let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+        let currentUser = null;
+
+        // ------------------- HELPERS -------------------
+        function saveCart() { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+        function getProductById(id) { return PRODUCTS.find(p => p.id === id); }
         function updateCartUI() {
             const total = cart.reduce((sum, i) => sum + i.qty, 0);
             document.getElementById('cartCount').textContent = total;
         }
 
-        function renderCatalog() {
-            const grid = document.getElementById('catalogGrid');
-            grid.innerHTML = products.map(p => {
-                const imgContent = p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" loading="lazy">` : `<i class="fas ${p.icon || 'fa-socks'}"></i>`;
-                return `
-                    <div class="product-card">
-                        <div class="product-image" data-id="${p.id}">${imgContent}</div>
-                        <div class="product-body">
-                            <div class="product-name">${p.name}</div>
-                            <div class="product-desc">${p.desc}</div>
-                            <div class="product-footer">
-                                <span class="price">₽${p.price}</span>
-                                <button class="btn add-to-cart-btn" data-id="${p.id}"><i class="fas fa-cart-plus"></i></button>
-                            </div>
-                            <button class="btn btn-outline detail-btn" data-id="${p.id}" style="width:100%; margin-top:8px;">Подробнее</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    addToCart(parseInt(btn.dataset.id), 1);
-                    showToast('Товар добавлен');
-                });
-            });
-
-            document.querySelectorAll('.detail-btn, .product-image').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    const id = parseInt(el.dataset.id);
-                    openProductModal(id);
-                });
-            });
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.textContent = msg;
+            t.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--accent); color:white; padding:12px 28px; border-radius:40px; font-weight:600; z-index:300; box-shadow:0 10px 25px rgba(0,0,0,0.2);';
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2000);
         }
 
+        // ------------------- CART -------------------
         function addToCart(productId, qty = 1) {
             const existing = cart.find(i => i.productId === productId);
             if (existing) existing.qty += qty;
@@ -704,38 +701,40 @@
             }
         }
 
-        function getProductById(id) { return products.find(p => p.id === id); }
-
-        function renderCartModal() {
-            const container = document.getElementById('cartItemsContainer');
-            const totalBlock = document.getElementById('cartTotalBlock');
-            if (cart.length === 0) {
-                container.innerHTML = '<p>Корзина пуста</p>';
-                totalBlock.innerHTML = '';
-                return;
-            }
-            let total = 0;
-            container.innerHTML = cart.map(item => {
-                const p = getProductById(item.productId);
-                if (!p) return '';
-                const sub = p.price * item.qty;
-                total += sub;
+        // ------------------- UI RENDER -------------------
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = PRODUCTS.map(p => {
+                const imgContent = p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" loading="lazy">` : `<i class="fas ${p.icon || 'fa-socks'}"></i>`;
                 return `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-light);">
-                        <div>
-                            <strong>${p.name}</strong>
-                            <div style="color:var(--accent);">₽${p.price} × ${item.qty} = ₽${sub}</div>
-                        </div>
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <button class="btn" style="padding:4px 10px;" onclick="changeQty(${item.productId}, -1)">-</button>
-                            <span>${item.qty}</span>
-                            <button class="btn" style="padding:4px 10px;" onclick="changeQty(${item.productId}, 1)">+</button>
-                            <i class="fas fa-trash" style="color:#ef4444; cursor:pointer; margin-left:6px;" onclick="removeFromCart(${item.productId})"></i>
+                    <div class="product-card">
+                        <div class="product-image" data-id="${p.id}">${imgContent}</div>
+                        <div class="product-body">
+                            <div class="product-name">${p.name}</div>
+                            <div class="product-desc">${p.desc}</div>
+                            <div class="product-footer">
+                                <span class="price">₽${p.price}</span>
+                                <button class="btn add-to-cart-btn" data-id="${p.id}"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                            <button class="btn btn-outline detail-btn" data-id="${p.id}" style="width:100%; margin-top:8px;">Подробнее</button>
                         </div>
                     </div>
                 `;
             }).join('');
-            totalBlock.innerHTML = `<span>Итого:</span><span>₽${total}</span>`;
+
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addToCart(parseInt(btn.dataset.id), 1);
+                    showToast('Товар добавлен');
+                });
+            });
+
+            document.querySelectorAll('.detail-btn, .product-image').forEach(el => {
+                el.addEventListener('click', () => {
+                    openProductModal(parseInt(el.dataset.id));
+                });
+            });
         }
 
         function openProductModal(productId) {
@@ -769,7 +768,38 @@
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // ========== Корзина и оформление заказа ==========
+        function renderCartModal() {
+            const container = document.getElementById('cartItemsContainer');
+            const totalBlock = document.getElementById('cartTotalBlock');
+            if (cart.length === 0) {
+                container.innerHTML = '<p>Корзина пуста</p>';
+                totalBlock.innerHTML = '';
+                return;
+            }
+            let total = 0;
+            container.innerHTML = cart.map(item => {
+                const p = getProductById(item.productId);
+                if (!p) return '';
+                const sub = p.price * item.qty;
+                total += sub;
+                return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-light);">
+                        <div>
+                            <strong>${p.name}</strong>
+                            <div style="color:var(--accent);">₽${p.price} × ${item.qty} = ₽${sub}</div>
+                        </div>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button class="btn" style="padding:4px 10px;" onclick="changeQty(${item.productId}, -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="btn" style="padding:4px 10px;" onclick="changeQty(${item.productId}, 1)">+</button>
+                            <i class="fas fa-trash" style="color:#ef4444; cursor:pointer; margin-left:6px;" onclick="removeFromCart(${item.productId})"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            totalBlock.innerHTML = `<span>Итого:</span><span>₽${total}</span>`;
+        }
+
         document.getElementById('cartBtn').addEventListener('click', () => {
             renderCartModal();
             document.getElementById('cartModal').classList.add('active');
@@ -826,13 +856,11 @@
         function sendOrderTo(messenger) {
             const text = encodeURIComponent(generateOrderText());
             let url = '';
-
             if (messenger === 'whatsapp') {
                 url = `https://wa.me/79385401876?text=${text}`;
             } else if (messenger === 'telegram') {
                 url = `https://t.me/Loikov_2?text=${text}`;
             }
-
             if (url) {
                 window.open(url, '_blank');
                 cart = [];
@@ -851,118 +879,21 @@
             if (e.target.classList.contains('modal')) e.target.classList.remove('active');
         });
 
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.textContent = msg;
-            t.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--accent); color:white; padding:12px 28px; border-radius:40px; font-weight:600; z-index:300; box-shadow:0 10px 25px rgba(0,0,0,0.2);';
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2000);
+        // ------------------- AUTH -------------------
+        function saveProfile(uid, data) {
+            localStorage.setItem(PROFILE_PREFIX + uid, JSON.stringify(data));
+        }
+        function loadProfile(uid) {
+            const raw = localStorage.getItem(PROFILE_PREFIX + uid);
+            return raw ? JSON.parse(raw) : {};
         }
 
-        const lightBtn = document.getElementById('lightThemeBtn');
-        const darkBtn = document.getElementById('darkThemeBtn');
-        function setTheme(t) {
-            if (t === 'light') {
-                document.body.classList.remove('dark');
-                lightBtn.classList.add('active');
-                darkBtn.classList.remove('active');
-                localStorage.setItem('fullseller_theme', 'light');
-            } else {
-                document.body.classList.add('dark');
-                darkBtn.classList.add('active');
-                lightBtn.classList.remove('active');
-                localStorage.setItem('fullseller_theme', 'dark');
-            }
-        }
-        lightBtn.addEventListener('click', () => setTheme('light'));
-        darkBtn.addEventListener('click', () => setTheme('dark'));
-        // ГЛАВНОЕ ИЗМЕНЕНИЕ: по умолчанию светлая тема
-        setTheme(localStorage.getItem('fullseller_theme') || 'light');
-
-        document.getElementById('burgerBtn').addEventListener('click', () => {
-            document.getElementById('mainNav').classList.toggle('active');
-        });
-
-        const USERS_KEY = 'fullseller_users';
-        const SESSION_KEY = 'fullseller_session';
-        let currentUser = null;
-
-        function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; }
-        function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
-        function loginEmail(email, password) {
-            const users = getUsers();
-            const user = users.find(u => u.email === email && u.password === password);
-            if (user) {
-                localStorage.setItem(SESSION_KEY, JSON.stringify({ email: user.email, name: user.name, phone: user.phone || '' }));
-                currentUser = { name: user.name, email: user.email, phone: user.phone || '' };
-                updateAuthUI();
-                closeAuthModal();
-                return true;
-            }
-            return false;
-        }
-        function registerEmail(name, email, password) {
-            const users = getUsers();
-            if (users.find(u => u.email === email)) return false;
-            const newUser = { name, email, password, phone: '' };
-            users.push(newUser);
-            saveUsers(users);
-            localStorage.setItem(SESSION_KEY, JSON.stringify({ email, name, phone: '' }));
-            currentUser = { name, email, phone: '' };
-            updateAuthUI();
-            closeAuthModal();
-            return true;
-        }
-        function loginPhone(phone, code) {
-            if (code !== '1234') return false;
-            const users = getUsers();
-            const user = users.find(u => u.phone === phone);
-            if (user) {
-                localStorage.setItem(SESSION_KEY, JSON.stringify({ phone: user.phone, name: user.name, email: user.email || '' }));
-                currentUser = { name: user.name, phone: user.phone, email: user.email || '' };
-                updateAuthUI();
-                closeAuthModal();
-                return true;
-            }
-            return false;
-        }
-        function registerPhone(name, phone, code) {
-            if (code !== '1234') return false;
-            const users = getUsers();
-            if (users.find(u => u.phone === phone)) return false;
-            const newUser = { name, phone, email: '', password: '' };
-            users.push(newUser);
-            saveUsers(users);
-            localStorage.setItem(SESSION_KEY, JSON.stringify({ phone, name, email: '' }));
-            currentUser = { name, phone, email: '' };
-            updateAuthUI();
-            closeAuthModal();
-            return true;
-        }
-        function logout() {
-            localStorage.removeItem(SESSION_KEY);
-            currentUser = null;
-            updateAuthUI();
-        }
-        function checkAuthOnLoad() {
-            const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-            if (session && (session.email || session.phone)) {
-                const users = getUsers();
-                const user = users.find(u => 
-                    (session.email && u.email === session.email) || 
-                    (session.phone && u.phone === session.phone)
-                );
-                if (user) currentUser = { name: user.name, email: user.email || '', phone: user.phone || '' };
-                else localStorage.removeItem(SESSION_KEY);
-            }
-            updateAuthUI();
-        }
         function updateAuthUI() {
             const statusDiv = document.getElementById('userStatus');
             const reviewForm = document.getElementById('reviewFormWrapper');
             const loginPrompt = document.getElementById('loginPrompt');
             if (currentUser) {
-                statusDiv.innerHTML = `<span style="margin-right:8px; font-weight:600;">${currentUser.name}</span><button class="login-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</button>`;
+                statusDiv.innerHTML = `<span style="margin-right:8px; font-weight:600;">${currentUser.name || currentUser.email}</span><button class="login-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</button>`;
                 document.getElementById('logoutBtn').addEventListener('click', logout);
                 reviewForm.style.display = 'block';
                 loginPrompt.style.display = 'none';
@@ -974,9 +905,17 @@
             }
         }
 
-        const authModal = document.getElementById('authModal');
-        function openAuthModal() { authModal.classList.add('active'); resetModalToEmailLogin(); }
-        function closeAuthModal() { authModal.classList.remove('active'); }
+        function logout() {
+            auth.signOut();
+            currentUser = null;
+            updateAuthUI();
+        }
+
+        function openAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+            resetModalToEmailLogin();
+        }
+        function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
         function resetModalToEmailLogin() {
             document.getElementById('emailForms').style.display = 'block';
             document.getElementById('phoneForms').style.display = 'none';
@@ -986,24 +925,66 @@
             document.getElementById('registerFormEmail').style.display = 'none';
             document.getElementById('loginPhoneForm').style.display = 'block';
             document.getElementById('registerPhoneForm').style.display = 'none';
+            document.getElementById('loginError').innerText = '';
+            document.getElementById('registerError').innerText = '';
         }
 
-        document.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.auth-tab').forEach(t => { t.classList.remove('active'); t.style.background = 'var(--bg-primary)'; t.style.color = 'var(--text-primary)'; });
-                this.classList.add('active');
-                this.style.background = 'var(--accent)';
-                this.style.color = 'white';
-                if (this.dataset.tab === 'email') {
-                    document.getElementById('emailForms').style.display = 'block';
-                    document.getElementById('phoneForms').style.display = 'none';
-                } else {
-                    document.getElementById('emailForms').style.display = 'none';
-                    document.getElementById('phoneForms').style.display = 'block';
-                }
-            });
+        // Firebase Email Auth
+        document.getElementById('loginSubmit').addEventListener('click', async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            document.getElementById('loginError').innerText = '';
+            if (!email || !password) {
+                document.getElementById('loginError').innerText = 'Заполните все поля';
+                return;
+            }
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+            } catch (err) {
+                document.getElementById('loginError').innerText = err.message;
+            }
         });
 
+        document.getElementById('registerSubmitEmail').addEventListener('click', async () => {
+            const name = document.getElementById('regNameEmail').value.trim();
+            const email = document.getElementById('regEmailEmail').value.trim();
+            const password = document.getElementById('regPasswordEmail').value;
+            document.getElementById('registerError').innerText = '';
+            if (!name || !email || !password) {
+                document.getElementById('registerError').innerText = 'Заполните все поля';
+                return;
+            }
+            if (password.length < 6) {
+                document.getElementById('registerError').innerText = 'Пароль должен содержать минимум 6 символов';
+                return;
+            }
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                saveProfile(cred.user.uid, { name, phone: '' });
+                closeAuthModal();
+            } catch (err) {
+                document.getElementById('registerError').innerText = err.message;
+            }
+        });
+
+        // Слушатель состояния Firebase
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                const profile = loadProfile(user.uid);
+                currentUser = {
+                    uid: user.uid,
+                    email: user.email,
+                    name: profile.name || '',
+                    phone: profile.phone || ''
+                };
+            } else {
+                currentUser = null;
+            }
+            updateAuthUI();
+        });
+
+        // Переключатели форм
         document.getElementById('switchToRegisterEmail').addEventListener('click', () => {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerFormEmail').style.display = 'block';
@@ -1012,22 +993,8 @@
             document.getElementById('registerFormEmail').style.display = 'none';
             document.getElementById('loginForm').style.display = 'block';
         });
-        document.getElementById('loginSubmit').addEventListener('click', () => {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            if (!email || !password) return alert('Заполните все поля');
-            if (loginEmail(email, password)) alert('Добро пожаловать!');
-            else alert('Неверный email или пароль');
-        });
-        document.getElementById('registerSubmitEmail').addEventListener('click', () => {
-            const name = document.getElementById('regNameEmail').value.trim();
-            const email = document.getElementById('regEmailEmail').value.trim();
-            const password = document.getElementById('regPasswordEmail').value;
-            if (!name || !email || !password) return alert('Заполните все поля');
-            if (registerEmail(name, email, password)) alert('Регистрация успешна!');
-            else alert('Пользователь с таким email уже существует');
-        });
 
+        // Телефонная имитация (мок)
         document.getElementById('switchToRegisterPhone').addEventListener('click', () => {
             document.getElementById('loginPhoneForm').style.display = 'none';
             document.getElementById('registerPhoneForm').style.display = 'block';
@@ -1051,23 +1018,55 @@
             const phone = document.getElementById('loginPhone').value.trim();
             const code = document.getElementById('loginCode').value.trim();
             if (!phone || !code) return alert('Введите номер и код');
-            if (loginPhone(phone, code)) alert('Добро пожаловать!');
-            else alert('Неверный номер или код');
+            if (code !== '1234') return alert('Неверный код');
+            const users = JSON.parse(localStorage.getItem('fullseller_phone_users') || '[]');
+            const user = users.find(u => u.phone === phone);
+            if (user) {
+                currentUser = { uid: 'phone_'+phone, email: '', name: user.name, phone: user.phone };
+                updateAuthUI();
+                closeAuthModal();
+                showToast('Добро пожаловать!');
+            } else {
+                alert('Пользователь не найден');
+            }
         });
         document.getElementById('registerSubmitPhone').addEventListener('click', () => {
             const name = document.getElementById('regNamePhone').value.trim();
             const phone = document.getElementById('regPhonePhone').value.trim();
             const code = document.getElementById('regCodePhone').value.trim();
             if (!name || !phone || !code) return alert('Заполните все поля');
-            if (registerPhone(name, phone, code)) alert('Регистрация успешна!');
-            else alert('Пользователь с таким номером уже существует или неверный код');
+            if (code !== '1234') return alert('Неверный код');
+            const users = JSON.parse(localStorage.getItem('fullseller_phone_users') || '[]');
+            if (users.find(u => u.phone === phone)) return alert('Номер уже занят');
+            users.push({ name, phone });
+            localStorage.setItem('fullseller_phone_users', JSON.stringify(users));
+            currentUser = { uid: 'phone_'+phone, email: '', name, phone };
+            updateAuthUI();
+            closeAuthModal();
+            showToast('Регистрация успешна!');
         });
+
         document.getElementById('closeAuthModal').addEventListener('click', closeAuthModal);
         document.getElementById('loginToReview').addEventListener('click', openAuthModal);
 
-        const REVIEWS_KEY = 'fullseller_reviews';
-        let selectedRating = 0;
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.auth-tab').forEach(t => { t.classList.remove('active'); t.style.background = 'var(--bg-primary)'; t.style.color = 'var(--text-primary)'; });
+                this.classList.add('active');
+                this.style.background = 'var(--accent)';
+                this.style.color = 'white';
+                if (this.dataset.tab === 'email') {
+                    document.getElementById('emailForms').style.display = 'block';
+                    document.getElementById('phoneForms').style.display = 'none';
+                } else {
+                    document.getElementById('emailForms').style.display = 'none';
+                    document.getElementById('phoneForms').style.display = 'block';
+                }
+            });
+        });
 
+        // ------------------- REVIEWS -------------------
+        let selectedRating = 0;
         function getReviews() { return JSON.parse(localStorage.getItem(REVIEWS_KEY)) || []; }
         function saveReview(review) {
             const reviews = getReviews();
@@ -1077,17 +1076,15 @@
         }
         function renderReviews() {
             const container = document.getElementById('reviewsContainer');
-            let reviews = getReviews();
+            const reviews = getReviews();
             if (reviews.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Пока нет отзывов.</p>';
                 return;
             }
             container.innerHTML = reviews.map(r => {
-                const fullStars = Math.floor(r.rating);
-                const halfStar = r.rating % 1 >= 0.5;
                 let starsHtml = '';
-                for (let i = 0; i < fullStars; i++) starsHtml += '<i class="fas fa-star"></i>';
-                if (halfStar) starsHtml += '<i class="fas fa-star-half-alt"></i>';
+                for (let i = 0; i < Math.floor(r.rating); i++) starsHtml += '<i class="fas fa-star"></i>';
+                if (r.rating % 1 >= 0.5) starsHtml += '<i class="fas fa-star-half-alt"></i>';
                 return `
                     <div class="review-item">
                         <div class="review-author">${r.name}</div>
@@ -1144,9 +1141,7 @@
                 return;
             }
             saveReview({
-                name: currentUser.name,
-                email: currentUser.email,
-                phone: currentUser.phone,
+                name: currentUser.name || currentUser.email,
                 rating: selectedRating,
                 comment: text,
                 date: Date.now()
@@ -1157,41 +1152,35 @@
             document.getElementById('reviewError').innerText = '';
         });
 
+        // ------------------- THEME -------------------
+        const lightBtn = document.getElementById('lightThemeBtn');
+        const darkBtn = document.getElementById('darkThemeBtn');
+        function setTheme(t) {
+            if (t === 'light') {
+                document.body.classList.remove('dark');
+                lightBtn.classList.add('active');
+                darkBtn.classList.remove('active');
+                localStorage.setItem('fullseller_theme', 'light');
+            } else {
+                document.body.classList.add('dark');
+                darkBtn.classList.add('active');
+                lightBtn.classList.remove('active');
+                localStorage.setItem('fullseller_theme', 'dark');
+            }
+        }
+        lightBtn.addEventListener('click', () => setTheme('light'));
+        darkBtn.addEventListener('click', () => setTheme('dark'));
+        setTheme(localStorage.getItem('fullseller_theme') || 'light');
+
+        document.getElementById('burgerBtn').addEventListener('click', () => {
+            document.getElementById('mainNav').classList.toggle('active');
+        });
+
+        // ------------------- INIT -------------------
         initDefaultReviews();
-        checkAuthOnLoad();
         updateCartUI();
         renderCatalog();
         renderReviews();
     </script>
-
-<script type="module">
-  import { initializeApp } from "https://gstatic.com";
-  import { getAuth, createUserWithEmailAndPassword } from "https://gstatic.com";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBhiwkLtTbPHfhKx5ePR9mtxNzvN4C5-dw",
-    authDomain: "://firebaseapp.com",
-    projectId: "full-seller",
-    storageBucket: "://appspot.com",
-    messagingSenderId: "858609506770",
-    appId: "1:858609506770:web:b83498774cfe14f1cbd08b"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  document.getElementById('btnSignUp').addEventListener('click', async () => {
-    const email = document.getElementById('userEmail').value;
-    const pass = document.getElementById('userPass').value;
-    try {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      alert("УРА! РЕГИСТРАЦИЯ ПРОШЛА!");
-    } catch (e) {
-      alert("Ошибка: " + e.message);
-    }
-  });
-</script>
-
-
 </body>
 </html>
