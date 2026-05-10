@@ -195,7 +195,7 @@
         }
 
         .product-image {
-            height: 250px;  /* Уменьшена высота с 340px */
+            height: 250px;
             background: linear-gradient(145deg, #f3e8d2, #e9d6b0);
             display: flex;
             align-items: center;
@@ -451,7 +451,7 @@
             }
 
             .product-image {
-                height: 180px;  /* Уменьшена высота для мобильных с 220px */
+                height: 180px;
             }
 
             .product-body {
@@ -569,7 +569,7 @@
             </div>
             <div class="controls">
                 <button class="theme-btn" id="lightThemeBtn" title="Светлая тема"><i class="fas fa-sun"></i></button>
-                <button class="theme-btn active" id="darkThemeBtn" title="Тёмная тема"><i class="fas fa-moon"></i></button>
+                <button class="theme-btn" id="darkThemeBtn" title="Тёмная тема"><i class="fas fa-moon"></i></button>
                 <button class="cart-btn" id="cartBtn">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cartCount">0</span>
@@ -823,28 +823,25 @@
             return text;
         }
 
-      function sendOrderTo(messenger) {
-    const text = encodeURIComponent(generateOrderText());
-    let url = '';
+        function sendOrderTo(messenger) {
+            const text = encodeURIComponent(generateOrderText());
+            let url = '';
 
-    if (messenger === 'whatsapp') {
-        // Добавлен ваш номер: 79385401876
-        url = `https://wa.me{79385401876}`;
-    } else if (messenger === 'telegram') {
-        // Ссылка на ваш профиль: Loikov_2
-        url = `https://t.me{@Loikov_2}`;
-    }
+            if (messenger === 'whatsapp') {
+                url = `https://wa.me/79385401876?text=${text}`;
+            } else if (messenger === 'telegram') {
+                url = `https://t.me/Loikov_2?text=${text}`;
+            }
 
-    if (url) {
-        window.open(url, '_blank');
-        cart = [];
-        saveCart();
-        updateCartUI();
-        closeModal('orderModal');
-        showToast('Заказ отправлен! Корзина очищена.');
-    }
-}
-
+            if (url) {
+                window.open(url, '_blank');
+                cart = [];
+                saveCart();
+                updateCartUI();
+                closeModal('orderModal');
+                showToast('Заказ отправлен! Корзина очищена.');
+            }
+        }
 
         document.getElementById('sendWhatsApp').addEventListener('click', () => sendOrderTo('whatsapp'));
         document.getElementById('sendTelegram').addEventListener('click', () => sendOrderTo('telegram'));
@@ -879,7 +876,8 @@
         }
         lightBtn.addEventListener('click', () => setTheme('light'));
         darkBtn.addEventListener('click', () => setTheme('dark'));
-        setTheme(localStorage.getItem('fullseller_theme') || 'dark');
+        // ГЛАВНОЕ ИЗМЕНЕНИЕ: по умолчанию светлая тема
+        setTheme(localStorage.getItem('fullseller_theme') || 'light');
 
         document.getElementById('burgerBtn').addEventListener('click', () => {
             document.getElementById('mainNav').classList.toggle('active');
