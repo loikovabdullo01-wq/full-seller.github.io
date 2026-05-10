@@ -9,6 +9,8 @@
     <!-- Firebase Compat (версия 12.13.0) -->
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-auth-compat.js"></script>
+    <!-- Добавлен Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -161,6 +163,63 @@
             pointer-events: none;
         }
 
+        /* Выпадающее меню пользователя */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-dropdown-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            padding: 8px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            transition: 0.2s;
+        }
+
+        .user-dropdown-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .user-dropdown-menu {
+            position: absolute;
+            top: 110%;
+            right: 0;
+            background: var(--modal-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            min-width: 180px;
+            padding: 8px 0;
+            display: none;
+            z-index: 50;
+        }
+
+        .user-dropdown-menu.active {
+            display: block;
+        }
+
+        .user-dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .user-dropdown-menu a:hover {
+            background: var(--icon-bg);
+            color: var(--accent);
+        }
+
         .page-title {
             font-size: 2.2rem;
             font-weight: 700;
@@ -220,6 +279,7 @@
         .dark .product-image {
             background: linear-gradient(145deg, #2d3a4e, #1e293b);
         }
+
         .dark .product-image img {
             background: #ffffff;
         }
@@ -298,9 +358,11 @@
             font-size: 1.8rem;
             transition: 0.2s;
         }
+
         .stars i.active, .stars i:hover {
             color: #f59e0b;
         }
+
         .review-item {
             background: var(--card-bg);
             border-radius: 16px;
@@ -308,10 +370,12 @@
             margin: 16px 0;
             border: 1px solid var(--border-light);
         }
+
         .review-item .review-rating i {
             color: #f59e0b;
             margin-right: 4px;
         }
+
         .review-item .review-author {
             font-weight: 700;
         }
@@ -329,9 +393,11 @@
             justify-content: center;
             padding: 20px;
         }
+
         .modal.active {
             display: flex;
         }
+
         .modal-content {
             background: var(--modal-bg);
             border-radius: 24px;
@@ -344,6 +410,7 @@
             border: 1px solid var(--border-light);
             position: relative;
         }
+
         .modal-close {
             position: absolute;
             top: 12px;
@@ -353,6 +420,7 @@
             color: var(--text-secondary);
             transition: 0.2s;
         }
+
         .modal-close:hover {
             color: var(--accent);
         }
@@ -368,6 +436,7 @@
             font-size: 6rem;
             margin-bottom: 20px;
         }
+
         .product-detail-img img {
             width: 100%;
             height: 100%;
@@ -375,30 +444,36 @@
             background: white;
             border-radius: 20px;
         }
+
         .dark .product-detail-img {
             background: linear-gradient(145deg, #2d3a4e, #1e293b);
         }
+
         .detail-name {
             font-size: 1.8rem;
             font-weight: 700;
         }
+
         .detail-price {
             font-size: 2rem;
             font-weight: 800;
             color: var(--accent);
             margin: 12px 0;
         }
+
         .detail-desc {
             color: var(--text-secondary);
             margin-bottom: 20px;
             line-height: 1.6;
         }
+
         .add-to-cart-block {
             display: flex;
             gap: 12px;
             align-items: center;
             flex-wrap: wrap;
         }
+
         .qty-input {
             width: 60px;
             padding: 8px;
@@ -417,6 +492,92 @@
             justify-content: space-between;
         }
 
+        /* ---------- ИНФОРМАЦИОННАЯ ПАНЕЛЬ (ОПТ) ---------- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-card h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-card li {
+            margin-bottom: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .info-card li i {
+            color: var(--accent);
+            min-width: 18px;
+            margin-top: 3px;
+        }
+
+        .info-card .important {
+            background: var(--icon-bg);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-top: 16px;
+            color: var(--accent);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-highlight {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 6px 0;
+        }
+
+        /* Админ-панель */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .admin-table th, .admin-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-light);
+            text-align: left;
+        }
+
+        .admin-table th {
+            background: var(--bg-secondary);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 0 4px;
@@ -425,6 +586,7 @@
             .header-flex {
                 position: relative;
             }
+
             .nav-links {
                 display: none;
                 position: absolute;
@@ -440,9 +602,11 @@
                 gap: 16px;
                 z-index: 150;
             }
+
             .nav-links.active {
                 display: flex;
             }
+
             .burger-btn {
                 display: flex;
             }
@@ -478,18 +642,25 @@
                 padding: 8px 12px;
                 font-size: 0.8rem;
             }
+
             .btn-outline {
                 padding: 8px 12px;
                 font-size: 0.8rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Модальное окно товара -->
     <div class="modal" id="productModal">
         <div class="modal-content" id="productDetailContent"></div>
     </div>
 
+    <!-- Корзина -->
     <div class="modal" id="cartModal">
         <div class="modal-content">
             <span class="modal-close" id="closeCartModal">&times;</span>
@@ -500,6 +671,7 @@
         </div>
     </div>
 
+    <!-- Оформление заказа -->
     <div class="modal" id="orderModal">
         <div class="modal-content">
             <span class="modal-close" id="closeOrderModal">&times;</span>
@@ -513,6 +685,7 @@
         </div>
     </div>
 
+    <!-- Окно авторизации -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <span class="modal-close" id="closeAuthModal">&times;</span>
@@ -534,12 +707,13 @@
                     <input type="text" id="regNameEmail" placeholder="Ваше имя" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <input type="email" id="regEmailEmail" placeholder="Email" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <input type="password" id="regPasswordEmail" placeholder="Пароль (мин. 6 символов)" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                    <input type="date" id="regBirthdateEmail" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <button class="btn" id="registerSubmitEmail" style="width:100%; margin-top:8px;">Зарегистрироваться</button>
                     <div id="registerError" style="color:#e53e3e; margin-top:8px; text-align:center;"></div>
                     <div class="toggle-link" id="switchToLoginEmail" style="text-align:center; margin-top:12px; color:var(--accent); cursor:pointer;">Уже есть аккаунт? Войти</div>
                 </div>
             </div>
-            <!-- Телефонный блок оставлен как мок -->
+            <!-- Телефонный блок -->
             <div id="phoneForms" style="display:none;">
                 <div id="loginPhoneForm">
                     <h4>Вход по номеру</h4>
@@ -553,6 +727,7 @@
                     <h4>Регистрация по телефону</h4>
                     <input type="text" id="regNamePhone" placeholder="Ваше имя" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <input type="tel" id="regPhonePhone" placeholder="+7XXXXXXXXXX" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                    <input type="date" id="regBirthdatePhone" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <button class="btn" id="getCodeRegisterBtn" style="width:100%;">Получить код</button>
                     <input type="text" id="regCodePhone" placeholder="Код 1234" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
                     <button class="btn" id="registerSubmitPhone" style="width:100%;">Зарегистрироваться</button>
@@ -562,14 +737,58 @@
         </div>
     </div>
 
+    <!-- Личный кабинет -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeProfileModal">&times;</span>
+            <h3>Личный кабинет</h3>
+            <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">
+                <label>Имя</label>
+                <input type="text" id="profileName" style="padding:10px; border-radius:12px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                <label>Телефон</label>
+                <input type="tel" id="profilePhone" placeholder="+7XXXXXXXXXX" style="padding:10px; border-radius:12px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                <label>Дата рождения</label>
+                <input type="date" id="profileBirthdate" style="padding:10px; border-radius:12px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                <label>Email (нельзя изменить)</label>
+                <input type="email" id="profileEmail" disabled style="padding:10px; border-radius:12px; border:1px solid var(--border-light); background:var(--bg-secondary); color:var(--text-secondary);">
+                <button class="btn" id="saveProfileBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Админ-панель -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content" style="max-width:700px;">
+            <span class="modal-close" id="closeAdminModal">&times;</span>
+            <h3>Админ-панель</h3>
+            <div style="margin-top:20px;">
+                <h4>Добавить товар</h4>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+                    <input type="text" id="adminName" placeholder="Название" style="padding:8px; border-radius:8px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                    <input type="number" id="adminPrice" placeholder="Цена (₽)" style="padding:8px; border-radius:8px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                    <input type="text" id="adminMaterial" placeholder="Материал" style="padding:8px; border-radius:8px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                    <input type="text" id="adminSize" placeholder="Размеры" style="padding:8px; border-radius:8px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+                    <input type="text" id="adminImageUrl" placeholder="URL картинки" style="padding:8px; border-radius:8px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); grid-column: span 2;">
+                    <textarea id="adminDesc" placeholder="Описание" rows="2" style="padding:8px; border-radius:8px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); grid-column: span 2;"></textarea>
+                </div>
+                <button class="btn" id="addProductBtn">Добавить</button>
+            </div>
+            <hr style="margin:24px 0; border-color:var(--border-light);">
+            <h4>Список товаров (Firebase)</h4>
+            <div id="adminProductList" style="overflow-x:auto;"></div>
+        </div>
+    </div>
+
     <header>
         <div class="container header-flex">
             <div class="logo">FULL SELLER</div>
             <button class="burger-btn" id="burgerBtn"><i class="fas fa-bars"></i></button>
             <div class="nav-links" id="mainNav">
                 <a href="#catalog">Каталог</a>
+                <a href="#wholesale">Условия</a>
                 <a href="#reviews">Отзывы</a>
                 <a href="#contact">Контакты</a>
+                <a href="#" id="adminNavLink" style="display:none;">Админ</a>
             </div>
             <div class="controls">
                 <button class="theme-btn" id="lightThemeBtn" title="Светлая тема"><i class="fas fa-sun"></i></button>
@@ -589,6 +808,48 @@
         <h1 class="page-title" id="catalog">Каталог носков</h1>
         <p class="subtitle">Выберите стиль и комфорт на каждый день</p>
         <div class="catalog-grid" id="catalogGrid"></div>
+
+        <!-- ========== ИНФОРМАЦИОННАЯ ПАНЕЛЬ ========== -->
+        <section id="wholesale" style="margin: 60px 0;">
+            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 32px; text-align: center;">💼 Оптовые условия и доставка</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3><i class="fas fa-tags"></i> Цена и условия</h3>
+                    <ul>
+                        <li><i class="fas fa-coins"></i><strong>Оптовая цена:</strong> <span class="price-highlight">11 ₽/пара</span></li>
+                        <li><i class="fas fa-boxes"></i><strong>Минимальный заказ:</strong> от 5 000 пар</li>
+                        <li><i class="fas fa-truck"></i><strong>Доставка по РФ</strong> — 7–10 дней</li>
+                        <li><i class="fas fa-truck"></i><strong>Доставка в Таджикистан</strong> — 3–4 дня</li>
+                        <li><i class="fas fa-money-check-alt"></i>Доставку оплачивает клиент отдельно</li>
+                    </ul>
+                    <div class="important"><i class="fas fa-fire"></i> Товар проверен, клиенты уже есть. Работаем в долгую.</div>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-socks"></i> О товаре</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i>Мужские носки брендов: <strong>Nike, Adidas, Puma, Fila</strong></li>
+                        <li><i class="fas fa-layer-group"></i>Сегмент: средний</li>
+                        <li><i class="fas fa-flask"></i>Материал: синтетика + спандекс</li>
+                        <li><i class="fas fa-expand-arrows-alt"></i>Хорошо тянутся, удобные</li>
+                        <li><i class="fas fa-running"></i>Назначение: повседневная носка и спорт</li>
+                        <li><i class="fas fa-palette"></i>Цвета: чёрные, белые, разноцветные</li>
+                        <li><i class="fas fa-gift"></i>Упаковка: аккуратная, для перепродажи</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-shipping-fast"></i> Доставка (карго)</h3>
+                    <ul>
+                        <li><i class="fas fa-box"></i>Отправляем через проверенные карго</li>
+                        <li><i class="fas fa-flag"></i><strong>Таджикистан:</strong> 7 сомони/кг<br><small>➔ Душанбе, бозори Корвон</small></li>
+                        <li><i class="fas fa-flag"></i><strong>Россия:</strong> 1.30 $/кг<br><small>➔ Москва</small></li>
+                        <li><i class="fas fa-weight"></i>Вес: оплата по фактическому весу, мин. 24 г/пара</li>
+                        <li><i class="fas fa-clock"></i>Отправка после оплаты, с инфо по грузу</li>
+                    </ul>
+                    <div class="important"><i class="fas fa-exclamation-circle"></i> Цена доставки может меняться от курса $ и сезона. Карго оплачивается отдельно.</div>
+                </div>
+            </div>
+        </section>
+        <!-- ========== КОНЕЦ ПАНЕЛИ ========== -->
 
         <section id="reviews" style="margin-top: 60px;">
             <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 32px; text-align: center;">Отзывы клиентов</h2>
@@ -623,7 +884,7 @@
 
     <footer style="background:var(--bg-secondary); padding:24px 0; text-align:center; border-top:1px solid var(--border-light);">
         <div class="container">
-            <p>&copy; 2025 FULL SELLER — Интернет-магазин носков</p>
+            <p>&copy; 2026 FULL SELLER — Интернет-магазин носков</p>
         </div>
     </footer>
 
@@ -639,30 +900,36 @@
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        // ------------------- GLOBAL STATE -------------------
-        const PRODUCTS = [
-            { id: 1, name: "Adidas спортивные", price: 899, desc: "Оригинальные носки Adidas, дышащий хлопок.", imageUrl: "5.jpg", material: "Хлопок 78%, полиэстер", size: "39-45" },
-            { id: 2, name: "Reebok повседневные", price: 749, desc: "Мягкие носки Reebok на каждый день.", imageUrl: "4.jpg", material: "Хлопок 80%", size: "39-46" },
-            { id: 3, name: "Ralph Lauren Polo", price: 1299, desc: "Элегантные носки Ralph Lauren, премиум качество.", imageUrl: "7.jpg", material: "Мерсеризованный хлопок", size: "39-45" },
-            { id: 4, name: "Nike Dri-FIT", price: 999, desc: "Спортивные носки Nike с технологией отвода влаги.", imageUrl: "8.jpg", material: "Полиэстер 97%", size: "38-44" },
-            { id: 5, name: "Puma комфорт", price: 799, desc: "Носки Puma с усиленной пяткой и мыском.", imageUrl: "9.jpg", material: "Хлопок 75%, полиамид", size: "39-46" },
-            { id: 6, name: "Спортивные носки", price: 120, desc: "Дышащий хлопок, усиленная пятка и мысок.", icon: "fa-socks", imageUrl: "10.jpg", material: "Хлопок 80%, полиэстер 20%", size: "39-45" },
-            { id: 7, name: "Классические чёрные", price: 95, desc: "Элегантные носки для офиса и встреч.", icon: "fa-socks", imageUrl: "11.avif", material: "Мерсеризованный хлопок", size: "39-46" },
-            { id: 8, name: "Детские яркие", price: 75, desc: "Мягкие, с весёлым принтом, гипоаллергенные.", icon: "fa-socks", imageUrl: "12.webp", material: "Хлопок 90%", size: "22-35" }
+        // ------------------- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ -------------------
+        const ADMIN_EMAIL = "fullselleradmin@gmail.com";  // ← замените на свою почту администратора
+
+        // Старые карточки товаров (НЕ УДАЛЕНЫ)
+        const STATIC_PRODUCTS = [
+            { id: 'static1', name: "Adidas спортивные", price: 11, desc: "Оригинальные носки Adidas, дышащий хлопок.", imageUrl: "5.jpg", material: "Хлопок 78%, полиэстер", size: "39-45" },
+            { id: 'static2', name: "Reebok повседневные", price: 11, desc: "Мягкие носки Reebok на каждый день.", imageUrl: "4.jpg", material: "Хлопок 80%", size: "39-46" },
+            { id: 'static3', name: "Ralph Lauren Polo", price: 11, desc: "Элегантные носки Ralph Lauren, премиум качество.", imageUrl: "7.jpg", material: "Мерсеризованный хлопок", size: "39-45" },
+            { id: 'static4', name: "Nike Dri-FIT", price: 11, desc: "Спортивные носки Nike с технологией отвода влаги.", imageUrl: "8.jpg", material: "Полиэстер 97%", size: "38-44" },
+            { id: 'static5', name: "Puma комфорт", price: 11, desc: "Носки Puma с усиленной пяткой и мыском.", imageUrl: "9.jpg", material: "Хлопок 75%, полиамид", size: "39-46" },
+            { id: 'static6', name: "Спортивные носки", price: 11, desc: "Дышащий хлопок, усиленная пятка и мысок.", icon: "fa-socks", imageUrl: "10.jpg", material: "Хлопок 80%, полиэстер 20%", size: "39-45" },
+            { id: 'static7', name: "Классические чёрные", price: 11, desc: "Элегантные носки для офиса и встреч.", icon: "fa-socks", imageUrl: "11.avif", material: "Мерсеризованный хлопок", size: "39-46" },
+            { id: 'static8', name: "Детские яркие", price: 11, desc: "Мягкие, с весёлым принтом, гипоаллергенные.", icon: "fa-socks", imageUrl: "12.webp", material: "Хлопок 90%", size: "22-35" }
         ];
 
         const CART_KEY = 'fullseller_cart';
-        const REVIEWS_KEY = 'fullseller_reviews';
         const PROFILE_PREFIX = 'fullseller_profile_';
 
         let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
         let currentUser = null;
-        let showAllReviews = false; // управляет режимом отображения всех отзывов
+        let showAllReviews = false;
+        let allReviews = [];
+        let firestoreProducts = [];        // товары из Firebase
+        let allProducts = [...STATIC_PRODUCTS];
 
-        // ------------------- HELPERS -------------------
+        // ------------------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ -------------------
         function saveCart() { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
-        function getProductById(id) { return PRODUCTS.find(p => p.id === id); }
+
         function updateCartUI() {
             const total = cart.reduce((sum, i) => sum + i.qty, 0);
             document.getElementById('cartCount').textContent = total;
@@ -671,12 +938,16 @@
         function showToast(msg) {
             const t = document.createElement('div');
             t.textContent = msg;
-            t.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--accent); color:white; padding:12px 28px; border-radius:40px; font-weight:600; z-index:300; box-shadow:0 10px 25px rgba(0,0,0,0.2);';
+            t.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--accent); color:white; padding:12px 28px; border-radius:40px; font-weight:600; z-index:300;';
             document.body.appendChild(t);
             setTimeout(() => t.remove(), 2000);
         }
 
-        // ------------------- CART -------------------
+        function getProductById(id) {
+            return allProducts.find(p => p.id === id);
+        }
+
+        // ------------------- КОРЗИНА -------------------
         function addToCart(productId, qty = 1) {
             const existing = cart.find(i => i.productId === productId);
             if (existing) existing.qty += qty;
@@ -705,10 +976,10 @@
             }
         }
 
-        // ------------------- UI RENDER -------------------
+        // ------------------- ОТОБРАЖЕНИЕ КАТАЛОГА -------------------
         function renderCatalog() {
             const grid = document.getElementById('catalogGrid');
-            grid.innerHTML = PRODUCTS.map(p => {
+            grid.innerHTML = allProducts.map(p => {
                 const imgContent = p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" loading="lazy">` : `<i class="fas ${p.icon || 'fa-socks'}"></i>`;
                 return `
                     <div class="product-card">
@@ -729,14 +1000,14 @@
             document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    addToCart(parseInt(btn.dataset.id), 1);
+                    addToCart(btn.dataset.id, 1);
                     showToast('Товар добавлен');
                 });
             });
 
             document.querySelectorAll('.detail-btn, .product-image').forEach(el => {
                 el.addEventListener('click', () => {
-                    openProductModal(parseInt(el.dataset.id));
+                    openProductModal(el.dataset.id);
                 });
             });
         }
@@ -772,6 +1043,7 @@
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+        // ------------------- МОДАЛЬНОЕ ОКНО КОРЗИНЫ -------------------
         function renderCartModal() {
             const container = document.getElementById('cartItemsContainer');
             const totalBlock = document.getElementById('cartTotalBlock');
@@ -793,10 +1065,10 @@
                             <div style="color:var(--accent);">₽${p.price} × ${item.qty} = ₽${sub}</div>
                         </div>
                         <div style="display:flex; gap:6px; align-items:center;">
-                            <button class="btn" style="padding:4px 10px;" onclick="changeQty(${item.productId}, -1)">-</button>
+                            <button class="btn" style="padding:4px 10px;" onclick="changeQty('${item.productId}', -1)">-</button>
                             <span>${item.qty}</span>
-                            <button class="btn" style="padding:4px 10px;" onclick="changeQty(${item.productId}, 1)">+</button>
-                            <i class="fas fa-trash" style="color:#ef4444; cursor:pointer; margin-left:6px;" onclick="removeFromCart(${item.productId})"></i>
+                            <button class="btn" style="padding:4px 10px;" onclick="changeQty('${item.productId}', 1)">+</button>
+                            <i class="fas fa-trash" style="color:#ef4444; cursor:pointer; margin-left:6px;" onclick="removeFromCart('${item.productId}')"></i>
                         </div>
                     </div>
                 `;
@@ -853,18 +1125,15 @@
             if (currentUser) {
                 text += `\n\n👤 Покупатель: ${currentUser.name || ''} ${currentUser.phone || ''} ${currentUser.email || ''}`;
             }
-            text += '\n\nСпасибо за заказ!';
+            text += '\n\n';
             return text;
         }
 
         function sendOrderTo(messenger) {
             const text = encodeURIComponent(generateOrderText());
             let url = '';
-            if (messenger === 'whatsapp') {
-                url = `https://wa.me/79385401876?text=${text}`;
-            } else if (messenger === 'telegram') {
-                url = `https://t.me/Loikov_2?text=${text}`;
-            }
+            if (messenger === 'whatsapp') url = `https://wa.me/79385401876?text=${text}`;
+            else if (messenger === 'telegram') url = `https://t.me/Loikov_2?text=${text}`;
             if (url) {
                 window.open(url, '_blank');
                 cart = [];
@@ -883,7 +1152,7 @@
             if (e.target.classList.contains('modal')) e.target.classList.remove('active');
         });
 
-        // ------------------- AUTH -------------------
+        // ------------------- АВТОРИЗАЦИЯ -------------------
         function saveProfile(uid, data) {
             localStorage.setItem(PROFILE_PREFIX + uid, JSON.stringify(data));
         }
@@ -897,8 +1166,24 @@
             const reviewForm = document.getElementById('reviewFormWrapper');
             const loginPrompt = document.getElementById('loginPrompt');
             if (currentUser) {
-                statusDiv.innerHTML = `<span style="margin-right:8px; font-weight:600;">${currentUser.name || currentUser.email}</span><button class="login-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</button>`;
-                document.getElementById('logoutBtn').addEventListener('click', logout);
+                statusDiv.innerHTML = `
+                    <div class="user-dropdown" id="userDropdown">
+                        <button class="user-dropdown-btn" id="userDropdownBtn"><i class="fas fa-user-circle"></i> ${currentUser.name || currentUser.email}</button>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <a href="#" id="profileLink"><i class="fas fa-id-card"></i> Личный кабинет</a>
+                            <a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('profileLink').addEventListener('click', (e) => { e.preventDefault(); openProfileModal(); });
+                document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+                document.getElementById('userDropdownBtn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.getElementById('userDropdownMenu').classList.toggle('active');
+                });
+                window.addEventListener('click', function hideDrop(e) {
+                    if (!e.target.closest('#userDropdown')) document.getElementById('userDropdownMenu').classList.remove('active');
+                });
                 reviewForm.style.display = 'block';
                 loginPrompt.style.display = 'none';
             } else {
@@ -907,6 +1192,7 @@
                 reviewForm.style.display = 'none';
                 loginPrompt.style.display = 'block';
             }
+            updateAdminUI();
         }
 
         function logout() {
@@ -919,7 +1205,9 @@
             document.getElementById('authModal').classList.add('active');
             resetModalToEmailLogin();
         }
+
         function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+
         function resetModalToEmailLogin() {
             document.getElementById('emailForms').style.display = 'block';
             document.getElementById('phoneForms').style.display = 'none';
@@ -933,7 +1221,7 @@
             document.getElementById('registerError').innerText = '';
         }
 
-        // Firebase Email Auth
+        // Email login/register
         document.getElementById('loginSubmit').addEventListener('click', async () => {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -954,6 +1242,7 @@
             const name = document.getElementById('regNameEmail').value.trim();
             const email = document.getElementById('regEmailEmail').value.trim();
             const password = document.getElementById('regPasswordEmail').value;
+            const birthdate = document.getElementById('regBirthdateEmail').value;
             document.getElementById('registerError').innerText = '';
             if (!name || !email || !password) {
                 document.getElementById('registerError').innerText = 'Заполните все поля';
@@ -965,27 +1254,11 @@
             }
             try {
                 const cred = await auth.createUserWithEmailAndPassword(email, password);
-                saveProfile(cred.user.uid, { name, phone: '' });
+                saveProfile(cred.user.uid, { name, phone: '', birthdate });
                 closeAuthModal();
             } catch (err) {
                 document.getElementById('registerError').innerText = err.message;
             }
-        });
-
-        // Слушатель состояния Firebase
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                const profile = loadProfile(user.uid);
-                currentUser = {
-                    uid: user.uid,
-                    email: user.email,
-                    name: profile.name || '',
-                    phone: profile.phone || ''
-                };
-            } else {
-                currentUser = null;
-            }
-            updateAuthUI();
         });
 
         // Переключатели форм
@@ -998,7 +1271,6 @@
             document.getElementById('loginForm').style.display = 'block';
         });
 
-        // Телефонная имитация (мок)
         document.getElementById('switchToRegisterPhone').addEventListener('click', () => {
             document.getElementById('loginPhoneForm').style.display = 'none';
             document.getElementById('registerPhoneForm').style.display = 'block';
@@ -1007,6 +1279,8 @@
             document.getElementById('registerPhoneForm').style.display = 'none';
             document.getElementById('loginPhoneForm').style.display = 'block';
         });
+
+        // Phone mock
         function simulateGetCode(inputId, codeInputId) {
             const phone = document.getElementById(inputId).value.trim();
             if (!phone.startsWith('+7') || phone.length < 10) {
@@ -1026,7 +1300,7 @@
             const users = JSON.parse(localStorage.getItem('fullseller_phone_users') || '[]');
             const user = users.find(u => u.phone === phone);
             if (user) {
-                currentUser = { uid: 'phone_'+phone, email: '', name: user.name, phone: user.phone };
+                currentUser = { uid: 'phone_'+phone, email: '', name: user.name, phone: user.phone, birthdate: user.birthdate || '' };
                 updateAuthUI();
                 closeAuthModal();
                 showToast('Добро пожаловать!');
@@ -1038,16 +1312,270 @@
             const name = document.getElementById('regNamePhone').value.trim();
             const phone = document.getElementById('regPhonePhone').value.trim();
             const code = document.getElementById('regCodePhone').value.trim();
+            const birthdate = document.getElementById('regBirthdatePhone').value;
             if (!name || !phone || !code) return alert('Заполните все поля');
             if (code !== '1234') return alert('Неверный код');
             const users = JSON.parse(localStorage.getItem('fullseller_phone_users') || '[]');
             if (users.find(u => u.phone === phone)) return alert('Номер уже занят');
-            users.push({ name, phone });
+            users.push({ name, phone, birthdate });
             localStorage.setItem('fullseller_phone_users', JSON.stringify(users));
-            currentUser = { uid: 'phone_'+phone, email: '', name, phone };
+            currentUser = { uid: 'phone_'+phone, email: '', name, phone, birthdate };
             updateAuthUI();
             closeAuthModal();
-            showToast('Регистрация успешна!');
+        });
+
+        // Слежение за состоянием auth
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                const profile = loadProfile(user.uid);
+                currentUser = {
+                    uid: user.uid,
+                    email: user.email,
+                    name: profile.name || '',
+                    phone: profile.phone || '',
+                    birthdate: profile.birthdate || ''
+                };
+            } else {
+                currentUser = null;
+            }
+            updateAuthUI();
+        });
+
+        // ------------------- ЛИЧНЫЙ КАБИНЕТ -------------------
+        function openProfileModal() {
+            if (!currentUser) return;
+            document.getElementById('profileName').value = currentUser.name || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profileBirthdate').value = currentUser.birthdate || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profileModal').classList.add('active');
+        }
+        document.getElementById('saveProfileBtn').addEventListener('click', () => {
+            const name = document.getElementById('profileName').value.trim();
+            const phone = document.getElementById('profilePhone').value.trim();
+            const bdate = document.getElementById('profileBirthdate').value;
+            saveProfile(currentUser.uid, { name, phone, birthdate: bdate });
+            currentUser.name = name;
+            currentUser.phone = phone;
+            currentUser.birthdate = bdate;
+            updateAuthUI();
+            closeModal('profileModal');
+            showToast('Профиль обновлён');
+        });
+        document.getElementById('closeProfileModal').addEventListener('click', () => closeModal('profileModal'));
+
+        // ------------------- АДМИН-ПАНЕЛЬ -------------------
+        function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
+        function updateAdminUI() {
+            const link = document.getElementById('adminNavLink');
+            if (isAdmin()) {
+                link.style.display = 'inline';
+                link.onclick = (e) => { e.preventDefault(); openAdminModal(); };
+            } else {
+                link.style.display = 'none';
+            }
+        }
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.add('active');
+            renderAdminProductList();
+        }
+        document.getElementById('closeAdminModal').addEventListener('click', () => closeModal('adminModal'));
+
+        document.getElementById('addProductBtn').addEventListener('click', async () => {
+            const name = document.getElementById('adminName').value.trim();
+            const price = parseFloat(document.getElementById('adminPrice').value);
+            if (!name || isNaN(price)) return alert('Введите название и цену');
+            const material = document.getElementById('adminMaterial').value.trim();
+            const size = document.getElementById('adminSize').value.trim();
+            const imageUrl = document.getElementById('adminImageUrl').value.trim();
+            const desc = document.getElementById('adminDesc').value.trim();
+            try {
+                await db.collection("products").add({
+                    name, price, material, size, imageUrl, desc,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('Товар добавлен');
+                ['adminName','adminPrice','adminMaterial','adminSize','adminImageUrl','adminDesc'].forEach(id => document.getElementById(id).value = '');
+            } catch (err) {
+                alert('Ошибка: ' + err.message);
+            }
+        });
+
+        async function renderAdminProductList() {
+            const container = document.getElementById('adminProductList');
+            container.innerHTML = '<p>Загрузка...</p>';
+            try {
+                const snap = await db.collection("products").orderBy("createdAt").get();
+                const prods = [];
+                snap.forEach(doc => prods.push({ id: doc.id, ...doc.data() }));
+                container.innerHTML = `
+                    <table class="admin-table">
+                        <tr><th>Название</th><th>Цена</th><th>Действия</th></tr>
+                        ${prods.map(p => `
+                            <tr>
+                                <td>${p.name}</td>
+                                <td>₽${p.price}</td>
+                                <td>
+                                    <button class="btn" onclick="editAdminProduct('${p.id}', ${p.price})">✏️</button>
+                                    <button class="btn" style="background:#ef4444;" onclick="deleteAdminProduct('${p.id}')">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                `;
+                window.editAdminProduct = async (id, oldPrice) => {
+                    const newPrice = prompt('Новая цена (₽):', oldPrice);
+                    if (newPrice && !isNaN(newPrice)) {
+                        await db.collection("products").doc(id).update({ price: parseFloat(newPrice) });
+                        showToast('Цена обновлена');
+                        renderAdminProductList();
+                    }
+                };
+                window.deleteAdminProduct = async (id) => {
+                    if (confirm('Удалить товар?')) {
+                        await db.collection("products").doc(id).delete();
+                        showToast('Товар удалён');
+                        renderAdminProductList();
+                    }
+                };
+            } catch (err) {
+                container.innerHTML = '<p style="color:red;">Ошибка загрузки списка</p>';
+            }
+        }
+
+        // Подписка на товары из Firebase и объединение со статическими
+        function subscribeToProducts() {
+            db.collection("products").orderBy("createdAt").onSnapshot(snap => {
+                firestoreProducts = [];
+                snap.forEach(doc => firestoreProducts.push({ id: doc.id, ...doc.data() }));
+                allProducts = [...STATIC_PRODUCTS, ...firestoreProducts];
+                renderCatalog();
+            });
+        }
+
+        // ------------------- ОТЗЫВЫ -------------------
+        let selectedRating = 0;
+
+        async function loadReviewsFromFirestore() {
+            try {
+                const snapshot = await db.collection("reviews").orderBy("date", "desc").get();
+                allReviews = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allReviews.push({
+                        name: data.name,
+                        rating: data.rating,
+                        comment: data.comment,
+                        date: data.date ? data.date.toDate().getTime() : Date.now()
+                    });
+                });
+                renderReviews();
+            } catch (err) {
+                console.error("Ошибка загрузки отзывов:", err);
+                allReviews = [];
+                renderReviews();
+            }
+        }
+
+        async function saveReviewToFirestore(review) {
+            try {
+                await db.collection("reviews").add({
+                    name: review.name,
+                    rating: review.rating,
+                    comment: review.comment,
+                    date: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await loadReviewsFromFirestore();
+                showToast('Отзыв успешно опубликован!');
+            } catch (err) {
+                console.error("Ошибка отправки отзыва:", err);
+                document.getElementById('reviewError').innerText = 'Не удалось отправить отзыв.';
+            }
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviewsContainer');
+            const toggleBtn = document.getElementById('toggleAllReviewsBtn');
+            const totalCount = allReviews.length;
+            const displayReviews = showAllReviews ? allReviews : allReviews.slice(0, 5);
+
+            if (totalCount === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Пока нет отзывов.</p>';
+                toggleBtn.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = displayReviews.map(r => {
+                let starsHtml = '';
+                for (let i = 0; i < Math.floor(r.rating); i++) starsHtml += '<i class="fas fa-star"></i>';
+                if (r.rating % 1 >= 0.5) starsHtml += '<i class="fas fa-star-half-alt"></i>';
+                return `
+                    <div class="review-item">
+                        <div class="review-author">${r.name}</div>
+                        <div class="review-rating">${starsHtml}</div>
+                        <div style="color:var(--text-secondary);">${r.comment}</div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary);">${new Date(r.date).toLocaleDateString()}</div>
+                    </div>
+                `;
+            }).join('');
+
+            if (totalCount > 5) {
+                toggleBtn.style.display = 'inline-block';
+                toggleBtn.textContent = showAllReviews ? 'Скрыть отзывы' : 'Показать все отзывы';
+            } else {
+                toggleBtn.style.display = 'none';
+            }
+        }
+
+        document.getElementById('toggleAllReviewsBtn').addEventListener('click', () => {
+            showAllReviews = !showAllReviews;
+            renderReviews();
+        });
+
+        // Звёзды
+        const stars = document.querySelectorAll('#starRating i');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.value);
+                stars.forEach(s => s.classList.remove('active'));
+                for (let i = 0; i < selectedRating; i++) stars[i].classList.add('active');
+            });
+            star.addEventListener('mouseenter', function() {
+                const value = parseInt(this.dataset.value);
+                stars.forEach(s => s.classList.remove('active'));
+                for (let i = 0; i < value; i++) stars[i].classList.add('active');
+            });
+        });
+        document.getElementById('starRating').addEventListener('mouseleave', () => {
+            stars.forEach(s => s.classList.remove('active'));
+            if (selectedRating > 0) {
+                for (let i = 0; i < selectedRating; i++) stars[i].classList.add('active');
+            }
+        });
+
+        document.getElementById('submitReview').addEventListener('click', async () => {
+            const text = document.getElementById('reviewText').value.trim();
+            if (!currentUser) {
+                document.getElementById('reviewError').innerText = 'Необходимо авторизоваться';
+                return;
+            }
+            if (selectedRating === 0) {
+                document.getElementById('reviewError').innerText = 'Поставьте оценку';
+                return;
+            }
+            if (!text) {
+                document.getElementById('reviewError').innerText = 'Напишите комментарий';
+                return;
+            }
+            document.getElementById('reviewError').innerText = '';
+            await saveReviewToFirestore({
+                name: currentUser.name || currentUser.email,
+                rating: selectedRating,
+                comment: text
+            });
+            document.getElementById('reviewText').value = '';
+            selectedRating = 0;
+            stars.forEach(s => s.classList.remove('active'));
         });
 
         document.getElementById('closeAuthModal').addEventListener('click', closeAuthModal);
@@ -1069,120 +1597,7 @@
             });
         });
 
-        // ------------------- REVIEWS (с ограничением в 5 и кнопкой «показать все») -------------------
-        let selectedRating = 0;
-        function getReviews() { return JSON.parse(localStorage.getItem(REVIEWS_KEY)) || []; }
-        function saveReview(review) {
-            const reviews = getReviews();
-            reviews.push(review);
-            localStorage.setItem(REVIEWS_KEY, JSON.stringify(reviews));
-            // После добавления отзыва показываем только первые 5, чтобы новый был виден вверху
-            showAllReviews = false;
-            renderReviews();
-        }
-        function renderReviews() {
-            const container = document.getElementById('reviewsContainer');
-            const toggleBtn = document.getElementById('toggleAllReviewsBtn');
-            let reviews = getReviews();
-            // Сортируем по дате: самые новые сверху
-            reviews.sort((a,b) => b.date - a.date);
-            const totalCount = reviews.length;
-            const displayReviews = showAllReviews ? reviews : reviews.slice(0, 5);
-            
-            if (totalCount === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Пока нет отзывов.</p>';
-                toggleBtn.style.display = 'none';
-                return;
-            }
-            
-            container.innerHTML = displayReviews.map(r => {
-                let starsHtml = '';
-                for (let i = 0; i < Math.floor(r.rating); i++) starsHtml += '<i class="fas fa-star"></i>';
-                if (r.rating % 1 >= 0.5) starsHtml += '<i class="fas fa-star-half-alt"></i>';
-                return `
-                    <div class="review-item">
-                        <div class="review-author">${r.name}</div>
-                        <div class="review-rating">${starsHtml}</div>
-                        <div style="color:var(--text-secondary);">${r.comment}</div>
-                        <div style="font-size:0.8rem; color:var(--text-secondary);">${new Date(r.date).toLocaleDateString()}</div>
-                    </div>
-                `;
-            }).join('');
-
-            // Управление кнопкой показать/скрыть
-            if (totalCount > 5) {
-                toggleBtn.style.display = 'inline-block';
-                toggleBtn.textContent = showAllReviews ? 'Скрыть отзывы' : 'Показать все отзывы';
-            } else {
-                toggleBtn.style.display = 'none';
-            }
-        }
-
-        // Инициализация отзывов по умолчанию
-        function initDefaultReviews() {
-            if (!localStorage.getItem(REVIEWS_KEY)) {
-                const defaultReviews = [
-                    { name: "Алексей Петров", rating: 5, comment: "Отличные носки, очень мягкие и качественные. Буду заказывать ещё!", date: Date.now() - 86400000 * 2 },
-                    { name: "Марина Иванова", rating: 4, comment: "Хороший магазин, быстрая доставка. Носки стираются отлично, не линяют.", date: Date.now() - 86400000 * 5 }
-                ];
-                localStorage.setItem(REVIEWS_KEY, JSON.stringify(defaultReviews));
-            }
-        }
-
-        // Обработчик клика по кнопке «показать все / скрыть»
-        document.getElementById('toggleAllReviewsBtn').addEventListener('click', function() {
-            showAllReviews = !showAllReviews;
-            renderReviews();
-        });
-
-        // Звёзды и отправка отзыва
-        const stars = document.querySelectorAll('#starRating i');
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                selectedRating = parseInt(this.dataset.value);
-                stars.forEach(s => s.classList.remove('active'));
-                for (let i = 0; i < selectedRating; i++) stars[i].classList.add('active');
-            });
-            star.addEventListener('mouseenter', function() {
-                const value = parseInt(this.dataset.value);
-                stars.forEach(s => s.classList.remove('active'));
-                for (let i = 0; i < value; i++) stars[i].classList.add('active');
-            });
-        });
-        document.getElementById('starRating').addEventListener('mouseleave', () => {
-            stars.forEach(s => s.classList.remove('active'));
-            if (selectedRating > 0) {
-                for (let i = 0; i < selectedRating; i++) stars[i].classList.add('active');
-            }
-        });
-
-        document.getElementById('submitReview').addEventListener('click', () => {
-            const text = document.getElementById('reviewText').value.trim();
-            if (!currentUser) {
-                document.getElementById('reviewError').innerText = 'Необходимо авторизоваться';
-                return;
-            }
-            if (selectedRating === 0) {
-                document.getElementById('reviewError').innerText = 'Поставьте оценку';
-                return;
-            }
-            if (!text) {
-                document.getElementById('reviewError').innerText = 'Напишите комментарий';
-                return;
-            }
-            saveReview({
-                name: currentUser.name || currentUser.email,
-                rating: selectedRating,
-                comment: text,
-                date: Date.now()
-            });
-            document.getElementById('reviewText').value = '';
-            selectedRating = 0;
-            stars.forEach(s => s.classList.remove('active'));
-            document.getElementById('reviewError').innerText = '';
-        });
-
-        // ------------------- THEME -------------------
+        // ------------------- ТЕМЫ -------------------
         const lightBtn = document.getElementById('lightThemeBtn');
         const darkBtn = document.getElementById('darkThemeBtn');
         function setTheme(t) {
@@ -1206,11 +1621,10 @@
             document.getElementById('mainNav').classList.toggle('active');
         });
 
-        // ------------------- INIT -------------------
-        initDefaultReviews();
+        // ------------------- ЗАПУСК -------------------
         updateCartUI();
-        renderCatalog();
-        renderReviews();
+        subscribeToProducts();   // подписываемся на Firebase и сразу строим каталог (старый + новый)
+        loadReviewsFromFirestore();
     </script>
 </body>
 </html>
