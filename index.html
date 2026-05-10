@@ -57,10 +57,10 @@
         }
 
         .container {
-            max-width: 7280px;
-            margin: 0 auto;
-            padding: 0 24px;
             width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 8px;
         }
 
         header {
@@ -133,7 +133,7 @@
 
         .theme-btn.active, .login-btn:hover, .burger-btn:hover, .cart-btn:hover {
             background: var(--accent);
-            color: rgb(255, 255, 255);
+            color: white;
             border-color: var(--accent);
         }
 
@@ -173,14 +173,14 @@
 
         .catalog-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 28px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
             margin-bottom: 60px;
         }
 
         .product-card {
             background: var(--card-bg);
-            border-radius: 28px;
+            border-radius: 24px;
             overflow: hidden;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-light);
@@ -190,12 +190,12 @@
         }
 
         .product-card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-4px);
             box-shadow: var(--shadow-md);
         }
 
         .product-image {
-            height: 220px;
+            height: 250px;  /* Уменьшена высота с 340px */
             background: linear-gradient(145deg, #f3e8d2, #e9d6b0);
             display: flex;
             align-items: center;
@@ -222,7 +222,7 @@
         }
 
         .product-body {
-            padding: 18px 20px 20px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
@@ -247,6 +247,7 @@
             justify-content: space-between;
             align-items: center;
             margin-top: auto;
+            gap: 8px;
         }
 
         .price {
@@ -259,7 +260,7 @@
             background: var(--accent);
             color: white;
             border: none;
-            padding: 10px 18px;
+            padding: 10px 16px;
             border-radius: 40px;
             font-weight: 700;
             cursor: pointer;
@@ -275,7 +276,7 @@
             background: transparent;
             border: 2px solid var(--accent);
             color: var(--accent);
-            padding: 8px 16px;
+            padding: 10px 16px;
         }
 
         .btn-outline:hover {
@@ -415,6 +416,10 @@
         }
 
         @media (max-width: 768px) {
+            .container {
+                padding: 0 4px;
+            }
+
             .header-flex {
                 position: relative;
             }
@@ -422,8 +427,8 @@
                 display: none;
                 position: absolute;
                 top: 60px;
-                left: 24px;
-                right: 24px;
+                left: 4px;
+                right: 4px;
                 background: var(--header-bg);
                 backdrop-filter: blur(12px);
                 border: 1px solid var(--border-light);
@@ -439,51 +444,40 @@
             .burger-btn {
                 display: flex;
             }
+
             .catalog-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+                gap: 8px;
             }
+
             .product-image {
-                height: 0;
-                padding-bottom: 100%;
-                position: relative;
-                overflow: hidden;
+                height: 180px;  /* Уменьшена высота для мобильных с 220px */
             }
-            .product-image i,
-            .product-image img {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                background: white;
-            }
-            .dark .product-image i,
-            .dark .product-image img {
-                background: #f1f5f9;
-            }
+
             .product-body {
                 padding: 12px;
             }
+
             .product-name {
                 font-size: 1rem;
             }
+
             .product-desc {
                 font-size: 0.8rem;
                 max-height: 2.8em;
                 overflow: hidden;
-                margin-bottom: 12px;
             }
+
             .price {
                 font-size: 1.2rem;
             }
+
             .btn {
-                padding: 8px 14px;
+                padding: 8px 12px;
                 font-size: 0.8rem;
             }
             .btn-outline {
-                padding: 6px 12px;
+                padding: 8px 12px;
                 font-size: 0.8rem;
             }
         }
@@ -501,6 +495,20 @@
             <div id="cartItemsContainer"></div>
             <div class="cart-total" id="cartTotalBlock"></div>
             <button class="btn" style="width:100%; margin-top:16px;" id="checkoutBtn">Оформить заказ</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно отправки заказа -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeOrderModal">&times;</span>
+            <h3 style="margin-bottom:20px;">Ваш заказ</h3>
+            <div id="orderContent"></div>
+            <div class="cart-total" id="orderTotalBlock"></div>
+            <div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;">
+                <button class="btn" id="sendWhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                <button class="btn" id="sendTelegram"><i class="fab fa-telegram-plane"></i> Telegram</button>
+            </div>
         </div>
     </div>
 
@@ -578,7 +586,7 @@
         <p class="subtitle">Выберите стиль и комфорт на каждый день</p>
         <div class="catalog-grid" id="catalogGrid"></div>
 
-        <section id="reviews" class="container" style="margin-top: 60px;">
+        <section id="reviews" style="margin-top: 60px;">
             <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 32px; text-align: center;">Отзывы клиентов</h2>
             <div id="reviewsContainer"></div>
             <div id="reviewFormWrapper" style="display:none; margin-top:30px; background:var(--card-bg); border-radius:24px; padding:24px; border:1px solid var(--border-light);">
@@ -644,7 +652,7 @@
                             <div class="product-desc">${p.desc}</div>
                             <div class="product-footer">
                                 <span class="price">₽${p.price}</span>
-                                <button class="btn add-to-cart-btn" data-id="${p.id}"><i class="fas fa-cart-plus"></i> В корзину</button>
+                                <button class="btn add-to-cart-btn" data-id="${p.id}"><i class="fas fa-cart-plus"></i></button>
                             </div>
                             <button class="btn btn-outline detail-btn" data-id="${p.id}" style="width:100%; margin-top:8px;">Подробнее</button>
                         </div>
@@ -656,7 +664,7 @@
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     addToCart(parseInt(btn.dataset.id), 1);
-                    showToast('Товар добавлен в корзину');
+                    showToast('Товар добавлен');
                 });
             });
 
@@ -747,7 +755,7 @@
                 </div>
                 <div class="add-to-cart-block">
                     <input type="number" class="qty-input" id="detailQty" value="1" min="1" max="99">
-                    <button class="btn" id="detailAddToCart"><i class="fas fa-cart-plus"></i> Добавить в корзину</button>
+                    <button class="btn" id="detailAddToCart"><i class="fas fa-cart-plus"></i> Добавить</button>
                 </div>
             `;
             document.getElementById('productModal').classList.add('active');
@@ -761,19 +769,86 @@
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+        // ========== Корзина и оформление заказа ==========
         document.getElementById('cartBtn').addEventListener('click', () => {
             renderCartModal();
             document.getElementById('cartModal').classList.add('active');
         });
         document.getElementById('closeCartModal').addEventListener('click', () => closeModal('cartModal'));
+
         document.getElementById('checkoutBtn').addEventListener('click', () => {
             if (cart.length === 0) return;
-            alert('Спасибо за заказ! Мы свяжемся с вами.');
-            cart = [];
-            saveCart();
-            updateCartUI();
             closeModal('cartModal');
+            openOrderModal();
         });
+
+        function openOrderModal() {
+            const orderContent = document.getElementById('orderContent');
+            const totalBlock = document.getElementById('orderTotalBlock');
+            let total = 0;
+            let html = '';
+            cart.forEach(item => {
+                const p = getProductById(item.productId);
+                if (!p) return;
+                const sub = p.price * item.qty;
+                total += sub;
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-light);">
+                        <span><strong>${p.name}</strong> (${p.size || ''})</span>
+                        <span>${item.qty} шт × ₽${p.price} = ₽${sub}</span>
+                    </div>
+                `;
+            });
+            orderContent.innerHTML = html || '<p>Корзина пуста</p>';
+            totalBlock.innerHTML = `<span>Итого к оплате:</span><span>₽${total}</span>`;
+            document.getElementById('orderModal').classList.add('active');
+        }
+
+        function generateOrderText() {
+            let text = '🛒 *Заказ в FULL SELLER* 🛒\n\n';
+            cart.forEach(item => {
+                const p = getProductById(item.productId);
+                if (!p) return;
+                text += `• ${p.name} (${p.size || ''}) — ${item.qty} шт. × ₽${p.price} = ₽${p.price * item.qty}\n`;
+            });
+            const total = cart.reduce((sum, item) => {
+                const p = getProductById(item.productId);
+                return sum + (p ? p.price * item.qty : 0);
+            }, 0);
+            text += `\n💰 *Итого: ₽${total}*`;
+            if (currentUser) {
+                text += `\n\n👤 Покупатель: ${currentUser.name || ''} ${currentUser.phone || ''} ${currentUser.email || ''}`;
+            }
+            text += '\n\nСпасибо за заказ!';
+            return text;
+        }
+
+      function sendOrderTo(messenger) {
+    const text = encodeURIComponent(generateOrderText());
+    let url = '';
+
+    if (messenger === 'whatsapp') {
+        // Добавлен ваш номер: 79385401876
+        url = `https://wa.me{79385401876}`;
+    } else if (messenger === 'telegram') {
+        // Ссылка на ваш профиль: Loikov_2
+        url = `https://t.me{@Loikov_2}`;
+    }
+
+    if (url) {
+        window.open(url, '_blank');
+        cart = [];
+        saveCart();
+        updateCartUI();
+        closeModal('orderModal');
+        showToast('Заказ отправлен! Корзина очищена.');
+    }
+}
+
+
+        document.getElementById('sendWhatsApp').addEventListener('click', () => sendOrderTo('whatsapp'));
+        document.getElementById('sendTelegram').addEventListener('click', () => sendOrderTo('telegram'));
+        document.getElementById('closeOrderModal').addEventListener('click', () => closeModal('orderModal'));
 
         window.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) e.target.classList.remove('active');
