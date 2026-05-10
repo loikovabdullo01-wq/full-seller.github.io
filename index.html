@@ -1163,5 +1163,35 @@
         renderCatalog();
         renderReviews();
     </script>
+
+<script type="module">
+  import { initializeApp } from "https://gstatic.com";
+  import { getAuth, createUserWithEmailAndPassword } from "https://gstatic.com";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBhiwkLtTbPHfhKx5ePR9mtxNzvN4C5-dw",
+    authDomain: "://firebaseapp.com",
+    projectId: "full-seller",
+    storageBucket: "://appspot.com",
+    messagingSenderId: "858609506770",
+    appId: "1:858609506770:web:b83498774cfe14f1cbd08b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  document.getElementById('btnSignUp').addEventListener('click', async () => {
+    const email = document.getElementById('userEmail').value;
+    const pass = document.getElementById('userPass').value;
+    try {
+      await createUserWithEmailAndPassword(auth, email, pass);
+      alert("УРА! РЕГИСТРАЦИЯ ПРОШЛА!");
+    } catch (e) {
+      alert("Ошибка: " + e.message);
+    }
+  });
+</script>
+
+
 </body>
 </html>
