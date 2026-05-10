@@ -593,6 +593,9 @@
         <section id="reviews" style="margin-top: 60px;">
             <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 32px; text-align: center;">Отзывы клиентов</h2>
             <div id="reviewsContainer"></div>
+            <div id="reviewsActions" style="text-align:center; margin-top:16px;">
+                <button class="btn btn-outline" id="toggleAllReviewsBtn" style="display:none;">Показать все отзывы</button>
+            </div>
             <div id="reviewFormWrapper" style="display:none; margin-top:30px; background:var(--card-bg); border-radius:24px; padding:24px; border:1px solid var(--border-light);">
                 <h4 style="margin-bottom:16px;">Оставить отзыв</h4>
                 <div class="stars" id="starRating">
@@ -655,6 +658,7 @@
 
         let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
         let currentUser = null;
+        let showAllReviews = false; // управляет режимом отображения всех отзывов
 
         // ------------------- HELPERS -------------------
         function saveCart() { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
@@ -1065,23 +1069,33 @@
             });
         });
 
-        // ------------------- REVIEWS -------------------
+        // ------------------- REVIEWS (с ограничением в 5 и кнопкой «показать все») -------------------
         let selectedRating = 0;
         function getReviews() { return JSON.parse(localStorage.getItem(REVIEWS_KEY)) || []; }
         function saveReview(review) {
             const reviews = getReviews();
             reviews.push(review);
             localStorage.setItem(REVIEWS_KEY, JSON.stringify(reviews));
+            // После добавления отзыва показываем только первые 5, чтобы новый был виден вверху
+            showAllReviews = false;
             renderReviews();
         }
         function renderReviews() {
             const container = document.getElementById('reviewsContainer');
-            const reviews = getReviews();
-            if (reviews.length === 0) {
+            const toggleBtn = document.getElementById('toggleAllReviewsBtn');
+            let reviews = getReviews();
+            // Сортируем по дате: самые новые сверху
+            reviews.sort((a,b) => b.date - a.date);
+            const totalCount = reviews.length;
+            const displayReviews = showAllReviews ? reviews : reviews.slice(0, 5);
+            
+            if (totalCount === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Пока нет отзывов.</p>';
+                toggleBtn.style.display = 'none';
                 return;
             }
-            container.innerHTML = reviews.map(r => {
+            
+            container.innerHTML = displayReviews.map(r => {
                 let starsHtml = '';
                 for (let i = 0; i < Math.floor(r.rating); i++) starsHtml += '<i class="fas fa-star"></i>';
                 if (r.rating % 1 >= 0.5) starsHtml += '<i class="fas fa-star-half-alt"></i>';
@@ -1094,8 +1108,17 @@
                     </div>
                 `;
             }).join('');
+
+            // Управление кнопкой показать/скрыть
+            if (totalCount > 5) {
+                toggleBtn.style.display = 'inline-block';
+                toggleBtn.textContent = showAllReviews ? 'Скрыть отзывы' : 'Показать все отзывы';
+            } else {
+                toggleBtn.style.display = 'none';
+            }
         }
 
+        // Инициализация отзывов по умолчанию
         function initDefaultReviews() {
             if (!localStorage.getItem(REVIEWS_KEY)) {
                 const defaultReviews = [
@@ -1106,6 +1129,13 @@
             }
         }
 
+        // Обработчик клика по кнопке «показать все / скрыть»
+        document.getElementById('toggleAllReviewsBtn').addEventListener('click', function() {
+            showAllReviews = !showAllReviews;
+            renderReviews();
+        });
+
+        // Звёзды и отправка отзыва
         const stars = document.querySelectorAll('#starRating i');
         stars.forEach(star => {
             star.addEventListener('click', function() {
