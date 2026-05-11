@@ -877,7 +877,7 @@
 
         <section id="contact" style="margin: 60px 0; text-align:center;">
             <h2>Контакты</h2>
-            <p><i class="fas fa-phone-alt"></i> +998 90 123 45 67 &nbsp;&nbsp; <i class="fas fa-envelope"></i> info@fullseller.uz</p>
+            <p><i class="fas fa-phone-alt"></i> +998 958 23 94 90 &nbsp;&nbsp; <i class="fas fa-envelope"></i> msh.fullseller@gmail.com</p>
             <p><i class="fas fa-map-marker-alt"></i> г. Ташкент, ул. Навои</p>
         </section>
     </main>
@@ -905,16 +905,16 @@
         // ------------------- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ -------------------
         const ADMIN_EMAIL = "fullselleradmin@gmail.com";  // ← замените на свою почту администратора
 
-        // Старые карточки товаров (НЕ УДАЛЕНЫ)
+        // Статические товары (Nike, Adidas, Puma, Fila)
         const STATIC_PRODUCTS = [
-            { id: 'static1', name: "Adidas спортивные", price: 11, desc: "Оригинальные носки Adidas, дышащий хлопок.", imageUrl: "5.jpg", material: "Хлопок 78%, полиэстер", size: "39-45" },
-            { id: 'static2', name: "Reebok повседневные", price: 11, desc: "Мягкие носки Reebok на каждый день.", imageUrl: "4.jpg", material: "Хлопок 80%", size: "39-46" },
-            { id: 'static3', name: "Ralph Lauren Polo", price: 11, desc: "Элегантные носки Ralph Lauren, премиум качество.", imageUrl: "7.jpg", material: "Мерсеризованный хлопок", size: "39-45" },
-            { id: 'static4', name: "Nike Dri-FIT", price: 11, desc: "Спортивные носки Nike с технологией отвода влаги.", imageUrl: "8.jpg", material: "Полиэстер 97%", size: "38-44" },
-            { id: 'static5', name: "Puma комфорт", price: 11, desc: "Носки Puma с усиленной пяткой и мыском.", imageUrl: "9.jpg", material: "Хлопок 75%, полиамид", size: "39-46" },
-            { id: 'static6', name: "Спортивные носки", price: 11, desc: "Дышащий хлопок, усиленная пятка и мысок.", icon: "fa-socks", imageUrl: "10.jpg", material: "Хлопок 80%, полиэстер 20%", size: "39-45" },
-            { id: 'static7', name: "Классические чёрные", price: 11, desc: "Элегантные носки для офиса и встреч.", icon: "fa-socks", imageUrl: "11.avif", material: "Мерсеризованный хлопок", size: "39-46" },
-            { id: 'static8', name: "Детские яркие", price: 11, desc: "Мягкие, с весёлым принтом, гипоаллергенные.", icon: "fa-socks", imageUrl: "12.webp", material: "Хлопок 90%", size: "22-35" }
+            { id: 'static1', name: "Nike Everyday (Белые)", price: 11, desc: "Классические белые носки Nike, технология Dri-FIT.", imageUrl: "20.jpg", material: "Хлопок 75%, Полиэстер 22%", size: "38-44" },
+            { id: 'static2', name: "Nike Everyday (Черные)", price: 11, desc: "Спортивные черные носки Nike, отличная вентиляция.", imageUrl: "21.webp", material: "Хлопок 75%, Полиэстер 22%", size: "38-44" },
+            { id: 'static3', name: "Adidas Cushioned (Белые)", price: 11, desc: "Белые носки Adidas с мягкой подошвой для комфорта.", imageUrl: "23.jpg", material: "Хлопок 60%, Полиэстер 36%", size: "39-45" },
+            { id: 'static4', name: "Adidas Cushioned (Черные)", price: 11, desc: "Черные носки Adidas, усиленная пятка и мысок.", imageUrl: "5.jpg", material: "Хлопок 60%, Полиэстер 36%", size: "39-45" },
+            { id: 'static5', name: "Puma Performance (Белые)", price: 11, desc: "Спортивные белые носки Puma, идеальная посадка.", imageUrl: "24.jpg", material: "Хлопок 78%, Полиамид 18%", size: "39-46" },
+            { id: 'static6', name: "Puma Performance (Черные)", price: 11, desc: "Черные носки Puma для тренировок и отдыха.", imageUrl: "25.jpg", material: "Хлопок 78%, Полиамид 18%", size: "39-46" },
+            { id: 'static7', name: "Fila Retro (Белые)", price: 11, desc: "Белые носки Fila в ретро-стиле с логотипом.", imageUrl: "30.png", material: "Хлопок 80%, Эластан 5%", size: "39-45" },
+            { id: 'static8', name: "Fila Retro (Черные)", price: 11, desc: "Черные носки Fila, качественный плотный трикотаж.", imageUrl: "27.jpg", material: "Хлопок 80%, Эластан 5%", size: "39-45" }
         ];
 
         const CART_KEY = 'fullseller_cart';
@@ -925,7 +925,7 @@
         let showAllReviews = false;
         let allReviews = [];
         let firestoreProducts = [];        // товары из Firebase
-        let allProducts = [...STATIC_PRODUCTS];
+        let allProducts = [...STATIC_PRODUCTS]; // изначально статические товары
 
         // ------------------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ -------------------
         function saveCart() { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
@@ -988,7 +988,7 @@
                             <div class="product-name">${p.name}</div>
                             <div class="product-desc">${p.desc}</div>
                             <div class="product-footer">
-                                <span class="price">₽${p.price}</span>
+                                <span class="price">${p.price} ₽</span>
                                 <button class="btn add-to-cart-btn" data-id="${p.id}"><i class="fas fa-cart-plus"></i></button>
                             </div>
                             <button class="btn btn-outline detail-btn" data-id="${p.id}" style="width:100%; margin-top:8px;">Подробнее</button>
@@ -1021,7 +1021,7 @@
                 <span class="modal-close" onclick="closeModal('productModal')">&times;</span>
                 <div class="product-detail-img">${imgContent}</div>
                 <div class="detail-name">${p.name}</div>
-                <div class="detail-price">₽${p.price}</div>
+                <div class="detail-price">${p.price} ₽</div>
                 <div class="detail-desc">${p.desc}</div>
                 <div style="display:flex; gap:20px; margin-bottom:16px; color:var(--text-secondary);">
                     <span><strong>Материал:</strong> ${p.material}</span>
@@ -1062,7 +1062,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-light);">
                         <div>
                             <strong>${p.name}</strong>
-                            <div style="color:var(--accent);">₽${p.price} × ${item.qty} = ₽${sub}</div>
+                            <div style="color:var(--accent);">${p.price} ₽ × ${item.qty} = ${sub} ₽</div>
                         </div>
                         <div style="display:flex; gap:6px; align-items:center;">
                             <button class="btn" style="padding:4px 10px;" onclick="changeQty('${item.productId}', -1)">-</button>
@@ -1073,7 +1073,7 @@
                     </div>
                 `;
             }).join('');
-            totalBlock.innerHTML = `<span>Итого:</span><span>₽${total}</span>`;
+            totalBlock.innerHTML = `<span>Итого:</span><span>${total} ₽</span>`;
         }
 
         document.getElementById('cartBtn').addEventListener('click', () => {
@@ -1101,12 +1101,12 @@
                 html += `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-light);">
                         <span><strong>${p.name}</strong> (${p.size || ''})</span>
-                        <span>${item.qty} шт × ₽${p.price} = ₽${sub}</span>
+                        <span>${item.qty} шт × ${p.price} ₽ = ${sub} ₽</span>
                     </div>
                 `;
             });
             orderContent.innerHTML = html || '<p>Корзина пуста</p>';
-            totalBlock.innerHTML = `<span>Итого к оплате:</span><span>₽${total}</span>`;
+            totalBlock.innerHTML = `<span>Итого к оплате:</span><span>${total} ₽</span>`;
             document.getElementById('orderModal').classList.add('active');
         }
 
@@ -1115,13 +1115,13 @@
             cart.forEach(item => {
                 const p = getProductById(item.productId);
                 if (!p) return;
-                text += `• ${p.name} (${p.size || ''}) — ${item.qty} шт. × ₽${p.price} = ₽${p.price * item.qty}\n`;
+                text += `• ${p.name} (${p.size || ''}) — ${item.qty} шт. × ${p.price} ₽ = ${p.price * item.qty} ₽\n`;
             });
             const total = cart.reduce((sum, item) => {
                 const p = getProductById(item.productId);
                 return sum + (p ? p.price * item.qty : 0);
             }, 0);
-            text += `\n💰 *Итого: ₽${total}*`;
+            text += `\n💰 *Итого: ${total} ₽*`;
             if (currentUser) {
                 text += `\n\n👤 Покупатель: ${currentUser.name || ''} ${currentUser.phone || ''} ${currentUser.email || ''}`;
             }
@@ -1414,7 +1414,7 @@
                         ${prods.map(p => `
                             <tr>
                                 <td>${p.name}</td>
-                                <td>₽${p.price}</td>
+                                <td>${p.price} ₽</td>
                                 <td>
                                     <button class="btn" onclick="editAdminProduct('${p.id}', ${p.price})">✏️</button>
                                     <button class="btn" style="background:#ef4444;" onclick="deleteAdminProduct('${p.id}')">🗑️</button>
@@ -1443,7 +1443,7 @@
             }
         }
 
-        // Подписка на товары из Firebase и объединение со статическими
+        // Подписка на товары из Firebase и объединение со статическими (без задержки)
         function subscribeToProducts() {
             db.collection("products").orderBy("createdAt").onSnapshot(snap => {
                 firestoreProducts = [];
@@ -1621,9 +1621,10 @@
             document.getElementById('mainNav').classList.toggle('active');
         });
 
-        // ------------------- ЗАПУСК -------------------
+        // ------------------- ЗАПУСК (мгновенный рендер статических товаров, затем подписка на Firebase) -------------------
         updateCartUI();
-        subscribeToProducts();   // подписываемся на Firebase и сразу строим каталог (старый + новый)
+        renderCatalog();            // Сразу показываем статические товары (без задержки)
+        subscribeToProducts();      // Затем подписываемся на Firestore, обновляем каталог при изменении данных
         loadReviewsFromFirestore();
     </script>
 </body>
