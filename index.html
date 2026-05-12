@@ -57,6 +57,11 @@
             flex-direction: column;
         }
 
+        /* Запрет прокрутки при открытом модальном окне */
+        body.no-scroll {
+            overflow: hidden;
+        }
+
         h1, h2, h3, h4, .logo, .nav-links a, .price {
             font-family: 'Poppins', sans-serif;
         }
@@ -409,6 +414,8 @@
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             border: 1px solid var(--border-light);
             position: relative;
+            /* Предотвращает дерганье нижней панели на мобильных */
+            overscroll-behavior: contain;
         }
 
         .modal-close {
@@ -811,7 +818,7 @@
 
         <!-- ========== ИНФОРМАЦИОННАЯ ПАНЕЛЬ ========== -->
         <section id="wholesale" style="margin: 60px 0;">
-            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 32px; text-align: center;">💼 Оптовые условия и доставка</h2>
+            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 32px; text-align: center;"> Оптовые условия и доставка</h2>
             <div class="info-grid">
                 <div class="info-card">
                     <h3><i class="fas fa-tags"></i> Цена и условия</h3>
@@ -877,7 +884,7 @@
 
         <section id="contact" style="margin: 60px 0; text-align:center;">
             <h2>Контакты</h2>
-            <p><i class="fas fa-phone-alt"></i> +998 958 23 94 90 &nbsp;&nbsp; <i class="fas fa-envelope"></i> msh.fullseller@gmail.com</p>
+            <p><i class="fas fa-phone-alt"></i> +998 958 23 94 90 &nbsp;&nbsp;<br> <i class="fas fa-envelope"></i> msh.fullseller@gmail.com</p>
             <p><i class="fas fa-map-marker-alt"></i> г. Ташкент, ул. Навои</p>
         </section>
     </main>
@@ -945,6 +952,20 @@
 
         function getProductById(id) {
             return allProducts.find(p => p.id === id);
+        }
+
+        // ------------------- УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ (ФИКС ПРОКРУТКИ) -------------------
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.classList.add('no-scroll');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            // Убираем запрет скролла только если не осталось других открытых модалов
+            if (!document.querySelector('.modal.active')) {
+                document.body.classList.remove('no-scroll');
+            }
         }
 
         // ------------------- КОРЗИНА -------------------
@@ -1032,7 +1053,7 @@
                     <button class="btn" id="detailAddToCart"><i class="fas fa-cart-plus"></i> Добавить</button>
                 </div>
             `;
-            document.getElementById('productModal').classList.add('active');
+            openModal('productModal');  // <-- фикс
             document.getElementById('detailAddToCart').addEventListener('click', () => {
                 const qty = parseInt(document.getElementById('detailQty').value) || 1;
                 addToCart(productId, qty);
@@ -1040,8 +1061,6 @@
                 closeModal('productModal');
             });
         }
-
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         // ------------------- МОДАЛЬНОЕ ОКНО КОРЗИНЫ -------------------
         function renderCartModal() {
@@ -1078,7 +1097,7 @@
 
         document.getElementById('cartBtn').addEventListener('click', () => {
             renderCartModal();
-            document.getElementById('cartModal').classList.add('active');
+            openModal('cartModal');  // <-- фикс
         });
         document.getElementById('closeCartModal').addEventListener('click', () => closeModal('cartModal'));
 
@@ -1107,7 +1126,7 @@
             });
             orderContent.innerHTML = html || '<p>Корзина пуста</p>';
             totalBlock.innerHTML = `<span>Итого к оплате:</span><span>${total} ₽</span>`;
-            document.getElementById('orderModal').classList.add('active');
+            openModal('orderModal');  // <-- фикс
         }
 
         function generateOrderText() {
@@ -1148,8 +1167,11 @@
         document.getElementById('sendTelegram').addEventListener('click', () => sendOrderTo('telegram'));
         document.getElementById('closeOrderModal').addEventListener('click', () => closeModal('orderModal'));
 
+        // Закрытие модальных окон при клике вне содержимого
         window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) e.target.classList.remove('active');
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target.id);
+            }
         });
 
         // ------------------- АВТОРИЗАЦИЯ -------------------
@@ -1202,11 +1224,11 @@
         }
 
         function openAuthModal() {
-            document.getElementById('authModal').classList.add('active');
             resetModalToEmailLogin();
+            openModal('authModal');  // <-- фикс
         }
 
-        function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+        function closeAuthModal() { closeModal('authModal'); }
 
         function resetModalToEmailLogin() {
             document.getElementById('emailForms').style.display = 'block';
@@ -1348,7 +1370,7 @@
             document.getElementById('profilePhone').value = currentUser.phone || '';
             document.getElementById('profileBirthdate').value = currentUser.birthdate || '';
             document.getElementById('profileEmail').value = currentUser.email || '';
-            document.getElementById('profileModal').classList.add('active');
+            openModal('profileModal');  // <-- фикс
         }
         document.getElementById('saveProfileBtn').addEventListener('click', () => {
             const name = document.getElementById('profileName').value.trim();
@@ -1364,7 +1386,7 @@
         });
         document.getElementById('closeProfileModal').addEventListener('click', () => closeModal('profileModal'));
 
-        // ------------------- АДМИН-ПАНЕЛЬ -------------------
+        // ------------------- АДМИН-ПАНЕЛЬ (РАБОТАЕТ С FIREBASE) -------------------
         function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
         function updateAdminUI() {
             const link = document.getElementById('adminNavLink');
@@ -1376,7 +1398,7 @@
             }
         }
         function openAdminModal() {
-            document.getElementById('adminModal').classList.add('active');
+            openModal('adminModal');  // <-- фикс
             renderAdminProductList();
         }
         document.getElementById('closeAdminModal').addEventListener('click', () => closeModal('adminModal'));
@@ -1443,7 +1465,7 @@
             }
         }
 
-        // Подписка на товары из Firebase и объединение со статическими (без задержки)
+        // Подписка на товары из Firebase и объединение со статическими
         function subscribeToProducts() {
             db.collection("products").orderBy("createdAt").onSnapshot(snap => {
                 firestoreProducts = [];
@@ -1621,10 +1643,10 @@
             document.getElementById('mainNav').classList.toggle('active');
         });
 
-        // ------------------- ЗАПУСК (мгновенный рендер статических товаров, затем подписка на Firebase) -------------------
+        // ------------------- ЗАПУСК -------------------
         updateCartUI();
-        renderCatalog();            // Сразу показываем статические товары (без задержки)
-        subscribeToProducts();      // Затем подписываемся на Firestore, обновляем каталог при изменении данных
+        renderCatalog();            // Сразу показываем статические товары
+        subscribeToProducts();      // Подписываемся на Firebase и обновляем каталог
         loadReviewsFromFirestore();
     </script>
 </body>
