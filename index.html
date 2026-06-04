@@ -1460,6 +1460,204 @@
             cursor: pointer;
             padding: 0 0 16px;
         }
+
+        /* ---------- КАЛЬКУЛЯТОР КАРГО ---------- */
+        .cargo-calc-wrapper {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 28px;
+            margin-top: 32px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cargo-calc-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
+        .cargo-calc-form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .cargo-calc-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cargo-calc-field label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .cargo-calc-input,
+        .cargo-calc-select {
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .cargo-calc-input:focus,
+        .cargo-calc-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+        }
+
+        .cargo-calc-warning {
+            color: #ef4444;
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-height: 1.2em;
+        }
+
+        .cargo-calc-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .cargo-calc-tab {
+            padding: 10px 22px;
+            border-radius: 30px;
+            border: 1.5px solid var(--border-light);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .cargo-calc-tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .cargo-calc-tab:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--icon-bg);
+        }
+
+        .cargo-calc-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.95rem;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            max-width: 280px;
+            margin-top: 6px;
+        }
+
+        .cargo-calc-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.02);
+        }
+
+        .cargo-calc-results {
+            margin-top: 24px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-light);
+        }
+
+        .cargo-calc-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .cargo-calc-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .cargo-calc-result-item span:last-child {
+            font-weight: 700;
+        }
+
+        .cargo-calc-total {
+            font-size: 1.1rem;
+            margin-top: 6px;
+            color: var(--accent);
+        }
+
+        .cargo-calc-total span:last-child {
+            font-size: 1.3rem;
+        }
+
+        .cargo-calc-disclaimer {
+            margin-top: 18px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* Кнопка-иконка калькулятора в хедере */
+        .cargo-calc-scroll-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            padding: 8px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: 0.2s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        .cargo-calc-scroll-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        @media (max-width: 480px) {
+            .cargo-calc-wrapper {
+                padding: 20px 16px;
+            }
+
+            .cargo-calc-tab {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1551,6 +1749,7 @@
             <div class="controls">
                 <button class="theme-btn" id="lightThemeBtn" title="Светлая тема"><i class="fas fa-sun"></i></button>
                 <button class="theme-btn" id="darkThemeBtn" title="Тёмная тема"><i class="fas fa-moon"></i></button>
+                <button class="cargo-calc-scroll-btn" id="cargoCalcScrollBtn" title="Калькулятор доставки"><i class="fas fa-calculator"></i></button>
                 <button class="cart-btn" id="cartBtn">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cartCount">0</span>
@@ -1566,6 +1765,7 @@
         <main class="container" style="flex:1;">
             <div class="banner-slider" id="mainBannerSlider">
                 <div class="slides" id="bannerSlides">
+                    <div class="slide"><img src="1010.png" alt="Акция 1"></div>
                     <div class="slide"><img src="4455.jpg" alt="Акция 1"></div>
                     <div class="slide"><img src="003.png" alt="Акция 2"></div>
                     <div class="slide"><img src="0001.png" alt="Акция 3"></div>
@@ -1624,6 +1824,56 @@
                             <li><i class="fas fa-clock"></i>Отправка в день оплаты</li>
                         </ul>
                         <div class="important"><i class="fas fa-exclamation-circle"></i> Цена доставки может меняться от курса $ и сезона.</div>
+                    </div>
+                </div>
+
+                <!-- КАЛЬКУЛЯТОР КАРГО -->
+                <div class="cargo-calc-wrapper" id="cargoCalculator">
+                    <h3 class="cargo-calc-title"><i class="fas fa-calculator"></i> Калькулятор доставки карго</h3>
+                    <div class="cargo-calc-form">
+                        <div class="cargo-calc-field">
+                            <label for="cargo-calc-qty">Количество (шт.)</label>
+                            <input type="number" id="cargo-calc-qty" class="cargo-calc-input" placeholder="Мин. 5 000" min="0" value="5000">
+                            <div class="cargo-calc-warning" id="cargo-calc-warning"></div>
+                        </div>
+                        <div class="cargo-calc-field">
+                            <label for="cargo-calc-category">Категория товара</label>
+                            <select id="cargo-calc-category" class="cargo-calc-select">
+                                <option value="socks">Носки</option>
+                                <option value="underwear">Трусы</option>
+                                <option value="tshirts">Футболки</option>
+                            </select>
+                        </div>
+                        <div class="cargo-calc-field">
+                            <label for="cargo-calc-unit-weight">Вес одной штуки (грамм)</label>
+                            <input type="number" id="cargo-calc-unit-weight" class="cargo-calc-input" placeholder="0" min="0" step="0.1" value="24">
+                        </div>
+                        <div class="cargo-calc-field">
+                            <label>Страна доставки</label>
+                            <div class="cargo-calc-tabs" id="cargo-calc-tabs">
+                                <button class="cargo-calc-tab active" data-country="russia">Россия</button>
+                                <button class="cargo-calc-tab" data-country="tajikistan">Таджикистан</button>
+                            </div>
+                        </div>
+                        <button class="cargo-calc-btn" id="cargo-calc-btn"><i class="fas fa-sync-alt"></i> Рассчитать</button>
+                    </div>
+                    <div class="cargo-calc-results" id="cargo-calc-results" style="display:none;">
+                        <div class="cargo-calc-result-item">
+                            <span>Общий вес:</span>
+                            <span id="cargo-calc-weight">0 кг</span>
+                        </div>
+                        <div class="cargo-calc-result-item">
+                            <span>Цена товара (опт):</span>
+                            <span id="cargo-calc-product-price">0</span>
+                        </div>
+                        <div class="cargo-calc-result-item">
+                            <span>Стоимость доставки:</span>
+                            <span id="cargo-calc-shipping">0</span>
+                        </div>
+                        <div class="cargo-calc-result-item cargo-calc-total" id="cargo-calc-total-container"></div>
+                    </div>
+                    <div class="cargo-calc-disclaimer">
+                        Цена доставки может меняться в зависимости от курса валют и сезона. Отправка в день оплаты.
                     </div>
                 </div>
             </section>
@@ -2940,7 +3190,167 @@
         loadReviewsFromFirestore();
         updateBrandFilterVisibility();
         setBodyPageClass('home');
+
+        // ---------- КАЛЬКУЛЯТОР КАРГО (ИЗОЛИРОВАННЫЙ КОД) ----------
+        (function() {
+            const EXCHANGE_RATE = 73.75;
+            // Конвертация: 1 сомони = X рублей (настройте по фактическому курсу)
+            const SOMONI_TO_RUB = 8;
+
+            const defaultUnitWeights = {
+                socks: 24,
+                underwear: 80,
+                tshirts: 150
+            };
+
+            // Таблица цен по категориям товара (цена за 1 штуку в рублях)
+            const categoryPrices = {
+                socks: 11,      // Носки
+                underwear: 80,  // Трусы
+                tshirts: 145    // Футболки
+            };
+
+            function getWholesalePrice(category, qty) {
+                // Возвращает цену за 1 штуку в рублях на основе категории
+                // Можно добавить скидки в зависимости от qty, но пока фиксированная цена по категориям
+                return categoryPrices[category] || 0;
+            }
+
+            const qtyInput = document.getElementById('cargo-calc-qty');
+            const categorySelect = document.getElementById('cargo-calc-category');
+            const unitWeightInput = document.getElementById('cargo-calc-unit-weight');
+            const tabsContainer = document.getElementById('cargo-calc-tabs');
+            const warningEl = document.getElementById('cargo-calc-warning');
+            const resultsBlock = document.getElementById('cargo-calc-results');
+            const btnCalc = document.getElementById('cargo-calc-btn');
+            const totalContainer = document.getElementById('cargo-calc-total-container');
+
+            let selectedCountry = 'russia';
+
+            // переключение вкладок — не запускаем автоматический расчёт, просто скрываем старый результат
+            tabsContainer.addEventListener('click', (e) => {
+                const tab = e.target.closest('.cargo-calc-tab');
+                if (!tab) return;
+                document.querySelectorAll('.cargo-calc-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                selectedCountry = tab.dataset.country;
+                resultsBlock.style.display = 'none';
+            });
+
+            categorySelect.addEventListener('change', () => {
+                const cat = categorySelect.value;
+                if (defaultUnitWeights[cat] !== undefined) {
+                    unitWeightInput.value = defaultUnitWeights[cat];
+                }
+                // скрываем старые результаты — расчёт выполняется ТОЛЬКО по кнопке
+                resultsBlock.style.display = 'none';
+            });
+
+            qtyInput.addEventListener('input', () => {
+                const qty = parseInt(qtyInput.value) || 0;
+                if (qty > 0 && qty < 5000) {
+                    warningEl.textContent = 'Минимальный заказ от 5 000 шт.';
+                } else {
+                    warningEl.textContent = '';
+                }
+                // при изменении входных данных скрываем предыдущий результат
+                resultsBlock.style.display = 'none';
+            });
+
+            unitWeightInput.addEventListener('input', () => {
+                // при изменении входных данных скрываем предыдущий результат
+                resultsBlock.style.display = 'none';
+            });
+
+            btnCalc.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Расчёт выполняется исключительно по нажатию на кнопку
+                calculate(true);
+                resultsBlock.style.display = 'block';
+            });
+
+            function calculate(showResults = true) {
+                const qty = parseInt(qtyInput.value) || 0;
+                const category = categorySelect.value; // получаем выбранную категорию
+                const unitWeightGrams = parseFloat(unitWeightInput.value) || 0;
+                const totalEl = document.getElementById('cargo-calc-total') || totalContainer;
+
+                if (qty < 5000) {
+                    resultsBlock.style.display = 'none';
+                    if (qty > 0) warningEl.textContent = 'Минимальный заказ от 5 000 шт.';
+                    else warningEl.textContent = '';
+                    return;
+                }
+                warningEl.textContent = '';
+
+                const totalWeight = qty * (unitWeightGrams / 1000);
+                const unitPriceRub = getWholesalePrice(category, qty); // получаем цену за 1 шт в рублях
+
+                // Общий вес в кг
+                document.getElementById('cargo-calc-weight').textContent = totalWeight.toFixed(2) + ' кг';
+
+                if (selectedCountry === 'russia') {
+                    // Для России: всё в рублях
+                    const productTotal = qty * unitPriceRub;
+                    const shippingUsd = totalWeight * 1.30;
+                    const shippingCostRub = shippingUsd * EXCHANGE_RATE;
+                    const totalInRub = productTotal + shippingCostRub;
+
+                    // Вывод значений на страницу
+                    const priceEl = document.getElementById('cargo-calc-product-price');
+                    const shippingEl = document.getElementById('cargo-calc-shipping');
+                    
+                    if (priceEl) priceEl.textContent = productTotal.toFixed(2) + ' ₽';
+                    if (shippingEl) shippingEl.textContent = shippingCostRub.toFixed(2) + ' ₽';
+
+                    if (totalEl) {
+                        totalEl.innerHTML = `
+                            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <span style="font-size: 1.15rem; font-weight: bold; color: #1f2937;">Итого с доставкой:</span>
+                                <strong style="font-size: 1.6rem; font-weight: bold; color: #e07a12; white-space: nowrap;">${totalInRub.toFixed(2)} ₽</strong>
+                            </div>
+                        `;
+                    }
+                } else if (selectedCountry === 'tajikistan' || selectedCountry === 'Tajikistan') {
+                    // Для Таджикистана: всё в сомони
+                    const productInSomoni = (qty * unitPriceRub) / SOMONI_TO_RUB;
+                    const shippingSomoni = totalWeight * 7;
+                    const totalInSomoni = productInSomoni + shippingSomoni;
+
+                    const priceEl = document.getElementById('cargo-calc-product-price');
+                    const shippingEl = document.getElementById('cargo-calc-shipping');
+
+                    if (priceEl) priceEl.textContent = productInSomoni.toFixed(2) + ' сомони';
+                    if (shippingEl) shippingEl.textContent = shippingSomoni.toFixed(2) + ' сомони';
+
+                    if (totalEl) {
+                        totalEl.innerHTML = `
+                            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <span style="font-size: 1.15rem; font-weight: bold; color: #1f2937;">Итого с доставкой:</span>
+                                <strong style="font-size: 1.6rem; font-weight: bold; color: #e07a12; white-space: nowrap;">${totalInSomoni.toFixed(2)} сомони</strong>
+                            </div>
+                        `;
+                    }
+                }
+
+                if (showResults) {
+                    resultsBlock.style.display = 'block';
+                }
+            }
+
+            resultsBlock.style.display = 'none';
+            const activeTab = document.querySelector('.cargo-calc-tab.active');
+            if (activeTab) selectedCountry = activeTab.dataset.country;
+            const initialCat = categorySelect.value;
+            if (defaultUnitWeights[initialCat] !== undefined) {
+                unitWeightInput.value = defaultUnitWeights[initialCat];
+            }
+        })();
+
+        // Скролл к калькулятору по клику на иконку в хедере
+        document.getElementById('cargoCalcScrollBtn').addEventListener('click', function() {
+            document.getElementById('cargoCalculator').scrollIntoView({ behavior: 'smooth' });
+        });
     </script>
 </body>
 </html>
-
