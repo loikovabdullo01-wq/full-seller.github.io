@@ -6021,20 +6021,30 @@ if (cargoCalcScrollBtn) {
 function initOnlinePresence() {
     const countElement = document.getElementById('onlineCount');
     if (!countElement || !db) return;
-    const presenceId = sessionStorage.getItem('fullseller_presence_id') || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random().toString(36).slice(2)}`);
+    
+    const presenceId = sessionStorage.getItem('fullseller_presence_id') || 
+                      (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random().toString(36).slice(2)}`);
     sessionStorage.setItem('fullseller_presence_id', presenceId);
+    
     const presenceRef = db.collection('presence').doc(presenceId);
     const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
     const HEARTBEAT_MS = 30000;
+    
     let lastActivityAt = Date.now();
     let lastHeartbeatAt = 0;
     let latestSnapshot = null;
+    let isCleanedUp = false;
+
     const heartbeat = () => {
+        if (isCleanedUp) return;
         if (document.visibilityState !== 'visible' || Date.now() - lastActivityAt > ACTIVE_WINDOW_MS) return;
         if (Date.now() - lastHeartbeatAt < HEARTBEAT_MS) return;
         lastHeartbeatAt = Date.now();
-        presenceRef.set({ lastActivity: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(() => {});
+        presenceRef.set({ 
+            lastActivity: firebase.firestore.FieldValue.serverTimestamp() 
+        }, { merge: true }).catch(() => {});
     };
+
     const updateCount = () => {
         if (!latestSnapshot) return;
         const cutoff = Date.now() - ACTIVE_WINDOW_MS;
@@ -6044,29 +6054,54 @@ function initOnlinePresence() {
         }, 0);
         countElement.textContent = activeCount;
     };
+
     const unsubscribe = db.collection('presence').onSnapshot(snapshot => {
         latestSnapshot = snapshot;
         updateCount();
-    }, () => { latestSnapshot = null; countElement.textContent = '0'; });
+    }, () => { 
+        latestSnapshot = null; 
+        countElement.textContent = '0'; 
+    });
+
     const activityEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
     const registerActivity = () => {
         if (document.visibilityState !== 'visible') return;
         lastActivityAt = Date.now();
         heartbeat();
     };
-    activityEvents.forEach(eventName => document.addEventListener(eventName, registerActivity, { passive: true }));
+
+    activityEvents.forEach(eventName => 
+        document.addEventListener(eventName, registerActivity, { passive: true })
+    );
+
     const countTimer = window.setInterval(updateCount, 15000);
+    
+    // Немедленный heartbeat при загрузке
     heartbeat();
+    
     const heartbeatTimer = window.setInterval(heartbeat, 10000);
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') registerActivity(); });
+
+    document.addEventListener('visibilitychange', () => { 
+        if (document.visibilityState === 'visible') {
+            lastActivityAt = Date.now();
+            heartbeat();
+        }
+    });
+
     window.addEventListener('pagehide', () => {
+        if (isCleanedUp) return;
+        isCleanedUp = true;
         window.clearInterval(heartbeatTimer);
         window.clearInterval(countTimer);
-        activityEvents.forEach(eventName => document.removeEventListener(eventName, registerActivity));
+        activityEvents.forEach(eventName => 
+            document.removeEventListener(eventName, registerActivity)
+        );
         unsubscribe();
         presenceRef.delete().catch(() => {});
     }, { once: true });
 }
+// В конце скрипта, перед закрытием
+initOnlinePresence();
 </script>
 </body>
 </html>
