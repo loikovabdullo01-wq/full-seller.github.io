@@ -3963,24 +3963,18 @@ body:has(#siteLoader:not(.is-hidden)) .bottom-nav { display: none !important; }
         <a href="#" id="mobileAdminLink" class="mobile-menu-link" style="display:none;">Админ</a>
     </div>
 
-<!-- Добавьте эти теги скриптов в секцию <head> или перед вашим основным скриптом -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+<!-- Подключение Supabase вместо Firebase -->
+<script src="https://jsdelivr.net"></script>
 
 <script>
-// ---------- КОНФИГУРАЦИЯ FIREBASE ----------
-const firebaseConfig = {
-    apiKey: "AIzaSyBhiwklrTbPHfhkx5ePR9mtxNzvN4C5-dw",
-    authDomain: "full-seller.firebaseapp.com",
-    projectId: "full-seller",
-    storageBucket: "full-seller.firebasestorage.app",
-    messagingSenderId: "858609506770",
-    appId: "1:858609506770:web:b83498774cfe14f1cbd00b",
-    measurementId: "G-SKPL9X4NVM"
-};
+// ---------- КОНФИГУРАЦИЯ SUPABASE ----------
+const supabaseUrl = 'https://supabase.co'; 
+const supabaseKey = 'sb_publishable_U30ZQe5aww9kvqSgHRBh9g_E_FIzTzK5M_1bLw3';
+
+// Инициализация клиента Supabase (теперь без опечаток)
+const db = supabase.createClient(supabaseUrl, supabaseKey);
+</script>
+
 
 // Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
