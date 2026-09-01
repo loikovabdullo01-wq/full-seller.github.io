@@ -4960,10 +4960,10 @@
         <main class="container" style="flex:1;">
             <div class="banner-slider" id="mainBannerSlider">
                 <div class="slides" id="bannerSlides">
-                    <div class="slide"><img src="030303.png" alt="Акция 1"></div>
+                    <div class="slide"><img src="images/030303.png" alt="Акция 1"></div>
 
-                    <div class="slide"><img src="01010101.png" alt="Акция 2"></div>
-                    <div class="slide"><img src="101010.png" alt="Акция 3"></div>
+                    <div class="slide"><img src="images/01010101.png" alt="Акция 2"></div>
+                    <div class="slide"><img src="images/101010.png" alt="Акция 3"></div>
                 </div>
 
                 <div class="dots" id="bannerDots"></div>
@@ -5515,6 +5515,13 @@
         ];
 
         // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+        const PRODUCT_IMAGES_FOLDER = 'images/';
+        // Supabase хранит только имя файла (напр. "11223.jpg") — достраиваем папку, кроме уже полных URL.
+        function resolveImagePath(name) {
+            if (!name) return '';
+            if (/^(https?:)?\/\//i.test(name) || name.startsWith(PRODUCT_IMAGES_FOLDER) || name.startsWith('data:')) return name;
+            return PRODUCT_IMAGES_FOLDER + name;
+        }
         function saveCart() { localStorage.setItem('fullseller_cart', JSON.stringify(cart)); updateCartUI(); }
         function saveFavorites() { localStorage.setItem('fullseller_favorites', JSON.stringify(favorites)); }
 
@@ -5807,7 +5814,7 @@
                 const finalPrice = getFinalPrice(p);
                 const sub = finalPrice * item.qty;
                 total += sub;
-                const imgSrc = (p.images && p.images[0]) || p.imageUrl || '';
+                const imgSrc = resolveImagePath((p.images && p.images[0]) || p.imageUrl || '');
                 const imgContent = imgSrc ? `<img src="${imgSrc}" alt="${p.name}" loading="lazy">` : '<i class="fas fa-tshirt cart-item-card__placeholder"></i>';
                 return `<article class="cart-item-card">
                 <div class="cart-item-card__image">${imgContent}</div>
@@ -5944,7 +5951,7 @@
                 const basePriceStr = formatPrice(basePrice);
 
                 const productImages = (p.images && Array.isArray(p.images) && p.images.length > 0) ? p.images : (p.imageUrl ? [p.imageUrl] : []);
-                const firstImage = productImages[0];
+                const firstImage = resolveImagePath(productImages[0]);
                 const imgContent = firstImage
                     ? `<img src="${firstImage}" alt="${p.name}" loading="lazy">`
                     : '<i class="fas fa-tshirt" style="font-size:4rem; color:#d97706;"></i>';
@@ -6020,7 +6027,7 @@
             if (!slidesContainer || !dotsContainer) return;
 
             const images = (product.images && Array.isArray(product.images)) ? product.images.filter(Boolean) : [];
-            const fallbackImage = product.imageUrl || '';
+            const fallbackImage = resolveImagePath(product.imageUrl || '');
 
             if (images.length === 0) {
                 slidesContainer.innerHTML = fallbackImage
@@ -6035,7 +6042,7 @@
 
             slidesContainer.innerHTML = images.map((img, idx) => `
             <div class="product-page__slide" data-index="${idx}">
-                <img src="${img}" alt="${product.name} ${idx + 1}" loading="lazy">
+                <img src="${resolveImagePath(img)}" alt="${product.name} ${idx + 1}" loading="lazy">
             </div>
         `).join('');
 
@@ -6181,7 +6188,7 @@
                 const p = getProductById(id);
                 if (!p) return '';
                 const finalPrice = getFinalPrice(p);
-                const imgSrc = (p.images && p.images[0]) || p.imageUrl || '';
+                const imgSrc = resolveImagePath((p.images && p.images[0]) || p.imageUrl || '');
                 const imgContent = imgSrc ? `<img src="${imgSrc}" alt="${p.name}">` : '<i class="fas fa-tshirt" style="font-size:2rem; width:50px; text-align:center;"></i>';
                 return `
                 <div class="favorites-item">
