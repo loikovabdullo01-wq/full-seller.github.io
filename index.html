@@ -5522,6 +5522,9 @@
             if (/^(https?:)?\/\//i.test(name) || name.startsWith(PRODUCT_IMAGES_FOLDER) || name.startsWith('data:')) return name;
             return PRODUCT_IMAGES_FOLDER + name;
         }
+        // Серый SVG-плейсхолдер вместо сломанной картинки, если файла нет в images/
+        const FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22 viewBox=%220 0 400 400%22><rect width=%22400%22 height=%22400%22 fill=%22%23eef1f6%22/><circle cx=%22165%22 cy=%22165%22 r=%2218%22 fill=%22%23c7ced9%22/><path d=%22M140 260h120l-35-55-25 30-20-25z%22 fill=%22%23c7ced9%22/></svg>';
+        const IMG_FALLBACK_ATTR = 'onerror="this.onerror=null;this.src=\'' + FALLBACK_IMAGE + '\';"';
         function saveCart() { localStorage.setItem('fullseller_cart', JSON.stringify(cart)); updateCartUI(); }
         function saveFavorites() { localStorage.setItem('fullseller_favorites', JSON.stringify(favorites)); }
 
@@ -5815,7 +5818,7 @@
                 const sub = finalPrice * item.qty;
                 total += sub;
                 const imgSrc = resolveImagePath((p.images && p.images[0]) || p.imageUrl || '');
-                const imgContent = imgSrc ? `<img src="${imgSrc}" alt="${p.name}" loading="lazy">` : '<i class="fas fa-tshirt cart-item-card__placeholder"></i>';
+                const imgContent = imgSrc ? `<img src="${imgSrc}" alt="${p.name}" loading="lazy" ${IMG_FALLBACK_ATTR}>` : '<i class="fas fa-tshirt cart-item-card__placeholder"></i>';
                 return `<article class="cart-item-card">
                 <div class="cart-item-card__image">${imgContent}</div>
                 <div class="cart-item-card__body">
@@ -5953,7 +5956,7 @@
                 const productImages = (p.images && Array.isArray(p.images) && p.images.length > 0) ? p.images : (p.imageUrl ? [p.imageUrl] : []);
                 const firstImage = resolveImagePath(productImages[0]);
                 const imgContent = firstImage
-                    ? `<img src="${firstImage}" alt="${p.name}" loading="lazy">`
+                    ? `<img src="${firstImage}" alt="${p.name}" loading="lazy" ${IMG_FALLBACK_ATTR}>`
                     : '<i class="fas fa-tshirt" style="font-size:4rem; color:#d97706;"></i>';
 
                 return `
@@ -6031,7 +6034,7 @@
 
             if (images.length === 0) {
                 slidesContainer.innerHTML = fallbackImage
-                    ? `<div class="product-page__slide"><img src="${fallbackImage}" alt="${product.name}" loading="lazy"></div>`
+                    ? `<div class="product-page__slide"><img src="${fallbackImage}" alt="${product.name}" loading="lazy" ${IMG_FALLBACK_ATTR}></div>`
                     : `<div class="product-page__slide product-page__slide--empty"><i class="fas fa-image"></i></div>`;
                 dotsContainer.innerHTML = '';
                 currentDetailImageIndex = 0;
@@ -6042,7 +6045,7 @@
 
             slidesContainer.innerHTML = images.map((img, idx) => `
             <div class="product-page__slide" data-index="${idx}">
-                <img src="${resolveImagePath(img)}" alt="${product.name} ${idx + 1}" loading="lazy">
+                <img src="${resolveImagePath(img)}" alt="${product.name} ${idx + 1}" loading="lazy" ${IMG_FALLBACK_ATTR}>
             </div>
         `).join('');
 
@@ -6189,7 +6192,7 @@
                 if (!p) return '';
                 const finalPrice = getFinalPrice(p);
                 const imgSrc = resolveImagePath((p.images && p.images[0]) || p.imageUrl || '');
-                const imgContent = imgSrc ? `<img src="${imgSrc}" alt="${p.name}">` : '<i class="fas fa-tshirt" style="font-size:2rem; width:50px; text-align:center;"></i>';
+                const imgContent = imgSrc ? `<img src="${imgSrc}" alt="${p.name}" ${IMG_FALLBACK_ATTR}>` : '<i class="fas fa-tshirt" style="font-size:2rem; width:50px; text-align:center;"></i>';
                 return `
                 <div class="favorites-item">
                     ${imgContent}
