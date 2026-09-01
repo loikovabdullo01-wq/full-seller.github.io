@@ -13,12 +13,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts: Inter + Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-   <!-- Firebase SDK (compat) -->
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
-
     <style>
 /* ---------- СБРОС И ПЕРЕМЕННЫЕ ---------- */
         * {
@@ -3432,17 +3426,16 @@ body:has(#siteLoader:not(.is-hidden)) .bottom-nav { display: none !important; }
 }
 
     </style>
-<base target="_blank">
-<base target="_blank">
+
+
 </head>
 <body>
     <div class="site-loader" id="siteLoader" aria-label="Загрузка FULL SELLER">
         <img class="site-loader__logo" src="иконнка.png" alt="FULL SELLER">
         <div class="site-loader__track"><span></span></div>
     </div>
-    <!-- Модальные окна, шапка, контент и скрипты остаются БЕЗ ИЗМЕНЕНИЙ -->
-    <!-- ... (весь остальной HTML как в оригинале) ... -->
-         <!-- Модальные окна -->
+    
+    <!-- Модальные окна -->
     <div class="modal" id="orderModal">
         <div class="modal-content">
             <span class="modal-close" id="closeOrderModal">&times;</span>
@@ -3590,11 +3583,9 @@ body:has(#siteLoader:not(.is-hidden)) .bottom-nav { display: none !important; }
             <div class="banner-slider" id="mainBannerSlider">
                 <div class="slides" id="bannerSlides">
                     <div class="slide"><img src="030303.png" alt="Акция 1"></div>
-            
                     <div class="slide"><img src="01010101.png" alt="Акция 2"></div>
                     <div class="slide"><img src="101010.png" alt="Акция 3"></div>
                 </div>
-              
                 <div class="dots" id="bannerDots"></div>
             </div>
 
@@ -3621,7 +3612,6 @@ body:has(#siteLoader:not(.is-hidden)) .bottom-nav { display: none !important; }
 
             <section id="wholesale" class="wholesale-section">
                 <div class="section-heading">
-                   
                     <h2 class="section-title">Оптовые условия и доставка</h2>
                     <p class="section-copy">Надежный партнер для регулярных оптовых закупок, прозрачных условий и стабильных поставок.</p>
                 </div>
@@ -3964,2139 +3954,892 @@ body:has(#siteLoader:not(.is-hidden)) .bottom-nav { display: none !important; }
         <a href="#" id="mobileAdminLink" class="mobile-menu-link" style="display:none;">Админ</a>
     </div>
 
-<!-- Подключение Supabase вместо Firebase -->
-<script src="https://jsdelivr.net"></script>
+    <script>
+        // ---------- КОНФИГУРАЦИЯ ----------
+        const ADMIN_EMAIL = "fullselleradmin@gmail.com";
 
-<script>
-// ---------- КОНФИГУРАЦИЯ SUPABASE ----------
-const supabaseUrl = 'https://supabase.co'; 
-const supabaseKey = 'sb_publishable_U30ZQe5aww9kvqSgHRBh9g_E_FIzTzK5M_1bLw3';
+        const State = {
+            percentageDiscount: 0,
+            fixedDiscountRub: 0,
+            rating: 4.2,
+            currency: localStorage.getItem('fullseller_currency') || 'RUB',
+            exchangeRate: 95
+        };
 
-// Инициализация клиента Supabase (теперь без опечаток)
-const db = supabase.createClient(supabaseUrl, supabaseKey);
-</script>
+        const internalPageHistory = ['home'];
 
+        let currentUser = null; // Будет хранить данные пользователя локально
+        let currentCategory = 'all';
+        let currentBrandFilter = 'all';
+        let allProducts = { socks: [], regular: [], tshirts: [], underwear: [], pants: [], shorts: [] };
+        let cart = JSON.parse(localStorage.getItem('fullseller_cart')) || [];
+        let favorites = JSON.parse(localStorage.getItem('fullseller_favorites')) || [];
+        let allReviews = [];
+        let showAllReviews = false;
+        let selectedRating = 0;
+        let reviewPhotoFiles = [];
 
-// Инициализация Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Инициализация сервисов Firebase
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-// Инициализация Google Analytics
-let analytics = null;
-try {
-    if (firebase.analytics) {
-        analytics = firebase.analytics();
-        console.log('✅ Google Analytics успешно инициализирован');
-        analytics.setAnalyticsCollectionEnabled(true);
-    } else {
-        console.error('❌ Firebase Analytics SDK не загружен.');
-    }
-} catch (error) {
-    console.error('❌ Ошибка инициализации Google Analytics:', error);
-}
-
-const ADMIN_EMAIL = "fullselleradmin@gmail.com";
-
-const State = {
-    percentageDiscount: 0,
-    fixedDiscountRub: 0,
-    rating: 4.2,
-    currency: localStorage.getItem('fullseller_currency') || 'RUB',
-    exchangeRate: 95
-};
-
-const internalPageHistory = ['home'];
-
-let currentUser = null;
-let currentCategory = 'all';
-let currentBrandFilter = 'all';
-let allProducts = { socks: [], regular: [], tshirts: [], underwear: [] };
-let cart = JSON.parse(localStorage.getItem('fullseller_cart')) || [];
-let favorites = JSON.parse(localStorage.getItem('fullseller_favorites')) || [];
-let allReviews = [];
-let showAllReviews = false;
-let selectedRating = 0;
-let reviewPhotoFiles = [];
-let reviewVideoFiles = [];
-
-function logAnalyticsEvent(eventName, eventParams = {}) {
-    if (analytics) {
-        try {
-            analytics.logEvent(eventName, eventParams);
-            console.log(`📊 Событие ${eventName} отправлено`);
-        } catch (error) {
-            console.error(`❌ Ошибка отправки события ${eventName}:`, error);
+        function logAnalyticsEvent(eventName, eventParams = {}) {
+            console.log('📊 Событие ' + eventName + ':', eventParams);
         }
-    }
-}
 
-function trackPageView(pageName) {
-    if (analytics) {
-        try {
-            analytics.logEvent('page_view', {
-                page_title: pageName,
-                page_location: window.location.href,
-                page_path: '/' + pageName
+        function trackPageView(pageName) {
+            console.log('👁️ Просмотр страницы: ' + pageName);
+        }
+
+        // ---------- ВАЛИДАЦИЯ ТЕЛЕФОНА ----------
+        function validateInternationalPhone(phone) {
+            const phoneRegex = /^\+[1-9]\d{7,14}$/;
+            return phoneRegex.test(phone);
+        }
+
+        function formatPhoneInput(input) {
+            let value = input.value.replace(/[^\d+]/g, '');
+            if (!value.startsWith('+')) {
+                value = '+' + value;
+            }
+            const plusCount = (value.match(/\+/g) || []).length;
+            if (plusCount > 1) {
+                value = '+' + value.replace(/\+/g, '');
+            }
+            if (value.length > 16) {
+                value = value.substring(0, 16);
+            }
+            input.value = value;
+        }
+
+        // ---------- СТАТИЧЕСКИЕ ТОВАРЫ ----------
+        const STATIC_SOCKS = [
+            { id: 'static1', name: "Nike Everyday (Белые)", price: 13, desc: "Классические белые носки Nike, технология Dri‑FIT.", images: ["67.jpg"], material: "Хлопок 75%, Полиэстер 22%", size: "38‑44", brand: "Nike", rating: 4.5, stock: 500, category: 'socks' },
+            { id: 'static2', name: "Nike Everyday (Черные)", price: 13, desc: "Спортивные черные носки Nike.", images: ["12344.jpg"], material: "Хлопок 75%, Полиэстер 22%", size: "38‑44", brand: "Nike", rating: 4.6, stock: 500, category: 'socks' },
+            { id: 'static3', name: "Nike Everyday (Серые)", price: 13, desc: "Универсальные серые носки Nike.", images: ["69.jpg"], material: "Хлопок 75%, Полиэстер 22%", size: "38‑44", brand: "Nike", rating: 4.4, stock: 500, category: 'socks' },
+            { id: 'static4', name: "Nike Everyday (Синие)", price: 13, desc: "Тёмно-синие носки Nike.", images: ["1122.jpg"], material: "Хлопок 75%, Полиэстер 22%", size: "38‑44", brand: "Nike", rating: 4.3, stock: 500, category: 'socks' },
+            { id: 'static5', name: "Adidas Cushioned (Белые)", price: 13, desc: "Белые носки Adidas.", images: ["2121.jpg"], material: "Хлопок 60%, Полиэстер 36%", size: "39‑45", brand: "Adidas", rating: 4.5, stock: 500, category: 'socks' },
+            { id: 'static6', name: "Adidas Cushioned (Черные)", price: 13, desc: "Черные носки Adidas.", images: ["1212.jpg"], material: "Хлопок 60%, Полиэстер 36%", size: "39‑45", brand: "Adidas", rating: 4.7, stock: 500, category: 'socks' },
+            { id: 'static7', name: "Adidas Cushioned (Серые)", price: 13, desc: "Серые носки Adidas.", images: ["1234.jpg"], material: "Хлопок 60%, Полиэстер 36%", size: "39‑45", brand: "Adidas", rating: 4.4, stock: 500, category: 'socks' },
+            { id: 'static8', name: "Adidas Cushioned (Синие)", price: 13, desc: "Синие носки Adidas.", images: ["4321.jpg"], material: "Хлопок 60%, Полиэстер 36%", size: "39‑45", brand: "Adidas", rating: 4.5, stock: 500, category: 'socks' },
+            { id: 'static9', name: "Puma Performance (Белые)", price: 13, desc: "Спортивные белые носки Puma.", images: ["60.jpg"], material: "Хлопок 78%, Полиамид 18%", size: "39‑46", brand: "Puma", rating: 4.3, stock: 500, category: 'socks' },
+            { id: 'static10', name: "Puma Performance (Черные)", price: 13, desc: "Черные носки Puma.", images: ["61.jpg"], material: "Хлопок 78%, Полиамид 18%", size: "39‑46", brand: "Puma", rating: 4.6, stock: 500, category: 'socks' },
+            { id: 'static11', name: "Puma Performance (Серые)", price: 13, desc: "Серые носки Puma.", images: ["пм.png"], material: "Хлопок 78%, Полиамид 18%", size: "39‑46", brand: "Puma", rating: 4.4, stock: 500, category: 'socks' },
+            { id: 'static12', name: "Puma Performance (Синие)", price: 13, desc: "Ярко-синие носки Puma.", images: ["11223.jpg"], material: "Хлопок 78%, Полиамид 18%", size: "39‑46", brand: "Puma", rating: 4.2, stock: 500, category: 'socks' },
+            { id: 'static13', name: "Fila Retro (Белые)", price: 13, desc: "Белые носки Fila.", images: ["63.jpg"], material: "Хлопок 80%, Эластан 5%", size: "39‑45", brand: "Fila", rating: 4.1, stock: 500, category: 'socks' },
+            { id: 'static14', name: "Fila Retro (Черные)", price: 13, desc: "Черные носки Fila.", images: ["64.jpg"], material: "Хлопок 80%, Эластан 5%", size: "39‑45", brand: "Fila", rating: 4.5, stock: 500, category: 'socks' },
+            { id: 'static15', name: "Fila Retro (Серые)", price: 13, desc: "Серые ретро-носки Fila.", images: ["65.jpg"], material: "Хлопок 80%, Эластан 5%", size: "39‑45", brand: "Fila", rating: 4.3, stock: 500, category: 'socks' },
+            { id: 'static16', name: "Fila Retro (Синие)", price: 13, desc: "Синие носки Fila.", images: ["66.jpg"], material: "Хлопок 80%, Эластан 5%", size: "39‑45", brand: "Fila", rating: 4.4, stock: 500, category: 'socks' }
+        ];
+
+        const STATIC_REGULAR_SOCKS = [
+            { id: 'regular1', name: "Обычные носки (Белые)", price: 13, desc: "Классические белые носки.", images: ["82.jpg"], material: "Хлопок 80%, Полиэстер 18%", size: "38‑45", brand: "Обычные", rating: 4.0, stock: 500, category: 'regular' },
+            { id: 'regular2', name: "Обычные носки (Черные)", price: 13, desc: "Черные базовые носки.", images: ["11111.jpg"], material: "Хлопок 80%, Полиэстер 18%", size: "38‑45", brand: "Обычные", rating: 4.1, stock: 500, category: 'regular' },
+            { id: 'regular3', name: "Обычные носки (Серые)", price: 13, desc: "Серые носки средней длины.", images: ["2222.jpg"], material: "Хлопок 80%, Полиэстер 18%", size: "38‑45", brand: "Обычные", rating: 4.1, stock: 500, category: 'regular' },
+            { id: 'regular4', name: "Обычные носки (Синие)", price: 13, desc: "Синие повседневные носки.", images: ["222.jpg"], material: "Хлопок 80%, Полиэстер 18%", size: "38‑45", brand: "Обычные", rating: 4.0, stock: 500, category: 'regular' }
+        ];
+
+        const STATIC_TSHIRTS = [
+            { id: 'tshirt1', name: "Classic White (Белая)", price: 145, desc: "Классическая белая футболка.", images: ["11222.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Nike", rating: 4.6, stock: 300, category: 'tshirts' },
+            { id: 'tshirt4', name: "Basic Dark (Бордовая)", price: 145, desc: "Однотонная бордовая футболка.", images: ["93.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Adidas", rating: 4.6, stock: 300, category: 'tshirts' },
+            { id: 'tshirt3', name: "Basic Light (Белая)", price: 145, desc: "Базовая светлая футболка.", images: ["футб1.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Adidas", rating: 4.5, stock: 300, category: 'tshirts' },
+            { id: 'tshirt2', name: "Urban Black (Черная)", price: 145, desc: "Черная футболка.", images: ["12222.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Nike", rating: 4.7, stock: 300, category: 'tshirts' },
+            { id: 'tshirt5', name: "Vintage Washed (Графит)", price: 145, desc: "Оверсайз футболка.", images: ["94.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Puma", rating: 4.4, stock: 300, category: 'tshirts' },
+            { id: 'tshirt6', name: "Summer Tank (Белая)", price: 145, desc: "Легкая белая майка.", images: ["футб2.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Puma", rating: 4.3, stock: 300, category: 'tshirts' },
+            { id: 'tshirt7', name: "Футболка мужская хлопковая (Белая)", price: 145, desc: "Базовая футболка.", images: ["455.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Обычные", rating: 4.8, stock: 200, category: 'tshirts' },
+            { id: 'tshirt8', name: "Футболка мужская хлопковая (Черная)", price: 145, desc: "Классическая однотонная футболка.", images: ["456.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Обычные", rating: 4.7, stock: 250, category: 'tshirts' },
+            { id: 'tshirt9', name: "Футболка мужская хлопковая (Темно-синяя)", price: 145, desc: "Стильная футболка.", images: ["457.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Обычные", rating: 4.6, stock: 150, category: 'tshirts' }
+        ];
+
+        const STATIC_UNDERWEAR = [
+            { id: 'uw1', name: "Nike Boxer (Белые)", price: 145, desc: "Белые боксеры Nike Dri-FIT.", images: ["1111.png"], material: "Хлопок 95%, Эластан 5%", size: "S-XXL", brand: "Nike", rating: 4.5, stock: 400, category: 'underwear' },
+            { id: 'uw2', name: "Nike Boxer (Черные)", price: 145, desc: "Черные боксеры Nike.", images: ["knjyn.jpg"], material: "Хлопок 95%, Эластан 5%", size: "S-XXL", brand: "Nike", rating: 4.6, stock: 400, category: 'underwear' },
+            { id: 'pants1', name: "Брюки-джоггеры камуфляжные", price: 145, desc: "Повседневные тактические штаны.", images: ["458.png"], material: "Хлопок 65%, Полиэстер 35%", size: "46-56", brand: "Обычные", rating: 4.9, stock: 80, category: 'pants' },
+            { id: 'shorts1', name: "Шорты мужские трикотажные", price: 145, desc: "Удлиненные летние шорты.", images: ["459.png"], material: "Хлопок 80%, Полиэстер 20%", size: "S-XL", brand: "Обычные", rating: 4.5, stock: 120, category: 'shorts' }
+        ];
+
+        // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+        function saveCart() { 
+            localStorage.setItem('fullseller_cart', JSON.stringify(cart)); 
+            updateCartUI(); 
+        }
+
+        function saveFavorites() { 
+            localStorage.setItem('fullseller_favorites', JSON.stringify(favorites)); 
+        }
+
+        function updateCartUI() {
+            const total = cart.reduce((sum, i) => sum + i.qty, 0);
+            const bottomBadge = document.getElementById('bottomCartBadge');
+            if (bottomBadge) {
+                bottomBadge.textContent = total;
+                bottomBadge.style.display = total > 0 ? 'inline' : 'none';
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.textContent = msg;
+            t.style.cssText = 'position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:var(--accent); color:white; padding:12px 28px; border-radius:40px; font-weight:600; z-index:999;';
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2000);
+        }
+
+        function getProductById(id) {
+            for (let cat in allProducts) {
+                const p = allProducts[cat].find(p => p.id === id);
+                if (p) return p;
+            }
+            return null;
+        }
+
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function getFinalPrice(product) {
+            if (!product) return 0;
+            const base = product.category === 'socks' || product.category === 'regular' ? 13 : (product.price || 0);
+            let discountPercent = State.percentageDiscount;
+            if (discountPercent >= 100) discountPercent = 0;
+            const final = (base * (1 - discountPercent / 100)) - State.fixedDiscountRub;
+            return Math.max(0.01, Math.round(final * 100) / 100);
+        }
+
+        function formatPrice(priceRub) {
+            if (priceRub == null || isNaN(priceRub)) return State.currency === 'USD' ? '$0.00' : '0 ₽';
+            if (State.currency === 'USD') {
+                return '$' + (priceRub / State.exchangeRate).toFixed(2);
+            }
+            const rounded = Math.round(priceRub * 100) / 100;
+            return Number.isInteger(rounded) ? rounded + ' ₽' : rounded.toFixed(2) + ' ₽';
+        }
+
+        function toggleCurrency() {
+            State.currency = State.currency === 'RUB' ? 'USD' : 'RUB';
+            localStorage.setItem('fullseller_currency', State.currency);
+            const currencyBtn = document.getElementById('currencyBtn');
+            if (currencyBtn) currencyBtn.textContent = State.currency === 'RUB' ? '₽' : '$';
+            renderCatalog();
+            renderCartModal();
+            if (document.getElementById('favoritesPage').classList.contains('active')) renderFavoritesModal();
+            if (document.getElementById('productDetailPage').classList.contains('active')) {
+                const currentId = document.getElementById('productDetailPage').dataset.currentId;
+                if (currentId) openProductPage(currentId);
+            }
+        }
+
+        // ---------- SPA НАВИГАЦИЯ ----------
+        function setBodyPageClass(pageName) {
+            const body = document.body;
+            const classesToRemove = [];
+            body.classList.forEach(cls => { 
+                if (cls.startsWith('page-')) classesToRemove.push(cls); 
             });
-            analytics.setCurrentScreen(pageName);
-            console.log(`👁️ Просмотр страницы: ${pageName}`);
-        } catch (error) {
-            console.error('❌ Ошибка отслеживания страницы:', error);
+            classesToRemove.forEach(cls => body.classList.remove(cls));
+            body.classList.add('page-' + pageName);
         }
-    }
-}
 
-// ---------- ВАЛИДАЦИЯ ТЕЛЕФОНА (E.164) ----------
-function validateInternationalPhone(phone) {
-    const phoneRegex = /^\+[1-9]\d{7,14}$/;
-    return phoneRegex.test(phone);
-}
-
-function formatPhoneInput(input) {
-    let value = input.value.replace(/[^\d+]/g, '');
-    
-    if (!value.startsWith('+')) {
-        value = '+' + value;
-    }
-    
-    const plusCount = (value.match(/\+/g) || []).length;
-    if (plusCount > 1) {
-        value = '+' + value.replace(/\+/g, '');
-    }
-    
-    if (value.length > 16) {
-        value = value.substring(0, 16);
-    }
-    
-    input.value = value;
-}
-
-// ---------- СТАТИЧЕСКИЕ ТОВАРЫ ----------
-const STATIC_SOCKS = [
-    { id: 'static1', name: "Nike Everyday (Белые)", price: 13, desc: "Классические белые носки Nike, технология Dri‑FIT.", images: ["67.jpg"], material: "Хлопок 75%, Полиэстер 22%", size: "38‑44", brand: "Nike", rating: 4.5, stock: 500, category: 'socks' },
-    { id: 'static2', name: "Nike Everyday (Черные)", price: 13, desc: "Спортивные черные носки Nike.", images: ["12344.jpg"], material: "Хлопок 75%, Полиэстер 22%", size: "38‑44", brand: "Nike", rating: 4.6, stock: 500, category: 'socks' },
-    { id: 'static3', name: "Nike Everyday (Серые)", price: 13, desc: "Универсальные серые носки Nike.", images: ["69.jpg"], material: "Хлопок 75%, Полиэстер 22%", size: "38‑44", brand: "Nike", rating: 4.4, stock: 500, category: 'socks' },
-    { id: 'static4', name: "Nike Everyday (Синие)", price: 13, desc: "Тёмно-синие носки Nike.", images: ["1122.jpg"], material: "Хлопок 75%, Полиэстер 22%", size: "38‑44", brand: "Nike", rating: 4.3, stock: 500, category: 'socks' },
-    { id: 'static5', name: "Adidas Cushioned (Белые)", price: 13, desc: "Белые носки Adidas.", images: ["2121.jpg"], material: "Хлопок 60%, Полиэстер 36%", size: "39‑45", brand: "Adidas", rating: 4.5, stock: 500, category: 'socks' },
-    { id: 'static6', name: "Adidas Cushioned (Черные)", price: 13, desc: "Черные носки Adidas.", images: ["1212.jpg"], material: "Хлопок 60%, Полиэстер 36%", size: "39‑45", brand: "Adidas", rating: 4.7, stock: 500, category: 'socks' },
-    { id: 'static7', name: "Adidas Cushioned (Серые)", price: 13, desc: "Серые носки Adidas.", images: ["1234.jpg"], material: "Хлопок 60%, Полиэстер 36%", size: "39‑45", brand: "Adidas", rating: 4.4, stock: 500, category: 'socks' },
-    { id: 'static8', name: "Adidas Cushioned (Синие)", price: 13, desc: "Синие носки Adidas.", images: ["4321.jpg"], material: "Хлопок 60%, Полиэстер 36%", size: "39‑45", brand: "Adidas", rating: 4.5, stock: 500, category: 'socks' },
-    { id: 'static9', name: "Puma Performance (Белые)", price: 13, desc: "Спортивные белые носки Puma.", images: ["60.jpg"], material: "Хлопок 78%, Полиамид 18%", size: "39‑46", brand: "Puma", rating: 4.3, stock: 500, category: 'socks' },
-    { id: 'static10', name: "Puma Performance (Черные)", price: 13, desc: "Черные носки Puma.", images: ["61.jpg"], material: "Хлопок 78%, Полиамид 18%", size: "39‑46", brand: "Puma", rating: 4.6, stock: 500, category: 'socks' },
-    { id: 'static11', name: "Puma Performance (Серые)", price: 13, desc: "Серые носки Puma.", images: ["пм.png"], material: "Хлопок 78%, Полиамид 18%", size: "39‑46", brand: "Puma", rating: 4.4, stock: 500, category: 'socks' },
-    { id: 'static12', name: "Puma Performance (Синие)", price: 13, desc: "Ярко-синие носки Puma.", images: ["11223.jpg"], material: "Хлопок 78%, Полиамид 18%", size: "39‑46", brand: "Puma", rating: 4.2, stock: 500, category: 'socks' },
-    { id: 'static13', name: "Fila Retro (Белые)", price: 13, desc: "Белые носки Fila.", images: ["63.jpg"], material: "Хлопок 80%, Эластан 5%", size: "39‑45", brand: "Fila", rating: 4.1, stock: 500, category: 'socks' },
-    { id: 'static14', name: "Fila Retro (Черные)", price: 13, desc: "Черные носки Fila.", images: ["64.jpg"], material: "Хлопок 80%, Эластан 5%", size: "39‑45", brand: "Fila", rating: 4.5, stock: 500, category: 'socks' },
-    { id: 'static15', name: "Fila Retro (Серые)", price: 13, desc: "Серые ретро-носки Fila.", images: ["65.jpg"], material: "Хлопок 80%, Эластан 5%", size: "39‑45", brand: "Fila", rating: 4.3, stock: 500, category: 'socks' },
-    { id: 'static16', name: "Fila Retro (Синие)", price: 13, desc: "Синие носки Fila.", images: ["66.jpg"], material: "Хлопок 80%, Эластан 5%", size: "39‑45", brand: "Fila", rating: 4.4, stock: 500, category: 'socks' }
-];
-
-const STATIC_REGULAR_SOCKS = [
-    { id: 'regular1', name: "Обычные носки (Белые)", price: 13, desc: "Классические белые носки.", images: ["82.jpg"], material: "Хлопок 80%, Полиэстер 18%", size: "38‑45", brand: "Обычные", rating: 4.0, stock: 500, category: 'regular' },
-    { id: 'regular2', name: "Обычные носки (Черные)", price: 13, desc: "Черные базовые носки.", images: ["11111.jpg"], material: "Хлопок 80%, Полиэстер 18%", size: "38‑45", brand: "Обычные", rating: 4.1, stock: 500, category: 'regular' },
-    { id: 'regular3', name: "Обычные носки (Серые)", price: 13, desc: "Серые носки средней длины.", images: ["2222.jpg"], material: "Хлопок 80%, Полиэстер 18%", size: "38‑45", brand: "Обычные", rating: 4.1, stock: 500, category: 'regular' },
-    { id: 'regular4', name: "Обычные носки (Синие)", price: 13, desc: "Синие повседневные носки.", images: ["222.jpg"], material: "Хлопок 80%, Полиэстер 18%", size: "38‑45", brand: "Обычные", rating: 4.0, stock: 500, category: 'regular' }
-];
-
-const STATIC_TSHIRTS = [
-    { id: 'tshirt1', name: "Classic White (Белая)", price: 145, desc: "Классическая белая футболка.", images: ["11222.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Nike", rating: 4.6, stock: 300, category: 'tshirts' },
-    { id: 'tshirt4', name: "Basic Dark (Бордовая)", price: 145, desc: "Однотонная бордовая футболка.", images: ["93.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Adidas", rating: 4.6, stock: 300, category: 'tshirts' },
-    { id: 'tshirt3', name: "Basic Light (Белая)", price: 145, desc: "Базовая светлая футболка.", images: ["футб1.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Adidas", rating: 4.5, stock: 300, category: 'tshirts' },
-    { id: 'tshirt2', name: "Urban Black (Черная)", price: 145, desc: "Черная футболка.", images: ["12222.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Nike", rating: 4.7, stock: 300, category: 'tshirts' },
-    { id: 'tshirt5', name: "Vintage Washed (Графит)", price: 145, desc: "Оверсайз футболка.", images: ["94.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Puma", rating: 4.4, stock: 300, category: 'tshirts' },
-    { id: 'tshirt6', name: "Summer Tank (Белая)", price: 145, desc: "Легкая белая майка.", images: ["футб2.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Puma", rating: 4.3, stock: 300, category: 'tshirts' },
-    { id: 'tshirt7', name: "Футболка мужская хлопковая (Белая)", price: 145, desc: "Базовая футболка.", images: ["455.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Обычные", rating: 4.8, stock: 200, category: 'tshirts' },
-    { id: 'tshirt8', name: "Футболка мужская хлопковая (Черная)", price: 145, desc: "Классическая однотонная футболка.", images: ["456.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Обычные", rating: 4.7, stock: 250, category: 'tshirts' },
-    { id: 'tshirt9', name: "Футболка мужская хлопковая (Темно-синяя)", price: 145, desc: "Стильная футболка.", images: ["457.jpg"], material: "Хлопок 100%", size: "S-XXL", brand: "Обычные", rating: 4.6, stock: 150, category: 'tshirts' }
-];
-
-const STATIC_UNDERWEAR = [
-    { id: 'uw1', name: "Nike Boxer (Белые)", price: 145, desc: "Белые боксеры Nike Dri-FIT.", images: ["1111.png"], material: "Хлопок 95%, Эластан 5%", size: "S-XXL", brand: "Nike", rating: 4.5, stock: 400, category: 'underwear' },
-    { id: 'uw2', name: "Nike Boxer (Черные)", price: 145, desc: "Черные боксеры Nike.", images: ["knjyn.jpg"], material: "Хлопок 95%, Эластан 5%", size: "S-XXL", brand: "Nike", rating: 4.6, stock: 400, category: 'underwear' },
-    { id: 'pants1', name: "Брюки-джоггеры камуфляжные", price: 145, desc: "Повседневные тактические штаны.", images: ["458.png"], material: "Хлопок 65%, Полиэстер 35%", size: "46-56", brand: "Обычные", rating: 4.9, stock: 80, category: 'pants' },
-    { id: 'shorts1', name: "Шорты мужские трикотажные", price: 145, desc: "Удлиненные летние шорты.", images: ["459.png"], material: "Хлопок 80%, Полиэстер 20%", size: "S-XL", brand: "Обычные", rating: 4.5, stock: 120, category: 'shorts' }
-];
-
-// ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
-function saveCart() { localStorage.setItem('fullseller_cart', JSON.stringify(cart)); updateCartUI(); }
-function saveFavorites() { localStorage.setItem('fullseller_favorites', JSON.stringify(favorites)); }
-
-function updateCartUI() {
-    const total = cart.reduce((sum, i) => sum + i.qty, 0);
-    const bottomBadge = document.getElementById('bottomCartBadge');
-    if (bottomBadge) {
-        bottomBadge.textContent = total;
-        bottomBadge.style.display = total > 0 ? 'inline' : 'none';
-    }
-}
-
-function showToast(msg) {
-    const t = document.createElement('div');
-    t.textContent = msg;
-    t.style.cssText = 'position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:var(--accent); color:white; padding:12px 28px; border-radius:40px; font-weight:600; z-index:999;';
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2000);
-}
-
-function getProductById(id) {
-    for (let cat in allProducts) {
-        const p = allProducts[cat].find(p => p.id === id);
-        if (p) return p;
-    }
-    return null;
-}
-
-function shuffleArray(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-}
-
-function getFinalPrice(product) {
-    if (!product) return 0;
-    const base = product.category === 'socks' || product.category === 'regular' ? 13 : (product.price || 0);
-    let discountPercent = State.percentageDiscount;
-    if (discountPercent >= 100) discountPercent = 0;
-    const final = (base * (1 - discountPercent / 100)) - State.fixedDiscountRub;
-    return Math.max(0.01, Math.round(final * 100) / 100);
-}
-
-function formatPrice(priceRub) {
-    if (priceRub == null || isNaN(priceRub)) return State.currency === 'USD' ? '$0.00' : '0 ₽';
-    if (State.currency === 'USD') {
-        return '$' + (priceRub / State.exchangeRate).toFixed(2);
-    }
-    const rounded = Math.round(priceRub * 100) / 100;
-    return Number.isInteger(rounded) ? rounded + ' ₽' : rounded.toFixed(2) + ' ₽';
-}
-
-function toggleCurrency() {
-    State.currency = State.currency === 'RUB' ? 'USD' : 'RUB';
-    localStorage.setItem('fullseller_currency', State.currency);
-    document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
-    renderCatalog();
-    renderCartModal();
-    if (document.getElementById('favoritesPage').classList.contains('active')) renderFavoritesModal();
-    if (document.getElementById('productDetailPage').classList.contains('active')) {
-        const currentId = document.querySelector('.product-page__name')?.closest('#productDetailPage')?.dataset?.currentId;
-        if (currentId) openProductPage(currentId);
-    }
-}
-
-// ---------- SPA НАВИГАЦИЯ ----------
-function setBodyPageClass(pageName) {
-    const body = document.body;
-    const classesToRemove = [];
-    body.classList.forEach(cls => { if (cls.startsWith('page-')) classesToRemove.push(cls); });
-    classesToRemove.forEach(cls => body.classList.remove(cls));
-    body.classList.add('page-' + pageName);
-}
-
-function updateBottomNavActive(pageName) {
-    const bottomNav = document.getElementById('bottomNav');
-    if (!bottomNav) return;
-    const items = bottomNav.querySelectorAll('.bottom-nav__item');
-    items.forEach(item => item.classList.remove('active'));
-    const activeAction = pageName === 'home' ? 'home' : pageName;
-    const activeItem = bottomNav.querySelector(`[data-action="${activeAction}"]`);
-    if (activeItem) activeItem.classList.add('active');
-}
-
-function showPage(pageName, options = {}) {
-    if (pageName === 'admin' && !isAdmin()) {
-        showToast('Доступ запрещён');
-        return;
-    }
-    const pageId = pageName === 'home' ? 'homePage' : pageName + 'Page';
-    if (options.resetHistory) {
-        internalPageHistory.length = 0;
-        internalPageHistory.push('home');
-    } else if (!options.skipHistory && internalPageHistory[internalPageHistory.length - 1] !== pageName) {
-        internalPageHistory.push(pageName);
-    }
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const page = document.getElementById(pageId);
-    if (page) {
-        page.classList.add('active');
-        setBodyPageClass(pageName);
-        updateBottomNavActive(pageName);
-        if (pageName === 'cart') renderCartModal();
-        if (pageName === 'favorites') renderFavoritesModal();
-        if (pageName === 'profile') openProfilePage();
-        if (pageName === 'admin') {
-            document.getElementById('adminDiscountPercent').value = State.percentageDiscount;
-            document.getElementById('adminDiscountRub').value = State.fixedDiscountRub;
-            document.getElementById('adminRating').value = State.rating;
-            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-            const firstTab = document.querySelector('.admin-tab[data-tab="global"]');
-            if (firstTab) firstTab.classList.add('active');
-            document.getElementById('adminGlobalTab').style.display = 'block';
-            document.getElementById('adminProductsTab').style.display = 'none';
-            document.getElementById('adminAddTab').style.display = 'none';
-            document.getElementById('adminOrdersTab').style.display = 'none';
-            renderAdminProducts();
-            renderAdminOrders();
+        function updateBottomNavActive(pageName) {
+            const bottomNav = document.getElementById('bottomNav');
+            if (!bottomNav) return;
+            const items = bottomNav.querySelectorAll('.bottom-nav__item');
+            items.forEach(item => item.classList.remove('active'));
+            const activeAction = pageName === 'home' ? 'home' : pageName;
+            const activeItem = bottomNav.querySelector('[data-action="' + activeAction + '"]');
+            if (activeItem) activeItem.classList.add('active');
         }
-        if (pageName === 'home') {
-            document.body.classList.remove('no-scroll');
-        } else {
+
+        function showPage(pageName, options = {}) {
+            if (pageName === 'admin' && !isAdmin()) {
+                showToast('Доступ запрещён');
+                return;
+            }
+            const pageId = pageName === 'home' ? 'homePage' : pageName + 'Page';
+            if (options.resetHistory) {
+                internalPageHistory.length = 0;
+                internalPageHistory.push('home');
+            } else if (!options.skipHistory && internalPageHistory[internalPageHistory.length - 1] !== pageName) {
+                internalPageHistory.push(pageName);
+            }
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const page = document.getElementById(pageId);
+            if (page) {
+                page.classList.add('active');
+                setBodyPageClass(pageName);
+                updateBottomNavActive(pageName);
+                if (pageName === 'cart') renderCartModal();
+                if (pageName === 'favorites') renderFavoritesModal();
+                if (pageName === 'profile') openProfilePage();
+                if (pageName === 'admin') {
+                    document.getElementById('adminDiscountPercent').value = State.percentageDiscount;
+                    document.getElementById('adminDiscountRub').value = State.fixedDiscountRub;
+                    document.getElementById('adminRating').value = State.rating;
+                    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                    const firstTab = document.querySelector('.admin-tab[data-tab="global"]');
+                    if (firstTab) firstTab.classList.add('active');
+                    document.getElementById('adminGlobalTab').style.display = 'block';
+                    document.getElementById('adminProductsTab').style.display = 'none';
+                    document.getElementById('adminAddTab').style.display = 'none';
+                    document.getElementById('adminOrdersTab').style.display = 'none';
+                    renderAdminProducts();
+                    renderAdminOrders();
+                }
+                if (pageName === 'home') {
+                    document.body.classList.remove('no-scroll');
+                } else {
+                    document.body.classList.add('no-scroll');
+                }
+                trackPageView(pageName);
+            }
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
             document.body.classList.add('no-scroll');
         }
-        trackPageView(pageName);
-    }
-}
 
-function openModal(id) {
-    document.getElementById(id).classList.add('active');
-    document.body.classList.add('no-scroll');
-}
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-    if (!document.querySelector('.modal.active')) document.body.classList.remove('no-scroll');
-}
-
-document.querySelectorAll('#mainNav a[href^="#"], .footer-column a[href^="#"]').forEach(link => {
-    link.addEventListener('click', function(e) {
-        const href = this.getAttribute('href');
-        if (href && href.startsWith('#')) {
-            e.preventDefault();
-            const section = href.substring(1);
-            if (section === 'catalog' || section === 'wholesale' || section === 'reviews' || section === 'contact') {
-                showPage('home');
-                setTimeout(() => {
-                    const el = document.getElementById(section);
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-                history.pushState({ page: 'home', section: section }, '', '#' + section);
-            }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            if (!document.querySelector('.modal.active')) document.body.classList.remove('no-scroll');
         }
-    });
-});
 
-window.addEventListener('popstate', (e) => {
-    if (e.state && e.state.page) {
-        if (e.state.page === 'admin') showPage('admin');
-        else if (e.state.page === 'home') {
-            showPage('home');
-            if (e.state.section) {
-                setTimeout(() => {
-                    const el = document.getElementById(e.state.section);
-                    if (el) el.scrollIntoView();
-                }, 150);
-            }
-        }
-    } else {
-        const hash = location.hash.replace('#', '');
-        if (hash === 'admin' && isAdmin()) showPage('admin');
-        else if (['catalog', 'wholesale', 'reviews', 'contact'].includes(hash)) {
-            showPage('home');
-            setTimeout(() => {
-                const el = document.getElementById(hash);
-                if (el) el.scrollIntoView();
-            }, 150);
-        } else {
-            showPage('home');
-        }
-    }
-});
-
-// ---------- КОРЗИНА ----------
-function addToCart(productId, qty = 1) {
-    const existing = cart.find(i => i.productId === productId);
-    if (existing) existing.qty += qty;
-    else cart.push({ productId, qty });
-    saveCart();
-    
-    const product = getProductById(productId);
-    if (product) {
-        logAnalyticsEvent('add_to_cart', {
-            currency: "RUB",
-            value: getFinalPrice(product) * qty,
-            items: [{
-                item_id: product.id,
-                item_name: product.name,
-                item_category: product.category,
-                price: getFinalPrice(product),
-                quantity: qty
-            }]
-        });
-    }
-}
-
-function removeFromCart(productId) {
-    cart = cart.filter(i => i.productId !== productId);
-    saveCart();
-    renderCartModal();
-}
-
-function changeQty(productId, delta) {
-    const item = cart.find(i => i.productId === productId);
-    if (item) {
-        item.qty += delta;
-        if (item.qty <= 0) removeFromCart(productId);
-        else { saveCart(); renderCartModal(); }
-    }
-}
-
-function renderCartModal() {
-    const container = document.getElementById('cartItemsContainer');
-    const totalBlock = document.getElementById('cartTotalBlock');
-    if (cart.length === 0) { container.innerHTML = '<p>Корзина пуста</p>'; totalBlock.innerHTML = ''; return; }
-    let total = 0;
-    container.innerHTML = cart.map(item => {
-        const p = getProductById(item.productId);
-        if (!p) return '';
-        const finalPrice = getFinalPrice(p);
-        const sub = finalPrice * item.qty;
-        total += sub;
-        const imgSrc = (p.images && p.images[0]) || p.imageUrl || '';
-        const imgContent = imgSrc ? `<img src="${imgSrc}" alt="${p.name}" loading="lazy">` : '<i class="fas fa-tshirt cart-item-card__placeholder"></i>';
-        return `<article class="cart-item-card">
-            <div class="cart-item-card__image">${imgContent}</div>
-            <div class="cart-item-card__body">
-                <strong class="cart-item-card__name">${p.name}</strong>
-                <div class="cart-item-card__price">${formatPrice(finalPrice)}</div>
-                <div class="cart-item-card__meta">${formatPrice(sub)} · ${item.qty} шт.</div>
-                <div class="cart-item-card__controls">
-                    <button class="cart-item-card__stepper" type="button" onclick="changeQty('${item.productId}', -1)">−</button>
-                    <span>${item.qty}</span>
-                    <button class="cart-item-card__stepper" type="button" onclick="changeQty('${item.productId}', 1)">+</button>
-                    <button class="cart-item-card__remove" type="button" onclick="removeFromCart('${item.productId}')"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-        </article>`;
-    }).join('');
-    totalBlock.innerHTML = `<span>Итого:</span><span>${formatPrice(total)}</span>`;
-}
-
-// ---------- ЗАГРУЗКА ТОВАРОВ ----------
-function loadStaticProducts() {
-    allProducts.socks = STATIC_SOCKS.map(s => ({ ...s }));
-    allProducts.regular = STATIC_REGULAR_SOCKS.map(s => ({ ...s }));
-    allProducts.tshirts = STATIC_TSHIRTS.map(s => ({ ...s }));
-    allProducts.underwear = STATIC_UNDERWEAR.map(s => ({ ...s }));
-    renderCatalog();
-}
-
-function subscribeToFirestoreUpdates() {
-    db.collection("products").onSnapshot(snap => {
-        allProducts.socks = STATIC_SOCKS.map(s => ({ ...s }));
-        snap.forEach(doc => {
-            const data = doc.data();
-            const existingIndex = allProducts.socks.findIndex(p => p.id === doc.id);
-            if (existingIndex >= 0) {
-                if (data.price != null) allProducts.socks[existingIndex].price = data.price;
-                if (data.rating != null) allProducts.socks[existingIndex].rating = data.rating;
-                if (data.stock != null) allProducts.socks[existingIndex].stock = data.stock;
-                if (data.hidden != null) allProducts.socks[existingIndex].hidden = data.hidden;
-                if (data.name) allProducts.socks[existingIndex].name = data.name;
-                if (data.desc) allProducts.socks[existingIndex].desc = data.desc;
-                if (data.imageUrl) allProducts.socks[existingIndex].imageUrl = data.imageUrl;
-            } else {
-                allProducts.socks.push({
-                    id: doc.id, name: data.name || 'Без названия', price: data.price || 0, desc: data.desc || '', imageUrl: data.imageUrl || '',
-                    material: data.material || '', size: data.size || '', brand: data.brand || '', rating: data.rating || State.rating,
-                    stock: data.stock || 0, hidden: data.hidden || false, category: 'socks'
+        // ---------- КОРЗИНА ----------
+        function addToCart(productId, qty = 1) {
+            const existing = cart.find(i => i.productId === productId);
+            if (existing) existing.qty += qty;
+            else cart.push({ productId, qty });
+            saveCart();
+            
+            const product = getProductById(productId);
+            if (product) {
+                logAnalyticsEvent('add_to_cart', {
+                    currency: "RUB",
+                    value: getFinalPrice(product) * qty,
+                    items: [{
+                        item_id: product.id,
+                        item_name: product.name,
+                        item_category: product.category,
+                        price: getFinalPrice(product),
+                        quantity: qty
+                    }]
                 });
             }
-        });
-        if (!isAdmin()) allProducts.socks = allProducts.socks.filter(p => !p.hidden);
-        renderCatalog();
-        if (document.getElementById('adminPage').classList.contains('active')) renderAdminProducts();
-    });
-
-    db.collection("tshirts").onSnapshot(snap => {
-        allProducts.tshirts = STATIC_TSHIRTS.map(s => ({ ...s }));
-        snap.forEach(doc => {
-            const data = doc.data();
-            const existingIndex = allProducts.tshirts.findIndex(p => p.id === doc.id);
-            if (existingIndex >= 0) {
-                if (data.price != null) allProducts.tshirts[existingIndex].price = data.price;
-                if (data.rating != null) allProducts.tshirts[existingIndex].rating = data.rating;
-                if (data.stock != null) allProducts.tshirts[existingIndex].stock = data.stock;
-                if (data.hidden != null) allProducts.tshirts[existingIndex].hidden = data.hidden;
-                if (data.name) allProducts.tshirts[existingIndex].name = data.name;
-                if (data.desc) allProducts.tshirts[existingIndex].desc = data.desc;
-                if (data.imageUrl) allProducts.tshirts[existingIndex].imageUrl = data.imageUrl;
-            } else {
-                allProducts.tshirts.push({
-                    id: doc.id, name: data.name || 'Без названия', price: data.price || 0, desc: data.desc || '', imageUrl: data.imageUrl || '',
-                    material: data.material || '', size: data.size || '', brand: data.brand || '', rating: data.rating || State.rating,
-                    stock: data.stock || 0, hidden: data.hidden || false, category: 'tshirts'
-                });
-            }
-        });
-        if (!isAdmin()) allProducts.tshirts = allProducts.tshirts.filter(p => !p.hidden);
-        renderCatalog();
-        if (document.getElementById('adminPage').classList.contains('active')) renderAdminProducts();
-    });
-
-    db.collection("underwear").onSnapshot(snap => {
-        allProducts.underwear = STATIC_UNDERWEAR.map(s => ({ ...s }));
-        snap.forEach(doc => {
-            const data = doc.data();
-            const existingIndex = allProducts.underwear.findIndex(p => p.id === doc.id);
-            if (existingIndex >= 0) {
-                if (data.price != null) allProducts.underwear[existingIndex].price = data.price;
-                if (data.rating != null) allProducts.underwear[existingIndex].rating = data.rating;
-                if (data.stock != null) allProducts.underwear[existingIndex].stock = data.stock;
-                if (data.hidden != null) allProducts.underwear[existingIndex].hidden = data.hidden;
-                if (data.name) allProducts.underwear[existingIndex].name = data.name;
-                if (data.desc) allProducts.underwear[existingIndex].desc = data.desc;
-                if (data.imageUrl) allProducts.underwear[existingIndex].imageUrl = data.imageUrl;
-            } else {
-                allProducts.underwear.push({
-                    id: doc.id, name: data.name || 'Без названия', price: data.price || 0, desc: data.desc || '', imageUrl: data.imageUrl || '',
-                    material: data.material || '', size: data.size || '', brand: data.brand || '', rating: data.rating || State.rating,
-                    stock: data.stock || 0, hidden: data.hidden || false, category: 'underwear'
-                });
-            }
-        });
-        if (!isAdmin()) allProducts.underwear = allProducts.underwear.filter(p => !p.hidden);
-        renderCatalog();
-        if (document.getElementById('adminPage').classList.contains('active')) renderAdminProducts();
-    });
-}
-
-function subscribeToAllProducts() { loadStaticProducts(); subscribeToFirestoreUpdates(); }
-
-function updateBrandFilterVisibility() {
-    const brandFilter = document.getElementById('brandFilter');
-    if (currentCategory === 'socks' || currentCategory === 'all') {
-        brandFilter.style.display = 'flex';
-    } else {
-        brandFilter.style.display = 'none';
-        currentBrandFilter = 'all';
-    }
-    updateSubtitle();
-}
-
-function updateSubtitle() {
-    const subtitle = document.getElementById('catalogSubtitle');
-    const categoryNames = {
-        all: 'ВСЕ ТОВАРЫ ОПТОМ ОТ ПРОИЗВОДИТЕЛЕЙ',
-        socks: 'БРЕНДОВЫЕ НОСКИ ОПТОМ ОТ ПРОИЗВОДИТЕЛЕЙ',
-        regular: 'ОБЫЧНЫЕ НОСКИ ОПТОМ',
-        tshirts: 'ФУТБОЛКИ ОПТОМ',
-        underwear: 'ТРУСЫ ОПТОМ'
-    };
-    subtitle.textContent = categoryNames[currentCategory] || 'ТОВАРЫ ОПТОМ';
-}
-
-function renderCatalog() {
-    const grid = document.getElementById('catalogGrid');
-    let products = [];
-    if (currentCategory === 'all') {
-        products = [...allProducts.socks, ...allProducts.regular, ...allProducts.tshirts, ...allProducts.underwear];
-        products = shuffleArray(products);
-    } else if (currentCategory === 'socks') {
-        products = [...allProducts.socks, ...allProducts.regular];
-    } else {
-        products = allProducts[currentCategory] || [];
-    }
-
-    if (currentBrandFilter !== 'all') {
-        if (currentBrandFilter === 'обычные') {
-            products = products.filter(p => 
-                p.category === 'regular' || 
-                (p.category === 'tshirts' && (!p.brand || p.brand.trim() === ''))
-            );
-        } else {
-            products = products.filter(p => 
-                p.category === 'socks' && 
-                (p.brand || '').toLowerCase() === currentBrandFilter.toLowerCase()
-            );
         }
-    }
 
-    if (products.length === 0) {
-        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:var(--text-secondary); padding:40px;">Товары не найдены.</p>';
-        return;
-    }
-    grid.innerHTML = products.map(p => {
-        const finalPrice = getFinalPrice(p);
-        const basePrice = p.price || 0;
-        const discountPercent = basePrice > 0 ? Math.round((1 - finalPrice / basePrice) * 100) : 0;
-        const showDiscount = finalPrice < basePrice;
-        const rating = (p.rating || State.rating).toFixed(1);
-        const isFav = favorites.includes(p.id);
-        const heartIcon = isFav ? 'fas fa-heart' : 'far fa-heart';
-        const finalPriceStr = formatPrice(finalPrice);
-        const basePriceStr = formatPrice(basePrice);
-        const productImages = (p.images && Array.isArray(p.images) && p.images.length > 0) ? p.images : (p.imageUrl ? [p.imageUrl] : []);
-        const firstImage = productImages[0];
-        const imgContent = firstImage
-            ? `<img src="${firstImage}" alt="${p.name}" loading="lazy">`
-            : '<i class="fas fa-tshirt" style="font-size:4rem; color:#d97706;"></i>';
+        function removeFromCart(productId) {
+            cart = cart.filter(i => i.productId !== productId);
+            saveCart();
+            renderCartModal();
+        }
 
-        return `
-            <div class="product-card" data-id="${p.id}">
-                <div class="product-card__image-wrap">
-                    ${imgContent}
-                    <button type="button" class="product-card__favorite ${isFav ? 'active' : ''}" data-fav-id="${p.id}">
-                        <i class="${heartIcon}"></i>
-                    </button>
-                    ${showDiscount ? `<div class="product-card__discount">-${discountPercent}%</div>` : ''}
-                </div>
-                <div class="product-card__body">
-                    ${p.category === 'tshirts' || p.category === 'underwear' ? '' : `<div class="product-card__brand">${p.brand || 'FULL SELLER'}</div>`}
-                    <div class="product-card__name">${p.name}</div>
-                    <div class="product-card__bottom">
-                        <div class="product-card__price-block">
-                            <div class="product-card__price-line">
-                                <span class="product-card__price-current">${finalPriceStr}</span>
-                                ${showDiscount ? `<span class="product-card__price-old">${basePriceStr}</span>` : ''}
-                                <span class="product-card__rating"><i class="fas fa-star"></i> ${rating}</span>
-                            </div>
-                        </div>
-                        <button class="product-card__btn"><i class="fas fa-shopping-cart"></i> В корзину</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+        function changeQty(productId, delta) {
+            const item = cart.find(i => i.productId === productId);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) removeFromCart(productId);
+                else { saveCart(); renderCartModal(); }
+            }
+        }
 
-document.getElementById('catalogGrid').addEventListener('click', (e) => {
-    const favBtn = e.target.closest('.product-card__favorite');
-    if (favBtn) { 
-        e.preventDefault();
-        e.stopPropagation(); 
-        const id = favBtn.dataset.favId; 
-        if (id) toggleFavorite(id); 
-        return; 
-    }
-    const cartBtn = e.target.closest('.product-card__btn');
-    if (cartBtn) { 
-        e.preventDefault();
-        e.stopPropagation(); 
-        if (!currentUser) { openAuthModal(); return; } 
-        const card = cartBtn.closest('.product-card'); 
-        const id = card?.dataset.id; 
-        if (id) { addToCart(id, 1); showToast('Товар добавлен в корзину'); } 
-        return; 
-    }
-    const card = e.target.closest('.product-card');
-    if (card) { const id = card.dataset.id; if (id) openProductPage(id); }
-});
+        function renderCartModal() {
+            const container = document.getElementById('cartItemsContainer');
+            const totalBlock = document.getElementById('cartTotalBlock');
+            if (cart.length === 0) { 
+                container.innerHTML = '<p>Корзина пуста</p>'; 
+                totalBlock.innerHTML = ''; 
+                return; 
+            }
+            let total = 0;
+            container.innerHTML = cart.map(item => {
+                const p = getProductById(item.productId);
+                if (!p) return '';
+                const finalPrice = getFinalPrice(p);
+                const sub = finalPrice * item.qty;
+                total += sub;
+                const imgSrc = (p.images && p.images[0]) || p.imageUrl || '';
+                const imgContent = imgSrc 
+                    ? '<img src="' + imgSrc + '" alt="' + p.name + '" loading="lazy">' 
+                    : '<i class="fas fa-tshirt cart-item-card__placeholder"></i>';
+                return '<article class="cart-item-card">' +
+                    '<div class="cart-item-card__image">' + imgContent + '</div>' +
+                    '<div class="cart-item-card__body">' +
+                        '<strong class="cart-item-card__name">' + p.name + '</strong>' +
+                        '<div class="cart-item-card__price">' + formatPrice(finalPrice) + '</div>' +
+                        '<div class="cart-item-card__meta">' + formatPrice(sub) + ' · ' + item.qty + ' шт.</div>' +
+                        '<div class="cart-item-card__controls">' +
+                            '<button class="cart-item-card__stepper" type="button" onclick="changeQty(\'' + item.productId + '\', -1)">−</button>' +
+                            '<span>' + item.qty + '</span>' +
+                            '<button class="cart-item-card__stepper" type="button" onclick="changeQty(\'' + item.productId + '\', 1)">+</button>' +
+                            '<button class="cart-item-card__remove" type="button" onclick="removeFromCart(\'' + item.productId + '\')"><i class="fas fa-trash"></i></button>' +
+                        '</div>' +
+                    '</div>' +
+                '</article>';
+            }).join('');
+            totalBlock.innerHTML = '<span>Итого:</span><span>' + formatPrice(total) + '</span>';
+        }
 
-document.addEventListener('touchstart', (e) => {
-    const btn = e.target.closest('.product-card__favorite, .product-card__btn, .bottom-nav__item, .review-like-btn');
-    if (btn) {
-        e.stopPropagation();
-    }
-}, { passive: true });
+        // ---------- ЗАГРУЗКА ТОВАРОВ ----------
+        function loadStaticProducts() {
+            allProducts.socks = STATIC_SOCKS.map(s => ({ ...s }));
+            allProducts.regular = STATIC_REGULAR_SOCKS.map(s => ({ ...s }));
+            allProducts.tshirts = STATIC_TSHIRTS.map(s => ({ ...s }));
+            allProducts.underwear = STATIC_UNDERWEAR.map(s => ({ ...s }));
+            renderCatalog();
+        }
 
-// ---------- СТРАНИЦА ТОВАРА ----------
-let currentDetailImageIndex = 0;
+        function subscribeToAllProducts() { 
+            loadStaticProducts();
+        }
 
-function renderProductDetailGallery(product) {
-    const slidesContainer = document.getElementById('productPageSlides');
-    const dotsContainer = document.getElementById('productPageDots');
-    const prevBtn = document.getElementById('productPagePrevBtn');
-    const nextBtn = document.getElementById('productPageNextBtn');
-    if (!slidesContainer || !dotsContainer) return;
+        function updateBrandFilterVisibility() {
+            const brandFilter = document.getElementById('brandFilter');
+            if (currentCategory === 'socks' || currentCategory === 'all') {
+                brandFilter.style.display = 'flex';
+            } else {
+                brandFilter.style.display = 'none';
+                currentBrandFilter = 'all';
+            }
+            updateSubtitle();
+        }
 
-    const images = (product.images && Array.isArray(product.images)) ? product.images.filter(Boolean) : [];
-    const fallbackImage = product.imageUrl || '';
+        function updateSubtitle() {
+            const subtitle = document.getElementById('catalogSubtitle');
+            const categoryNames = {
+                all: 'ВСЕ ТОВАРЫ ОПТОМ ОТ ПРОИЗВОДИТЕЛЕЙ',
+                socks: 'БРЕНДОВЫЕ НОСКИ ОПТОМ ОТ ПРОИЗВОДИТЕЛЕЙ',
+                regular: 'ОБЫЧНЫЕ НОСКИ ОПТОМ',
+                tshirts: 'ФУТБОЛКИ ОПТОМ',
+                underwear: 'ТРУСЫ ОПТОМ'
+            };
+            subtitle.textContent = categoryNames[currentCategory] || 'ТОВАРЫ ОПТОМ';
+        }
 
-    if (images.length === 0) {
-        slidesContainer.innerHTML = fallbackImage
-            ? `<div class="product-page__slide"><img src="${fallbackImage}" alt="${product.name}" loading="lazy"></div>`
-            : `<div class="product-page__slide product-page__slide--empty"><i class="fas fa-image"></i></div>`;
-        dotsContainer.innerHTML = '';
-        currentDetailImageIndex = 0;
-        if (prevBtn) prevBtn.disabled = true;
-        if (nextBtn) nextBtn.disabled = true;
-        return;
-    }
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            let products = [];
+            if (currentCategory === 'all') {
+                products = [...allProducts.socks, ...allProducts.regular, ...allProducts.tshirts, ...allProducts.underwear];
+                products = shuffleArray(products);
+            } else if (currentCategory === 'socks') {
+                products = [...allProducts.socks, ...allProducts.regular];
+            } else {
+                products = allProducts[currentCategory] || [];
+            }
 
-    slidesContainer.innerHTML = images.map((img, idx) => `
-        <div class="product-page__slide" data-index="${idx}">
-            <img src="${img}" alt="${product.name} ${idx + 1}" loading="lazy">
-        </div>
-    `).join('');
+            if (currentBrandFilter !== 'all') {
+                if (currentBrandFilter === 'обычные') {
+                    products = products.filter(p => 
+                        p.category === 'regular' || 
+                        (p.category === 'tshirts' && (!p.brand || p.brand.trim() === ''))
+                    );
+                } else {
+                    products = products.filter(p => 
+                        p.category === 'socks' && 
+                        (p.brand || '').toLowerCase() === currentBrandFilter.toLowerCase()
+                    );
+                }
+            }
 
-    dotsContainer.innerHTML = images.map((_, idx) => `
-        <span class="product-page__dot${idx === 0 ? ' active' : ''}" data-index="${idx}"></span>
-    `).join('');
+            if (products.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:var(--text-secondary); padding:40px;">Товары не найдены.</p>';
+                return;
+            }
+            
+            grid.innerHTML = products.map(p => {
+                const finalPrice = getFinalPrice(p);
+                const basePrice = p.price || 0;
+                const discountPercent = basePrice > 0 ? Math.round((1 - finalPrice / basePrice) * 100) : 0;
+                const showDiscount = finalPrice < basePrice;
+                const rating = (p.rating || State.rating).toFixed(1);
+                const isFav = favorites.includes(p.id);
+                const heartIcon = isFav ? 'fas fa-heart' : 'far fa-heart';
+                const finalPriceStr = formatPrice(finalPrice);
+                const basePriceStr = formatPrice(basePrice);
+                const productImages = (p.images && Array.isArray(p.images) && p.images.length > 0) ? p.images : (p.imageUrl ? [p.imageUrl] : []);
+                const firstImage = productImages[0];
+                const imgContent = firstImage
+                    ? '<img src="' + firstImage + '" alt="' + p.name + '" loading="lazy">'
+                    : '<i class="fas fa-tshirt" style="font-size:4rem; color:#d97706;"></i>';
 
-    dotsContainer.querySelectorAll('.product-page__dot').forEach(dot => {
-        dot.addEventListener('click', () => {
-            currentDetailImageIndex = parseInt(dot.dataset.index, 10) || 0;
+                return '<div class="product-card" data-id="' + p.id + '">' +
+                    '<div class="product-card__image-wrap">' +
+                        imgContent +
+                        '<button type="button" class="product-card__favorite ' + (isFav ? 'active' : '') + '" data-fav-id="' + p.id + '">' +
+                            '<i class="' + heartIcon + '"></i>' +
+                        '</button>' +
+                        (showDiscount ? '<div class="product-card__discount">-' + discountPercent + '%</div>' : '') +
+                    '</div>' +
+                    '<div class="product-card__body">' +
+                        (p.category === 'tshirts' || p.category === 'underwear' ? '' : '<div class="product-card__brand">' + (p.brand || 'FULL SELLER') + '</div>') +
+                        '<div class="product-card__name">' + p.name + '</div>' +
+                        '<div class="product-card__bottom">' +
+                            '<div class="product-card__price-block">' +
+                                '<div class="product-card__price-line">' +
+                                    '<span class="product-card__price-current">' + finalPriceStr + '</span>' +
+                                    (showDiscount ? '<span class="product-card__price-old">' + basePriceStr + '</span>' : '') +
+                                    '<span class="product-card__rating"><i class="fas fa-star"></i> ' + rating + '</span>' +
+                                '</div>' +
+                            '</div>' +
+                            '<button class="product-card__btn"><i class="fas fa-shopping-cart"></i> В корзину</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        // Обработчик кликов по каталогу
+        document.getElementById('catalogGrid').addEventListener('click', (e) => {
+            const favBtn = e.target.closest('.product-card__favorite');
+            if (favBtn) { 
+                e.preventDefault();
+                e.stopPropagation(); 
+                const id = favBtn.dataset.favId; 
+                if (id) toggleFavorite(id); 
+                return; 
+            }
+            const cartBtn = e.target.closest('.product-card__btn');
+            if (cartBtn) { 
+                e.preventDefault();
+                e.stopPropagation(); 
+                if (!currentUser) { openAuthModal(); return; } 
+                const card = cartBtn.closest('.product-card'); 
+                const id = card?.dataset.id; 
+                if (id) { addToCart(id, 1); showToast('Товар добавлен в корзину'); } 
+                return; 
+            }
+            const card = e.target.closest('.product-card');
+            if (card) { const id = card.dataset.id; if (id) openProductPage(id); }
+        });
+
+        // ---------- СТРАНИЦА ТОВАРА ----------
+        let currentDetailImageIndex = 0;
+
+        function renderProductDetailGallery(product) {
+            const slidesContainer = document.getElementById('productPageSlides');
+            const dotsContainer = document.getElementById('productPageDots');
+            if (!slidesContainer || !dotsContainer) return;
+
+            const images = (product.images && Array.isArray(product.images)) ? product.images.filter(Boolean) : [];
+            const fallbackImage = product.imageUrl || '';
+
+            if (images.length === 0) {
+                slidesContainer.innerHTML = fallbackImage
+                    ? '<div class="product-page__slide"><img src="' + fallbackImage + '" alt="' + product.name + '" loading="lazy"></div>'
+                    : '<div class="product-page__slide product-page__slide--empty"><i class="fas fa-image"></i></div>';
+                dotsContainer.innerHTML = '';
+                currentDetailImageIndex = 0;
+                return;
+            }
+
+            slidesContainer.innerHTML = images.map((img, idx) => 
+                '<div class="product-page__slide" data-index="' + idx + '">' +
+                    '<img src="' + img + '" alt="' + product.name + ' ' + (idx + 1) + '" loading="lazy">' +
+                '</div>'
+            ).join('');
+
+            dotsContainer.innerHTML = images.map((_, idx) => 
+                '<span class="product-page__dot' + (idx === 0 ? ' active' : '') + '" data-index="' + idx + '"></span>'
+            ).join('');
+
+            dotsContainer.querySelectorAll('.product-page__dot').forEach(dot => {
+                dot.addEventListener('click', () => {
+                    currentDetailImageIndex = parseInt(dot.dataset.index, 10) || 0;
+                    updateProductDetailGallery();
+                });
+            });
+
+            currentDetailImageIndex = 0;
             updateProductDetailGallery();
-        });
-    });
+        }
 
-    currentDetailImageIndex = 0;
-    updateProductDetailGallery();
-}
+        function updateProductDetailGallery() {
+            const slidesContainer = document.getElementById('productPageSlides');
+            const dotsContainer = document.getElementById('productPageDots');
+            if (!slidesContainer || !dotsContainer) return;
+            const slides = slidesContainer.querySelectorAll('.product-page__slide');
+            const dots = dotsContainer.querySelectorAll('.product-page__dot');
+            if (slides.length === 0) return;
 
-function updateProductDetailGallery() {
-    const slidesContainer = document.getElementById('productPageSlides');
-    const dotsContainer = document.getElementById('productPageDots');
-    const prevBtn = document.getElementById('productPagePrevBtn');
-    const nextBtn = document.getElementById('productPageNextBtn');
-    if (!slidesContainer || !dotsContainer) return;
-    const slides = slidesContainer.querySelectorAll('.product-page__slide');
-    const dots = dotsContainer.querySelectorAll('.product-page__dot');
-    if (slides.length === 0) return;
+            currentDetailImageIndex = Math.max(0, Math.min(currentDetailImageIndex, slides.length - 1));
+            slidesContainer.style.transform = 'translateX(-' + (currentDetailImageIndex * 100) + '%)';
+            dots.forEach((dot, idx) => dot.classList.toggle('active', idx === currentDetailImageIndex));
+        }
 
-    currentDetailImageIndex = Math.max(0, Math.min(currentDetailImageIndex, slides.length - 1));
-    slidesContainer.style.transform = `translateX(-${currentDetailImageIndex * 100}%)`;
-    dots.forEach((dot, idx) => dot.classList.toggle('active', idx === currentDetailImageIndex));
-    if (prevBtn) prevBtn.disabled = currentDetailImageIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentDetailImageIndex === slides.length - 1;
-}
+        function openProductPage(productId) {
+            const p = getProductById(productId);
+            if (!p) return;
+            document.getElementById('productDetailPage').dataset.currentId = productId;
+            const finalPrice = getFinalPrice(p);
+            const basePrice = p.price || 0;
+            renderProductDetailGallery(p);
+            const content = document.getElementById('productPageContent');
+            
+            content.innerHTML = '<div class="product-page__name">' + p.name + '</div>' +
+                '<div class="product-page__price">' + formatPrice(finalPrice) + ' ' + 
+                (finalPrice < basePrice ? '<span style="font-size:1.2rem; text-decoration:line-through; color:var(--text-secondary);">' + formatPrice(basePrice) + '</span>' : '') + '</div>' +
+                '<div class="product-page__desc">' + (p.desc || 'Описание отсутствует') + '</div>' +
+                '<div class="product-page__attributes">' +
+                    '<div><strong>Материал:</strong> <span>' + (p.material || 'Не указан') + '</span></div>' +
+                    '<div><strong>Размеры:</strong> <span>' + (p.size || 'Не указаны') + '</span></div>' +
+                    '<div><strong>Бренд:</strong> <span>' + (p.brand || 'FULL SELLER') + '</span></div>' +
+                    '<div><strong>В наличии:</strong> <span>' + (p.stock || 0) + ' шт.</span></div>' +
+                '</div>' +
+                '<div class="product-page__actions">' +
+                    '<input type="number" class="qty-input" id="detailQty" value="1" min="1" max="' + (p.stock || 100) + '">' +
+                    '<button class="btn product-page__add" id="detailAddToCart"><i class="fas fa-cart-plus"></i> В корзину</button>' +
+                    '<button type="button" class="product-page__favorite ' + (favorites.includes(productId) ? 'active' : '') + '" id="detailFavorite"><i class="' + (favorites.includes(productId) ? 'fas' : 'far') + ' fa-heart"></i></button>' +
+                '</div>';
+                
+            document.getElementById('detailAddToCart').onclick = () => {
+                if (!currentUser) { openAuthModal(); return; }
+                const qty = parseInt(document.getElementById('detailQty').value) || 1;
+                addToCart(productId, qty);
+                showToast('Добавлено ' + qty + ' шт.');
+            };
+            document.getElementById('detailFavorite').onclick = () => {
+                toggleFavorite(productId);
+                const favoriteButton = document.getElementById('detailFavorite');
+                const isFavorite = favorites.includes(productId);
+                favoriteButton.classList.toggle('active', isFavorite);
+                favoriteButton.innerHTML = '<i class="' + (isFavorite ? 'fas' : 'far') + ' fa-heart"></i>';
+            };
+            showPage('productDetail');
+            
+            logAnalyticsEvent('view_item', {
+                currency: "RUB",
+                value: finalPrice,
+                items: [{
+                    item_id: p.id,
+                    item_name: p.name,
+                    item_category: p.category,
+                    price: finalPrice
+                }]
+            });
+        }
 
-function openProductPage(productId) {
-    const p = getProductById(productId);
-    if (!p) return;
-    document.getElementById('productDetailPage').dataset.currentId = productId;
-    const finalPrice = getFinalPrice(p);
-    const basePrice = p.price || 0;
-    renderProductDetailGallery(p);
-    const content = document.getElementById('productPageContent');
-    content.innerHTML = `
-        <div class="product-page__name">${p.name}</div>
-        <div class="product-page__price">${formatPrice(finalPrice)} ${finalPrice < basePrice ? `<span style="font-size:1.2rem; text-decoration:line-through; color:var(--text-secondary);">${formatPrice(basePrice)}</span>` : ''}</div>
-        <div class="product-page__desc">${p.desc || 'Описание отсутствует'}</div>
-        <div class="product-page__attributes">
-            <div><strong>Материал:</strong> <span>${p.material || 'Не указан'}</span></div>
-            <div><strong>Размеры:</strong> <span>${p.size || 'Не указаны'}</span></div>
-            <div><strong>Бренд:</strong> <span>${p.brand || 'FULL SELLER'}</span></div>
-            <div><strong>В наличии:</strong> <span>${p.stock || 0} шт.</span></div>
-        </div>
-        <div class="product-page__actions">
-            <input type="number" class="qty-input" id="detailQty" value="1" min="1" max="${p.stock || 100}">
-            <button class="btn product-page__add" id="detailAddToCart"><i class="fas fa-cart-plus"></i> В корзину</button>
-            <button type="button" class="product-page__favorite ${favorites.includes(productId) ? 'active' : ''}" id="detailFavorite"><i class="${favorites.includes(productId) ? 'fas' : 'far'} fa-heart"></i></button>
-        </div>
-    `;
-    document.getElementById('detailAddToCart').onclick = () => {
-        if (!currentUser) { openAuthModal(); return; }
-        const qty = parseInt(document.getElementById('detailQty').value) || 1;
-        addToCart(productId, qty);
-        showToast(`Добавлено ${qty} шт.`);
-    };
-    document.getElementById('detailFavorite').onclick = () => {
-        toggleFavorite(productId);
-        const favoriteButton = document.getElementById('detailFavorite');
-        const isFavorite = favorites.includes(productId);
-        favoriteButton.classList.toggle('active', isFavorite);
-        favoriteButton.innerHTML = `<i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>`;
-    };
-    showPage('productDetail');
-    
-    logAnalyticsEvent('view_item', {
-        currency: "RUB",
-        value: finalPrice,
-        items: [{
-            item_id: p.id,
-            item_name: p.name,
-            item_category: p.category,
-            price: finalPrice
-        }]
-    });
-}
-
-const productGallerySlider = document.querySelector('.product-page__slider');
-let detailTouchStartX = 0;
-let detailTouchStartY = 0;
-
-if (productGallerySlider) {
-    productGallerySlider.addEventListener('touchstart', (event) => {
-        const touch = event.touches[0];
-        detailTouchStartX = touch.clientX;
-        detailTouchStartY = touch.clientY;
-    }, { passive: true });
-
-    productGallerySlider.addEventListener('touchend', (event) => {
-        const touch = event.changedTouches[0];
-        const deltaX = detailTouchStartX - touch.clientX;
-        const deltaY = detailTouchStartY - touch.clientY;
-        const slides = document.querySelectorAll('#productPageSlides .product-page__slide');
-        if (slides.length < 2 || Math.abs(deltaX) < 45 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
-        currentDetailImageIndex += deltaX > 0 ? 1 : -1;
-        updateProductDetailGallery();
-    }, { passive: true });
-}
-
-document.getElementById('productBackBtn').addEventListener('click', () => {
-    if (internalPageHistory.length > 1) internalPageHistory.pop();
-    showPage(internalPageHistory[internalPageHistory.length - 1] || 'home', { skipHistory: true });
-});
-
-document.getElementById('homeLogo').addEventListener('click', () => {
-    showPage('home', { resetHistory: true });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// ---------- ИЗБРАННОЕ ----------
-function toggleFavorite(productId) {
-    if (favorites.includes(productId)) {
-        favorites = favorites.filter(id => id !== productId);
-        showToast('Удалено из избранного');
-    } else {
-        favorites.push(productId);
-        showToast('Добавлено в избранное');
-    }
-    saveFavorites();
-    renderCatalog();
-    if (document.getElementById('favoritesPage').classList.contains('active')) renderFavoritesModal();
-}
-
-function renderFavoritesModal() {
-    const container = document.getElementById('favoritesContainer');
-    const emptyMsg = document.getElementById('favoritesEmpty');
-    if (favorites.length === 0) { container.innerHTML = ''; emptyMsg.style.display = 'block'; return; }
-    emptyMsg.style.display = 'none';
-    container.innerHTML = favorites.map(id => {
-        const p = getProductById(id);
-        if (!p) return '';
-        const finalPrice = getFinalPrice(p);
-        const imgSrc = (p.images && p.images[0]) || p.imageUrl || '';
-        const imgContent = imgSrc ? `<img src="${imgSrc}" alt="${p.name}">` : '<i class="fas fa-tshirt" style="font-size:2rem; width:50px; text-align:center;"></i>';
-        return `
-            <div class="favorites-item">
-                ${imgContent}
-                <div class="favorites-item-info">
-                    <div style="font-weight:600;">${p.name}</div>
-                    <div style="color:var(--accent);">${formatPrice(finalPrice)}</div>
-                </div>
-                <i class="fas fa-trash favorites-item-remove" data-remove="${id}" title="Удалить"></i>
-            </div>
-        `;
-    }).join('');
-    container.querySelectorAll('.favorites-item-remove').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = e.target.dataset.remove;
-            if (id) {
-                favorites = favorites.filter(fid => fid !== id);
-                saveFavorites();
-                renderCatalog();
-                renderFavoritesModal();
+        // ---------- ИЗБРАННОЕ ----------
+        function toggleFavorite(productId) {
+            if (favorites.includes(productId)) {
+                favorites = favorites.filter(id => id !== productId);
                 showToast('Удалено из избранного');
+            } else {
+                favorites.push(productId);
+                showToast('Добавлено в избранное');
             }
-        });
-    });
-}
+            saveFavorites();
+            renderCatalog();
+            if (document.getElementById('favoritesPage').classList.contains('active')) renderFavoritesModal();
+        }
 
-// ---------- ЗАКАЗЫ ----------
-function openOrderModal() {
-    const orderContent = document.getElementById('orderContent');
-    const totalBlock = document.getElementById('orderTotalBlock');
-    let total = 0;
-    let html = '';
-    cart.forEach(item => {
-        const p = getProductById(item.productId);
-        if (!p) return;
-        const fp = getFinalPrice(p);
-        const sub = fp * item.qty;
-        total += sub;
-        html += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light);"><span>${p.name}</span><span>${item.qty} шт × ${formatPrice(fp)} = ${formatPrice(sub)}</span></div>`;
-    });
-    orderContent.innerHTML = html || '<p>Корзина пуста</p>';
-    totalBlock.innerHTML = `<span>Итого:</span><span>${formatPrice(total)}</span>`;
-    openModal('orderModal');
-    
-    logAnalyticsEvent('begin_checkout', {
-        currency: "RUB",
-        value: total,
-        items: cart.map(item => {
-            const p = getProductById(item.productId);
-            if (!p) return null;
-            return {
-                item_id: p.id,
-                item_name: p.name,
-                item_category: p.category,
-                price: getFinalPrice(p),
-                quantity: item.qty
+        function renderFavoritesModal() {
+            const container = document.getElementById('favoritesContainer');
+            const emptyMsg = document.getElementById('favoritesEmpty');
+            if (favorites.length === 0) { 
+                container.innerHTML = ''; 
+                emptyMsg.style.display = 'block'; 
+                return; 
+            }
+            emptyMsg.style.display = 'none';
+            container.innerHTML = favorites.map(id => {
+                const p = getProductById(id);
+                if (!p) return '';
+                const finalPrice = getFinalPrice(p);
+                const imgSrc = (p.images && p.images[0]) || p.imageUrl || '';
+                const imgContent = imgSrc 
+                    ? '<img src="' + imgSrc + '" alt="' + p.name + '">' 
+                    : '<i class="fas fa-tshirt" style="font-size:2rem; width:50px; text-align:center;"></i>';
+                return '<div class="favorites-item">' +
+                    imgContent +
+                    '<div class="favorites-item-info">' +
+                        '<div style="font-weight:600;">' + p.name + '</div>' +
+                        '<div style="color:var(--accent);">' + formatPrice(finalPrice) + '</div>' +
+                    '</div>' +
+                    '<i class="fas fa-trash favorites-item-remove" data-remove="' + id + '" title="Удалить"></i>' +
+                '</div>';
+            }).join('');
+            container.querySelectorAll('.favorites-item-remove').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.dataset.remove;
+                    if (id) {
+                        favorites = favorites.filter(fid => fid !== id);
+                        saveFavorites();
+                        renderCatalog();
+                        renderFavoritesModal();
+                        showToast('Удалено из избранного');
+                    }
+                });
+            });
+        }
+
+        // ---------- АВТОРИЗАЦИЯ (ЛОКАЛЬНАЯ) ----------
+        function isAdmin() { 
+            return currentUser && currentUser.email === ADMIN_EMAIL; 
+        }
+
+        function updateAuthUI() {
+            const statusDiv = document.getElementById('userStatus');
+            const reviewForm = document.getElementById('reviewFormWrapper');
+            const loginPrompt = document.getElementById('loginPrompt');
+            
+            if (currentUser) {
+                const avatarHtml = currentUser.avatarUrl 
+                    ? '<img src="' + currentUser.avatarUrl + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:4px;">' 
+                    : '<i class="fas fa-user-circle"></i>';
+                const displayName = currentUser.name || currentUser.email || currentUser.phone || 'Пользователь';
+                statusDiv.innerHTML = '<div class="user-dropdown" id="userDropdown">' +
+                    '<button class="user-dropdown-btn" id="userDropdownBtn">' + avatarHtml + ' ' + displayName + '</button>' +
+                    '<div class="user-dropdown-menu" id="userDropdownMenu">' +
+                        '<a href="#" id="profileLink"><i class="fas fa-id-card"></i> Личный кабинет</a>' +
+                        '<a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Выйти</a>' +
+                    '</div>' +
+                '</div>';
+                document.getElementById('profileLink').addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    showPage('profile'); 
+                });
+                document.getElementById('logoutLink').addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    logout(); 
+                });
+                if (reviewForm) reviewForm.style.display = 'block';
+                if (loginPrompt) loginPrompt.style.display = 'none';
+            } else {
+                statusDiv.innerHTML = '<button class="login-btn" id="loginBtn"><i class="fas fa-user"></i> Войти</button>';
+                const loginBtn = document.getElementById('loginBtn');
+                if (loginBtn) loginBtn.addEventListener('click', openAuthModal);
+                if (reviewForm) reviewForm.style.display = 'none';
+                if (loginPrompt) loginPrompt.style.display = 'block';
+            }
+        }
+
+        function logout() { 
+            currentUser = null; 
+            localStorage.removeItem('fullseller_user');
+            updateAuthUI(); 
+            logAnalyticsEvent('logout');
+        }
+
+        function openAuthModal() {
+            document.getElementById('emailForms').style.display = 'block';
+            document.getElementById('phoneForms').style.display = 'none';
+            document.querySelector('.auth-tab[data-tab="email"]').classList.add('active');
+            document.querySelector('.auth-tab[data-tab="phone"]').classList.remove('active');
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerFormEmail').style.display = 'none';
+            document.getElementById('loginError').innerText = '';
+            document.getElementById('registerError').innerText = '';
+            openModal('authModal');
+        }
+
+        function openProfilePage() {
+            if (!currentUser) return;
+            document.getElementById('profileName').value = currentUser.name || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profileBirthdate').value = currentUser.birthdate || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.profile-tab[data-tab="info"]').classList.add('active');
+            document.getElementById('profileInfoTab').style.display = 'block';
+            document.getElementById('profileOrdersTab').style.display = 'none';
+        }
+
+        // Email авторизация (локальная)
+        document.getElementById('loginSubmit').addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            document.getElementById('loginError').innerText = '';
+            if (!email || !password) { 
+                document.getElementById('loginError').innerText = 'Заполните все поля'; 
+                return; 
+            }
+            // Простая локальная авторизация
+            currentUser = {
+                uid: 'user_' + Date.now(),
+                email: email,
+                name: email.split('@')[0] || 'Пользователь',
+                phone: '',
+                birthdate: ''
             };
-        }).filter(Boolean)
-    });
-}
-
-function generateOrderText() {
-    let text = '🛒 *Заказ в FULL SELLER*\n\n';
-    let total = 0;
-    cart.forEach(item => {
-        const p = getProductById(item.productId);
-        if (!p) return;
-        const fp = getFinalPrice(p);
-        const sub = fp * item.qty;
-        total += sub;
-        text += `• ${p.name} — ${item.qty} шт. × ${fp} ₽ = ${sub.toFixed(2)} ₽\n`;
-    });
-    text += `\n💰 *Итого: ${total.toFixed(2)} ₽*`;
-    if (currentUser) text += `\n👤 ${currentUser.name || currentUser.email || currentUser.phone}`;
-    return text;
-}
-
-async function saveOrderToFirestore(orderData) {
-    try {
-        const docRef = await db.collection("orders").add({
-            ...orderData,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            userId: currentUser.uid,
-            userEmail: currentUser.email,
-            userName: currentUser.name || ''
+            localStorage.setItem('fullseller_user', JSON.stringify(currentUser));
+            closeModal('authModal'); 
+            updateAuthUI();
+            logAnalyticsEvent('login', { method: 'email' });
         });
-        return docRef.id;
-    } catch (err) { console.error("Ошибка сохранения заказа:", err); return null; }
-}
 
-async function sendOrderTo(messenger) {
-    if (!currentUser) { openAuthModal(); return; }
-    if (cart.length === 0) { showToast('Корзина пуста'); return; }
-
-    const orderItems = [];
-    let total = 0;
-    cart.forEach(item => {
-        const p = getProductById(item.productId);
-        if (!p) return;
-        const fp = getFinalPrice(p);
-        const sub = fp * item.qty;
-        total += sub;
-        orderItems.push({ productId: item.productId, name: p.name, price: fp, qty: item.qty, subtotal: sub });
-    });
-
-    const orderData = { items: orderItems, total: total, status: 'new', date: new Date().toISOString() };
-    let orderId = null;
-    try {
-        orderId = await saveOrderToFirestore(orderData);
-    } catch (err) {
-        console.error('Не удалось сохранить заказ:', err);
-    }
-
-    logAnalyticsEvent('purchase', {
-        currency: "RUB",
-        transaction_id: orderId || 'unknown',
-        value: total,
-        items: orderItems.map(item => ({
-            item_id: item.productId,
-            item_name: item.name,
-            item_category: getProductById(item.productId)?.category,
-            price: item.price,
-            quantity: item.qty
-        }))
-    });
-
-    let orderText = generateOrderText();
-    if (orderId) {
-        orderText += `\n\n📋 Заказ #${orderId}`;
-    }
-    const text = encodeURIComponent(orderText);
-    let url = '';
-    if (messenger === 'whatsapp') {
-        url = `https://wa.me/998958239490?text=${text}`;
-    } else {
-        url = `https://t.me/fullsellertjmsh?text=${text}`;
-    }
-    window.open(url, '_blank');
-    cart = [];
-    saveCart();
-    closeModal('orderModal');
-    showToast('Заказ отправлен!');
-}
-
-// ---------- ИСТОРИЯ ЗАКАЗОВ ----------
-async function loadUserOrders() {
-    const container = document.getElementById('ordersHistoryContainer');
-    if (!currentUser) { container.innerHTML = '<p>Необходимо авторизоваться</p>'; return; }
-    container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i> Загрузка...</div>';
-    try {
-        const snapshot = await db.collection("orders").where("userId", "==", currentUser.uid).orderBy("createdAt", "desc").limit(10).get();
-        const orders = [];
-        snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-        if (orders.length === 0) { container.innerHTML = '<p class="empty-state"><i class="fas fa-box-open"></i> У вас пока нет заказов</p>'; return; }
-        const statusNames = { new: 'Новый', processing: 'В обработке', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменен' };
-        container.innerHTML = orders.map(order => {
-            const date = order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleDateString('ru-RU') : '—';
-            return `<div class="order-item" onclick="openOrderDetail('${order.id}')"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>Заказ #${order.id}</strong><span class="order-status ${order.status || 'new'}">${statusNames[order.status] || 'Новый'}</span></div><div style="margin-top:8px; color:var(--text-secondary);">${date} • ${order.items?.length || 0} поз. • ${order.total?.toFixed(2) || 0} ₽</div></div>`;
-        }).join('');
-    } catch (err) { container.innerHTML = '<p style="color:#ef4444;">Ошибка загрузки заказов</p>'; }
-}
-
-window.openOrderDetail = async function(orderId) {
-    const content = document.getElementById('orderDetailContent');
-    content.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i> Загрузка...</div>';
-    openModal('orderDetailModal');
-    try {
-        const doc = await db.collection("orders").doc(orderId).get();
-        if (!doc.exists) { content.innerHTML = '<p>Заказ не найден</p>'; return; }
-        const order = doc.data();
-        const statusNames = { new: 'Новый', processing: 'В обработке', shipped: 'Отправлен', delivered: 'Доставлен', cancelled: 'Отменен' };
-        const date = order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleString('ru-RU') : '—';
-        content.innerHTML = `
-            <p><strong>Заказ #${orderId}</strong></p>
-            <p>Статус: <span class="order-status ${order.status || 'new'}">${statusNames[order.status] || 'Новый'}</span></p>
-            <p>Дата: ${date}</p>
-            <hr style="margin:12px 0; border-color:var(--border-light);">
-            ${(order.items || []).map(item => `<div style="display:flex; justify-content:space-between; padding:6px 0;"><span>${item.name} × ${item.qty}</span><span>${item.subtotal?.toFixed(2) || 0} ₽</span></div>`).join('')}
-            <hr style="margin:12px 0; border-color:var(--border-light);">
-            <div class="cart-total"><span>Итого:</span><span>${order.total?.toFixed(2) || 0} ₽</span></div>
-        `;
-    } catch (err) { content.innerHTML = '<p style="color:#ef4444;">Ошибка загрузки</p>'; }
-};
-
-// ---------- АДМИН-ПАНЕЛЬ ----------
-function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
-function updateAdminUI() {
-    const link = document.getElementById('adminNavLink');
-    const mobileLink = document.getElementById('mobileAdminLink');
-    if (isAdmin()) {
-        if (link) { link.style.display = 'inline'; link.onclick = (e) => { e.preventDefault(); showPage('admin'); }; }
-        if (mobileLink) { mobileLink.style.display = 'block'; mobileLink.onclick = (e) => { e.preventDefault(); showPage('admin'); closeMobileMenu(); }; }
-    } else {
-        if (link) link.style.display = 'none';
-        if (mobileLink) mobileLink.style.display = 'none';
-    }
-}
-
-function renderAdminProducts() {
-    const container = document.getElementById('adminProductsList');
-    let allP = [];
-    for (let cat in allProducts) { allP = allP.concat(allProducts[cat].map(p => ({ ...p, category: cat }))); }
-    if (allP.length === 0) { container.innerHTML = '<p>Товары не найдены.</p>'; return; }
-    container.innerHTML = `
-        <table class="admin-table">
-            <tr><th>Название</th><th>Категория</th><th>Цена</th><th>Рейтинг</th><th>Остаток</th><th>Бренд</th><th>Материал</th><th>Размер</th><th>Описание</th><th>Скрыт</th><th>Действия</th></tr>
-            ${allP.map(p => {
-                const col = p.category === 'socks' ? 'products' : p.category;
-                return `<tr data-id="${p.id}" data-col="${col}">
-                    <td><input type="text" value="${p.name.replace(/"/g, '&quot;')}" class="admin-name" style="width:120px;"></td>
-                    <td><select class="admin-category" style="width:100px;"><option value="socks" ${p.category === 'socks' ? 'selected' : ''}>Носки</option><option value="tshirts" ${p.category === 'tshirts' ? 'selected' : ''}>Футболки</option><option value="underwear" ${p.category === 'underwear' ? 'selected' : ''}>Трусы</option></select></td>
-                    <td><input type="number" value="${p.price}" class="admin-price" style="width:80px;"></td>
-                    <td><input type="number" step="0.1" min="0" max="5" value="${(p.rating || State.rating).toFixed(1)}" class="admin-rating" style="width:70px;"></td>
-                    <td><input type="number" value="${p.stock || 0}" class="admin-stock" style="width:70px;"></td>
-                    <td><input type="text" value="${(p.brand || '').replace(/"/g, '&quot;')}" class="admin-brand" style="width:100px;"></td>
-                    <td><input type="text" value="${(p.material || '').replace(/"/g, '&quot;')}" class="admin-material" style="width:120px;"></td>
-                    <td><input type="text" value="${(p.size || '').replace(/"/g, '&quot;')}" class="admin-size" style="width:80px;"></td>
-                    <td><textarea class="admin-desc" style="width:150px; height:50px;">${p.desc || ''}</textarea></td>
-                    <td><input type="checkbox" class="admin-hidden" ${p.hidden ? 'checked' : ''}></td>
-                    <td><button class="btn" onclick="saveProductRow(this)">💾 Сохранить</button><button class="btn btn-danger" onclick="deleteProduct('${p.id}', '${col}')">🗑</button></td>
-                </tr>`;
-            }).join('')}
-        </table>
-    `;
-}
-
-window.saveProductRow = async function(btn) {
-    const row = btn.closest('tr');
-    const productId = row.dataset.id;
-    const collectionName = row.dataset.col;
-    const name = row.querySelector('.admin-name').value.trim();
-    const category = row.querySelector('.admin-category').value;
-    const price = parseFloat(row.querySelector('.admin-price').value);
-    const rating = parseFloat(row.querySelector('.admin-rating').value);
-    const stock = parseInt(row.querySelector('.admin-stock').value);
-    const brand = row.querySelector('.admin-brand') ? row.querySelector('.admin-brand').value.trim() : '';
-    const material = row.querySelector('.admin-material') ? row.querySelector('.admin-material').value.trim() : '';
-    const size = row.querySelector('.admin-size') ? row.querySelector('.admin-size').value.trim() : '';
-    const desc = row.querySelector('.admin-desc').value;
-    const hidden = row.querySelector('.admin-hidden').checked;
-    if (!name || isNaN(price) || isNaN(rating) || isNaN(stock)) {
-        showToast('Проверьте правильность заполнения полей');
-        return;
-    }
-    const data = { name, category, price, rating, stock, brand, material, size, desc, hidden };
-    try {
-        await db.collection(collectionName).doc(productId).set(data, { merge: true });
-        showToast('Изменения сохранены');
-        renderAdminProducts();
-        const product = getProductById(productId);
-        if (product) {
-            product.name = name;
-            product.category = category;
-            product.price = price;
-            product.rating = rating;
-            product.stock = stock;
-            product.brand = brand;
-            product.material = material;
-            product.size = size;
-            product.desc = desc;
-            product.hidden = hidden;
-        }
-        renderCatalog();
-    } catch (err) {
-        showToast('Ошибка сохранения: ' + err.message);
-    }
-};
-
-window.deleteProduct = async function(productId, collectionName) {
-    if (!confirm('Удалить товар навсегда?')) return;
-    try { await db.collection(collectionName).doc(productId).delete(); showToast('Товар удалён'); } catch (err) { showToast('Ошибка: ' + err.message); }
-};
-
-document.getElementById('addProductBtn').addEventListener('click', async () => {
-    const name = document.getElementById('adminName').value.trim();
-    const price = parseFloat(document.getElementById('adminPrice').value);
-    const category = document.getElementById('adminCategory').value;
-    if (!name || isNaN(price)) return showToast('Введите название и цену');
-    const collectionName = category === 'socks' ? 'products' : category;
-    const data = {
-        name, price, brand: document.getElementById('adminBrand').value.trim(),
-        material: document.getElementById('adminMaterial').value.trim(),
-        size: document.getElementById('adminSize').value.trim(),
-        stock: parseInt(document.getElementById('adminStock').value) || 0,
-        imageUrl: document.getElementById('adminImageUrl').value.trim(),
-        desc: document.getElementById('adminDesc').value.trim(), hidden: false,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    try { await db.collection(collectionName).add(data); showToast('Товар добавлен'); ['adminName','adminPrice','adminBrand','adminMaterial','adminSize','adminStock','adminImageUrl','adminDesc'].forEach(id => document.getElementById(id).value = ''); document.getElementById('adminStock').value = '100'; } catch (err) { showToast('Ошибка: ' + err.message); }
-});
-
-async function renderAdminOrders() {
-    const container = document.getElementById('adminOrdersList');
-    container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i> Загрузка...</div>';
-    try {
-        const snapshot = await db.collection("orders").orderBy("createdAt", "desc").limit(20).get();
-        const orders = [];
-        snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-        if (orders.length === 0) { container.innerHTML = '<p>Заказов пока нет</p>'; return; }
-        container.innerHTML = `<table class="admin-table"><tr><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действие</th></tr>${orders.map(o => `<tr><td>${o.id}</td><td>${o.userName || o.userEmail || o.userPhone}</td><td>${o.total?.toFixed(2)} ₽</td><td><span class="order-status ${o.status || 'new'}">${o.status || 'new'}</span></td><td>${o.createdAt ? new Date(o.createdAt.seconds * 1000).toLocaleDateString('ru-RU') : '—'}</td><td><select onchange="updateOrderStatus('${o.id}', this.value)" style="padding:4px; border-radius:6px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);"><option value="new" ${o.status === 'new' ? 'selected' : ''}>Новый</option><option value="processing" ${o.status === 'processing' ? 'selected' : ''}>В обработке</option><option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Отправлен</option><option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Доставлен</option><option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Отменен</option></select></td></tr>`).join('')}</table>`;
-    } catch (err) { container.innerHTML = '<p style="color:#ef4444;">Ошибка загрузки</p>'; }
-}
-
-window.updateOrderStatus = async function(orderId, newStatus) {
-    try { await db.collection("orders").doc(orderId).update({ status: newStatus }); showToast('Статус обновлён'); } catch (err) { showToast('Ошибка: ' + err.message); }
-};
-
-document.getElementById('saveGlobalParamsBtn').addEventListener('click', async () => {
-    const percent = parseFloat(document.getElementById('adminDiscountPercent').value) || 0;
-    const rub = parseFloat(document.getElementById('adminDiscountRub').value) || 0;
-    const rating = Math.min(5, Math.max(0, parseFloat(document.getElementById('adminRating').value) || 4.2));
-    State.percentageDiscount = percent;
-    State.fixedDiscountRub = rub;
-    State.rating = rating;
-    try { await db.collection("settings").doc("global").set({ percentageDiscount: percent, fixedDiscountRub: rub, defaultRating: rating }); showToast('Настройки сохранены'); } catch (err) { showToast('Ошибка: ' + err.message); }
-    renderCatalog();
-});
-
-document.querySelectorAll('.admin-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        const tabName = this.dataset.tab;
-        document.getElementById('adminGlobalTab').style.display = tabName === 'global' ? 'block' : 'none';
-        document.getElementById('adminProductsTab').style.display = tabName === 'products' ? 'block' : 'none';
-        document.getElementById('adminAddTab').style.display = tabName === 'add' ? 'block' : 'none';
-        document.getElementById('adminOrdersTab').style.display = tabName === 'orders' ? 'block' : 'none';
-        if (tabName === 'products') renderAdminProducts();
-        if (tabName === 'orders') renderAdminOrders();
-    });
-});
-
-function loadGlobalSettings() {
-    db.collection("settings").doc("global").onSnapshot(doc => {
-        if (doc.exists) {
-            const data = doc.data();
-            State.percentageDiscount = data.percentageDiscount || 0;
-            State.fixedDiscountRub = data.fixedDiscountRub || 0;
-            State.rating = data.defaultRating || 4.2;
-        }
-        renderCatalog();
-    });
-}
-
-// ---------- ОТЗЫВЫ ----------
-async function loadPurchasedProductsForReview() {
-    const select = document.getElementById('reviewProductSelect');
-    select.innerHTML = '<option value="">Загрузка...</option>';
-    if (!currentUser) { select.innerHTML = '<option value="">Необходимо авторизоваться</option>'; return; }
-    try {
-        const ordersSnap = await db.collection("orders").where("userId", "==", currentUser.uid).get();
-        const purchasedIds = new Set();
-        if (!ordersSnap.empty) {
-            ordersSnap.forEach(doc => { (doc.data().items || []).forEach(item => { if (item.productId) purchasedIds.add(item.productId); }); });
-        }
-        const reviewsSnap = await db.collection("reviews").where("userId", "==", currentUser.uid).get();
-        const reviewedIds = new Set();
-        if (!reviewsSnap.empty) {
-            reviewsSnap.forEach(doc => reviewedIds.add(doc.data().productId));
-        }
-        const available = [...purchasedIds].filter(id => !reviewedIds.has(id)).map(id => getProductById(id)).filter(Boolean);
-        if (available.length === 0) select.innerHTML = '<option value="">Нет доступных товаров для отзыва</option>';
-        else select.innerHTML = '<option value="">Выберите товар</option>' + available.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-    } catch (err) { select.innerHTML = '<option value="">Ошибка загрузки</option>'; }
-}
-
-function compressImage(file, maxWidth = 400, quality = 0.6) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const scale = maxWidth / img.width;
-                canvas.width = maxWidth;
-                canvas.height = img.height * scale;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                resolve(canvas.toDataURL('image/jpeg', quality));
+        document.getElementById('registerSubmitEmail').addEventListener('click', () => {
+            const name = document.getElementById('regNameEmail').value.trim();
+            const email = document.getElementById('regEmailEmail').value.trim();
+            const password = document.getElementById('regPasswordEmail').value;
+            const birthdate = document.getElementById('regBirthdateEmail').value;
+            document.getElementById('registerError').innerText = '';
+            if (!name || !email || !password) { 
+                document.getElementById('registerError').innerText = 'Заполните все поля'; 
+                return; 
+            }
+            if (password.length < 6) { 
+                document.getElementById('registerError').innerText = 'Пароль должен содержать минимум 6 символов'; 
+                return; 
+            }
+            currentUser = {
+                uid: 'user_' + Date.now(),
+                email: email,
+                name: name,
+                phone: '',
+                birthdate: birthdate
             };
-            img.onerror = reject;
-            img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
+            localStorage.setItem('fullseller_user', JSON.stringify(currentUser));
+            closeModal('authModal'); 
+            updateAuthUI();
+            logAnalyticsEvent('sign_up', { method: 'email' });
+        });
 
-function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-function updateReviewPreview() {
-    const container = document.getElementById('reviewAttachmentsPreview');
-    if (!container) return;
-    container.innerHTML = reviewPhotoFiles.map((item, idx) => 
-        `<div class="review-attach-preview" style="background-image:url('${item.preview}'); background-size:cover; background-position:center;">
-            <div class="remove-attach" onclick="removeReviewAttachment(${idx})">&times;</div>
-         </div>`
-    ).join('');
-}
-
-window.removeReviewAttachment = function(idx) {
-    if (reviewPhotoFiles[idx] && reviewPhotoFiles[idx].preview) {
-        URL.revokeObjectURL(reviewPhotoFiles[idx].preview);
-    }
-    reviewPhotoFiles.splice(idx, 1);
-    updateReviewPreview();
-};
-
-async function handleReviewFiles(input) {
-    const files = Array.from(input.files || []);
-    const maxTotal = 5;
-    const availableSlots = maxTotal - reviewPhotoFiles.length;
-    const toProcess = files.slice(0, availableSlots);
-    if (toProcess.length < files.length) showToast('Максимум 5 фотографий');
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const maxSize = 5 * 1024 * 1024;
-    for (const file of toProcess) {
-        if (!validTypes.includes(file.type)) {
-            showToast('Неверный формат: ' + file.name);
-            continue;
+        // Проверка авторизации при загрузке
+        const savedUser = localStorage.getItem('fullseller_user');
+        if (savedUser) {
+            try {
+                currentUser = JSON.parse(savedUser);
+            } catch (e) {
+                console.error('Ошибка загрузки пользователя:', e);
+            }
         }
-        if (file.size > maxSize) {
-            showToast('Файл слишком большой (макс 5 МБ): ' + file.name);
-            continue;
-        }
-        try {
-            const preview = URL.createObjectURL(file);
-            reviewPhotoFiles.push({ file, preview, name: file.name });
-        } catch (e) { console.error('Ошибка обработки файла', e); }
-    }
-    updateReviewPreview();
-    input.value = '';
-}
+        updateAuthUI();
 
-const likeInProgress = new Set();
-async function toggleReviewLike(reviewId) {
-    if (!currentUser) { openAuthModal(); return; }
-    if (likeInProgress.has(reviewId)) return;
-    likeInProgress.add(reviewId);
-    try {
-        const ref = db.collection("reviews").doc(reviewId);
-        const docSnap = await ref.get();
-        if (!docSnap.exists) return;
-        const data = docSnap.data();
-        let likes = Array.isArray(data.likes) ? data.likes : [];
-        const idx = likes.indexOf(currentUser.uid);
-        if (idx >= 0) {
-            likes.splice(idx, 1);
+        // ---------- ТЕМА ----------
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        function setTheme(t) {
+            const isDark = t === 'dark';
+            document.body.classList.toggle('dark', isDark);
+            if (themeToggleBtn) {
+                themeToggleBtn.innerHTML = '<i class="fas fa-' + (isDark ? 'sun' : 'moon') + '"></i>';
+                themeToggleBtn.title = isDark ? 'Светлая тема' : 'Тёмная тема';
+                themeToggleBtn.setAttribute('aria-label', themeToggleBtn.title);
+            }
+            localStorage.setItem('fullseller_theme', isDark ? 'dark' : 'light');
+        }
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => setTheme(document.body.classList.contains('dark') ? 'light' : 'dark'));
+        }
+        setTheme(localStorage.getItem('fullseller_theme') || 'light');
+
+        const currencyBtn = document.getElementById('currencyBtn');
+        if (currencyBtn) {
+            currencyBtn.addEventListener('click', toggleCurrency);
+            currencyBtn.textContent = State.currency === 'RUB' ? '₽' : '$';
+        }
+
+        // ---------- МОБИЛЬНОЕ МЕНЮ ----------
+        const burgerBtn = document.getElementById('burgerBtn');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+        const closeMobileMenuBtn = document.getElementById('closeMobileMenu');
+
+        function openMobileMenu() {
+            if (menuOverlay) menuOverlay.classList.add('active');
+            if (mobileMenuPanel) mobileMenuPanel.classList.add('active');
+            document.body.classList.add('no-scroll');
+        }
+
+        function closeMobileMenu() {
+            if (menuOverlay) menuOverlay.classList.remove('active');
+            if (mobileMenuPanel) mobileMenuPanel.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+        }
+
+        if (burgerBtn) {
+            burgerBtn.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                if (mobileMenuPanel && mobileMenuPanel.classList.contains('active')) closeMobileMenu(); 
+                else openMobileMenu(); 
+            });
+        }
+        if (closeMobileMenuBtn) closeMobileMenuBtn.addEventListener('click', closeMobileMenu);
+        if (menuOverlay) menuOverlay.addEventListener('click', closeMobileMenu);
+
+        // ---------- ПЕРВОНАЧАЛЬНЫЙ ЗАПУСК ----------
+        const siteLoader = document.getElementById('siteLoader');
+        if (sessionStorage.getItem('fullseller_loader_seen')) {
+            siteLoader?.classList.add('is-hidden');
         } else {
-            likes.push(currentUser.uid);
+            sessionStorage.setItem('fullseller_loader_seen', '1');
+            window.setTimeout(() => siteLoader?.classList.add('is-hidden'), 3000);
         }
-        await ref.update({ likes: likes });
-        const review = allReviews.find(r => r.id === reviewId);
-        if (review) {
-            review.likes = likes;
-            renderReviews();
-        }
-    } catch (err) { 
-        showToast('Ошибка: ' + err.message); 
-    } finally { 
-        likeInProgress.delete(reviewId); 
-    }
-}
 
-async function loadReviewsFromFirestore() {
-    try {
-        const snapshot = await db.collection("reviews").orderBy("date", "desc").get();
-        if (!snapshot || snapshot.empty) {
-            allReviews = [];
-            renderReviews();
-            return;
-        }
-        allReviews = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            allReviews.push({ 
-                id: doc.id, 
-                name: data.name, 
-                rating: data.rating, 
-                comment: data.comment, 
-                date: data.date ? data.date.toDate().getTime() : Date.now(), 
-                productId: data.productId, 
-                userId: data.userId,
-                likes: Array.isArray(data.likes) ? data.likes : [] 
+        updateCartUI();
+        subscribeToAllProducts();
+        updateBrandFilterVisibility();
+        setBodyPageClass('home');
+        trackPageView('home');
+
+        // Обработчики для категорий
+        document.querySelectorAll('#categoryFilter .category-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#categoryFilter .category-filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentCategory = this.dataset.category;
+                currentBrandFilter = 'all';
+                updateBrandFilterVisibility();
+                document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.brand === 'all'));
+                renderCatalog();
+                logAnalyticsEvent('select_content', { content_type: 'category', item_id: currentCategory });
             });
         });
-        renderReviews();
-    } catch (err) {
-        console.error("Ошибка загрузки отзывов:", err);
-        allReviews = [];
-        renderReviews();
-    }
-}
 
-function renderReviews() {
-    const container = document.getElementById('reviewsContainer');
-    const toggleBtn = document.getElementById('toggleAllReviewsBtn');
-    const displayReviews = showAllReviews ? allReviews : allReviews.slice(0, 5);
-    if (allReviews.length === 0) { container.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Пока нет отзывов.</p>'; toggleBtn.style.display = 'none'; return; }
-    container.innerHTML = displayReviews.map(r => {
-        let starsHtml = '';
-        for (let i = 0; i < Math.floor(r.rating); i++) starsHtml += '<i class="fas fa-star"></i>';
-        if (r.rating % 1 >= 0.5) starsHtml += '<i class="fas fa-star-half-alt"></i>';
-        const likes = r.likes || [];
-        const likeCount = likes.length;
-        const userLiked = currentUser && likes.includes(currentUser.uid);
-        let mediaHtml = '';
-        if (r.media && r.media.length > 0) {
-            mediaHtml = `<div class="review-media-grid">` + r.media.map(m => {
-                if (m.type === 'image') return `<div class="review-media-item" onclick="window.open('${m.url || m.data}')"><img src="${m.url || m.data}" alt="" loading="lazy"></div>`;
-                return '';
-            }).join('') + `</div>`;
-        }
-        return `<div class="review-item">
-            <div class="review-author"><strong>${r.name}</strong></div>
-            <div class="review-rating">${starsHtml} <span>${r.rating.toFixed(1)}</span></div>
-            <div class="review-comment">${r.comment}</div>
-            ${mediaHtml}
-            <div class="review-actions">
-                <button class="review-like-btn ${userLiked ? 'active' : ''}" onclick="toggleReviewLike('${r.id}')">
-                    <i class="${userLiked ? 'fas' : 'far'} fa-heart"></i> <span>${likeCount}</span>
-                </button>
-                <span>${new Date(r.date).toLocaleDateString('ru-RU')}</span>
-            </div>
-        </div>`;
-    }).join('');
-    toggleBtn.style.display = allReviews.length > 5 ? 'inline-block' : 'none';
-    toggleBtn.textContent = showAllReviews ? 'Скрыть отзывы' : 'Показать все отзывы';
-}
-
-document.getElementById('toggleAllReviewsBtn').addEventListener('click', () => { showAllReviews = !showAllReviews; renderReviews(); });
-
-const stars = document.querySelectorAll('#starRating i');
-stars.forEach(star => {
-    star.addEventListener('click', function() { selectedRating = parseInt(this.dataset.value); stars.forEach(s => s.classList.remove('active')); for (let i = 0; i < selectedRating; i++) stars[i].classList.add('active'); });
-    star.addEventListener('mouseenter', function() { const value = parseInt(this.dataset.value); stars.forEach(s => s.classList.remove('active')); for (let i = 0; i < value; i++) stars[i].classList.add('active'); });
-});
-document.getElementById('starRating').addEventListener('mouseleave', () => { stars.forEach(s => s.classList.remove('active')); if (selectedRating > 0) for (let i = 0; i < selectedRating; i++) stars[i].classList.add('active'); });
-
-document.getElementById('submitReview').addEventListener('click', async () => {
-    const productId = document.getElementById('reviewProductSelect').value;
-    const text = document.getElementById('reviewText').value.trim();
-    document.getElementById('reviewError').innerText = '';
-    if (!currentUser) { document.getElementById('reviewError').innerText = 'Необходимо авторизоваться'; return; }
-    if (!productId) { document.getElementById('reviewError').innerText = 'Выберите товар'; return; }
-    if (selectedRating === 0) { document.getElementById('reviewError').innerText = 'Поставьте оценку'; return; }
-    if (!text) { document.getElementById('reviewError').innerText = 'Напишите комментарий'; return; }
-
-    const submitBtn = document.getElementById('submitReview');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
-
-    try {
-        const media = [];
-        for (let i = 0; i < reviewPhotoFiles.length; i++) {
-            const item = reviewPhotoFiles[i];
-            const fileRef = storage.ref(`reviews/${currentUser.uid}/${Date.now()}_${i}_${item.name}`);
-            await fileRef.put(item.file);
-            const url = await fileRef.getDownloadURL();
-            media.push({ type: 'image', url: url, name: item.name });
-        }
-
-        await db.collection("reviews").add({ 
-            name: currentUser.name || currentUser.email || currentUser.phone, 
-            rating: selectedRating, 
-            comment: text, 
-            productId: productId, 
-            userId: currentUser.uid, 
-            date: firebase.firestore.FieldValue.serverTimestamp(),
-            likes: [],
-            media: media
+        document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentBrandFilter = this.dataset.brand;
+                renderCatalog();
+                logAnalyticsEvent('select_content', { content_type: 'brand', item_id: currentBrandFilter });
+            });
         });
-        showToast('Отзыв опубликован!');
-        document.getElementById('reviewText').value = '';
-        selectedRating = 0;
-        stars.forEach(s => s.classList.remove('active'));
-        reviewPhotoFiles.forEach(f => { if (f.preview) URL.revokeObjectURL(f.preview); });
-        reviewPhotoFiles = [];
-        updateReviewPreview();
-        loadPurchasedProductsForReview();
-        loadReviewsFromFirestore();
-    } catch (err) { 
-        document.getElementById('reviewError').innerText = 'Ошибка отправки: ' + err.message; 
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Отправить отзыв';
-    }
-});
 
-// ---------- АВТОРИЗАЦИЯ ----------
-function updateAuthUI() {
-    const statusDiv = document.getElementById('userStatus');
-    const reviewForm = document.getElementById('reviewFormWrapper');
-    const loginPrompt = document.getElementById('loginPrompt');
-    if (currentUser) {
-        const avatarHtml = currentUser.avatarUrl ? `<img src="${currentUser.avatarUrl}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;margin-right:4px;">` : `<i class="fas fa-user-circle"></i>`;
-        const displayName = currentUser.name || currentUser.email || currentUser.phone || 'Пользователь';
-        statusDiv.innerHTML = `<div class="user-dropdown" id="userDropdown"><button class="user-dropdown-btn" id="userDropdownBtn">${avatarHtml} ${displayName}</button><div class="user-dropdown-menu" id="userDropdownMenu"><a href="#" id="profileLink"><i class="fas fa-id-card"></i> Личный кабинет</a><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Выйти</a></div></div>`;
-        document.getElementById('profileLink').addEventListener('click', (e) => { e.preventDefault(); showPage('profile'); });
-        document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
-        document.getElementById('userDropdownBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const menu = document.getElementById('userDropdownMenu');
-            menu.classList.toggle('active');
-            document.getElementById('userDropdownBtn').setAttribute('aria-expanded', menu.classList.contains('active') ? 'true' : 'false');
-        });
-        reviewForm.style.display = 'block';
-        loginPrompt.style.display = 'none';
-        loadPurchasedProductsForReview();
-    } else {
-        statusDiv.innerHTML = '<button class="login-btn" id="loginBtn"><i class="fas fa-user"></i> Войти</button>';
-        document.getElementById('loginBtn').addEventListener('click', openAuthModal);
-        reviewForm.style.display = 'none';
-        loginPrompt.style.display = 'block';
-    }
-    updateAdminUI();
-}
-
-document.addEventListener('click', (event) => {
-    const dropdown = document.getElementById('userDropdown');
-    const menu = document.getElementById('userDropdownMenu');
-    if (dropdown && menu && !dropdown.contains(event.target)) {
-        menu.classList.remove('active');
-        document.getElementById('userDropdownBtn')?.setAttribute('aria-expanded', 'false');
-    }
-});
-
-function logout() { 
-    auth.signOut(); 
-    currentUser = null; 
-    updateAuthUI(); 
-    logAnalyticsEvent('logout');
-}
-
-function openAuthModal() {
-    document.getElementById('emailForms').style.display = 'block';
-    document.getElementById('phoneForms').style.display = 'none';
-    document.querySelector('.auth-tab[data-tab="email"]').classList.add('active');
-    document.querySelector('.auth-tab[data-tab="phone"]').classList.remove('active');
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('registerFormEmail').style.display = 'none';
-    document.getElementById('loginError').innerText = '';
-    document.getElementById('registerError').innerText = '';
-    openModal('authModal');
-}
-
-function openProfilePage() {
-    if (!currentUser) return;
-    document.getElementById('profileName').value = currentUser.name || '';
-    document.getElementById('profilePhone').value = currentUser.phone || '';
-    document.getElementById('profileBirthdate').value = currentUser.birthdate || '';
-    document.getElementById('profileEmail').value = currentUser.email || '';
-    document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector('.profile-tab[data-tab="info"]').classList.add('active');
-    document.getElementById('profileInfoTab').style.display = 'block';
-    document.getElementById('profileOrdersTab').style.display = 'none';
-    loadProfileAvatar();
-}
-
-// ---------- МОБИЛЬНОЕ МЕНЮ ----------
-const burgerBtn = document.getElementById('burgerBtn');
-const menuOverlay = document.getElementById('menuOverlay');
-const mobileMenuPanel = document.getElementById('mobileMenuPanel');
-const closeMobileMenuBtn = document.getElementById('closeMobileMenu');
-
-function openMobileMenu() {
-    menuOverlay.classList.add('active');
-    mobileMenuPanel.classList.add('active');
-    document.body.classList.add('no-scroll');
-}
-
-function closeMobileMenu() {
-    menuOverlay.classList.remove('active');
-    mobileMenuPanel.classList.remove('active');
-    document.body.classList.remove('no-scroll');
-}
-
-burgerBtn.addEventListener('click', (e) => { e.stopPropagation(); if (mobileMenuPanel.classList.contains('active')) closeMobileMenu(); else openMobileMenu(); });
-closeMobileMenuBtn.addEventListener('click', closeMobileMenu);
-menuOverlay.addEventListener('click', closeMobileMenu);
-
-mobileMenuPanel.querySelectorAll('.mobile-menu-link').forEach(link => {
-    link.addEventListener('click', (e) => { 
-        e.preventDefault();
-        const href = link.getAttribute('href');
-        if (href && href.startsWith('#')) {
-            const section = href.substring(1);
-            if (section === 'catalog' || section === 'wholesale' || section === 'reviews' || section === 'contact') {
-                showPage('home');
-                setTimeout(() => {
-                    const el = document.getElementById(section);
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-                history.pushState({ page: 'home', section: section }, '', '#' + section);
-            }
+        const bottomNav = document.getElementById('bottomNav');
+        if (bottomNav) {
+            bottomNav.addEventListener('click', (e) => {
+                const btn = e.target.closest('.bottom-nav__item');
+                if (!btn) return;
+                btn.classList.remove('is-pressed');
+                void btn.offsetWidth;
+                btn.classList.add('is-pressed');
+                btn.addEventListener('animationend', () => btn.classList.remove('is-pressed'), { once: true });
+                bottomNav.querySelectorAll('.bottom-nav__item').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                switch (btn.dataset.action) {
+                    case 'home':
+                        showPage('home', { resetHistory: true });
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        break;
+                    case 'favorites': showPage('favorites'); break;
+                    case 'cart': showPage('cart'); break;
+                    case 'profile': if (currentUser) showPage('profile'); else openAuthModal(); break;
+                    case 'cargo':
+                        showPage('home');
+                        setTimeout(() => document.getElementById('cargoCalculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                        break;
+                }
+            });
         }
-        closeMobileMenu(); 
-    });
-});
 
-// ---------- ОБРАБОТЧИКИ ----------
-document.getElementById('checkoutBtn').addEventListener('click', () => { if (!currentUser) { openAuthModal(); return; } if (cart.length === 0) return; openOrderModal(); });
-document.getElementById('sendWhatsApp').addEventListener('click', () => sendOrderTo('whatsapp'));
-document.getElementById('sendTelegram').addEventListener('click', () => sendOrderTo('telegram'));
-document.getElementById('closeOrderModal').addEventListener('click', () => closeModal('orderModal'));
-document.getElementById('closeAuthModal').addEventListener('click', () => closeModal('authModal'));
-document.getElementById('loginToReview').addEventListener('click', openAuthModal);
-document.getElementById('reviewPhotos').addEventListener('change', function() { handleReviewFiles(this); });
-
-document.getElementById('saveProfileBtn').addEventListener('click', () => {
-    const name = document.getElementById('profileName').value.trim();
-    const phone = document.getElementById('profilePhone').value.trim();
-    const bdate = document.getElementById('profileBirthdate').value;
-    
-    if (phone && !validateInternationalPhone(phone)) {
-        showToast('Введите корректный номер телефона в международном формате');
-        return;
-    }
-    
-    localStorage.setItem('fullseller_profile_' + currentUser.uid, JSON.stringify({ name, phone, birthdate: bdate }));
-    currentUser.name = name;
-    currentUser.phone = phone;
-    currentUser.birthdate = bdate;
-    updateAuthUI();
-    showToast('Профиль обновлён');
-    logAnalyticsEvent('profile_update', { user_id: currentUser.uid });
-});
-
-window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) closeModal(e.target.id); });
-
-document.querySelectorAll('.auth-tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        document.querySelectorAll('.auth-tab').forEach(t => { t.classList.remove('active'); t.style.background = 'var(--bg-primary)'; t.style.color = 'var(--text-primary)'; });
-        this.classList.add('active');
-        this.style.background = 'var(--accent)';
-        this.style.color = 'white';
-        if (this.dataset.tab === 'email') { document.getElementById('emailForms').style.display = 'block'; document.getElementById('phoneForms').style.display = 'none'; } else { document.getElementById('emailForms').style.display = 'none'; document.getElementById('phoneForms').style.display = 'block'; }
-    });
-});
-
-document.querySelectorAll('.profile-tab').forEach(tab => {
-    tab.addEventListener('click', function(event) {
-        event.preventDefault();
-        document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        const tabName = this.dataset.tab;
-        document.getElementById('profileInfoTab').style.display = tabName === 'info' ? 'block' : 'none';
-        document.getElementById('profileOrdersTab').style.display = tabName === 'orders' ? 'block' : 'none';
-        if (tabName === 'orders') loadUserOrders();
-    });
-});
-
-document.querySelectorAll('#categoryFilter .category-filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('#categoryFilter .category-filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        currentCategory = this.dataset.category;
-        currentBrandFilter = 'all';
-        updateBrandFilterVisibility();
-        document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.brand === 'all'));
-        renderCatalog();
-        logAnalyticsEvent('select_content', { content_type: 'category', item_id: currentCategory });
-    });
-});
-
-document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        currentBrandFilter = this.dataset.brand;
-        renderCatalog();
-        logAnalyticsEvent('select_content', { content_type: 'brand', item_id: currentBrandFilter });
-    });
-});
-
-const bottomNav = document.getElementById('bottomNav');
-if (bottomNav) {
-    bottomNav.addEventListener('click', (e) => {
-        const btn = e.target.closest('.bottom-nav__item');
-        if (!btn) return;
-        btn.classList.remove('is-pressed');
-        void btn.offsetWidth;
-        btn.classList.add('is-pressed');
-        btn.addEventListener('animationend', () => btn.classList.remove('is-pressed'), { once: true });
-        bottomNav.querySelectorAll('.bottom-nav__item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        switch (btn.dataset.action) {
-            case 'home':
-                showPage('home', { resetHistory: true });
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                break;
-            case 'favorites': showPage('favorites'); break;
-            case 'cart': showPage('cart'); break;
-            case 'profile': if (currentUser) showPage('profile'); else openAuthModal(); break;
-            case 'cargo':
-                showPage('home');
-                setTimeout(() => document.getElementById('cargoCalculator')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-                break;
+        // Живой поиск
+        const searchInput = document.getElementById('headerSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const q = this.value.trim().toLowerCase();
+                if (q.length > 2) { logAnalyticsEvent('search', { search_term: q }); }
+                document.querySelectorAll('#catalogGrid .product-card').forEach(function (card) {
+                    const nameEl = card.querySelector('.product-card__name');
+                    const brandEl = card.querySelector('.product-card__brand');
+                    const name = nameEl ? nameEl.textContent.toLowerCase() : '';
+                    const brand = brandEl ? brandEl.textContent.toLowerCase() : '';
+                    card.style.display = (!q || name.indexOf(q) !== -1 || brand.indexOf(q) !== -1) ? '' : 'none';
+                });
+            });
         }
-    });
-}
 
-// ---------- ТЕЛЕФОННАЯ АВТОРИЗАЦИЯ (МЕЖДУНАРОДНАЯ) ----------
-function simulateGetCode(inputId, codeInputId) {
-    const phone = document.getElementById(inputId).value.trim();
-    if (!validateInternationalPhone(phone)) { 
-        showToast('Введите номер в формате: +XXXXXXXXXXX (8-15 цифр)');
-        return; 
-    }
-    showToast('Ваш код подтверждения: 1234 (имитация)');
-    document.getElementById(codeInputId).value = '1234';
-}
-
-document.getElementById('getCodeBtn').addEventListener('click', () => simulateGetCode('loginPhone', 'loginCode'));
-document.getElementById('getCodeRegisterBtn').addEventListener('click', () => simulateGetCode('regPhonePhone', 'regCodePhone'));
-
-document.getElementById('loginPhoneSubmit').addEventListener('click', () => {
-    const phone = document.getElementById('loginPhone').value.trim();
-    const code = document.getElementById('loginCode').value.trim();
-    if (!validateInternationalPhone(phone)) { showToast('Введите корректный номер телефона'); return; }
-    if (!code) { showToast('Введите код подтверждения'); return; }
-    if (code !== '1234') { showToast('Неверный код'); return; }
-    const users = JSON.parse(localStorage.getItem('fullseller_phone_users') || '[]');
-    const user = users.find(u => u.phone === phone);
-    if (user) { 
-        currentUser = { uid: 'phone_' + phone, email: '', name: user.name, phone: user.phone, birthdate: user.birthdate || '' }; 
-        updateAuthUI(); 
-        closeModal('authModal'); 
-        showToast('Добро пожаловать!'); 
-        logAnalyticsEvent('login', { method: 'phone' });
-    } else { 
-        showToast('Пользователь не найден. Зарегистрируйтесь.');
-    }
-});
-
-document.getElementById('registerSubmitPhone').addEventListener('click', () => {
-    const name = document.getElementById('regNamePhone').value.trim();
-    const phone = document.getElementById('regPhonePhone').value.trim();
-    const code = document.getElementById('regCodePhone').value.trim();
-    const birthdate = document.getElementById('regBirthdatePhone').value;
-    if (!name) { showToast('Введите имя'); return; }
-    if (!validateInternationalPhone(phone)) { showToast('Введите корректный номер телефона'); return; }
-    if (!code) { showToast('Введите код подтверждения'); return; }
-    if (code !== '1234') { showToast('Неверный код'); return; }
-    const users = JSON.parse(localStorage.getItem('fullseller_phone_users') || '[]');
-    if (users.find(u => u.phone === phone)) { showToast('Номер уже занят'); return; }
-    users.push({ name, phone, birthdate });
-    localStorage.setItem('fullseller_phone_users', JSON.stringify(users));
-    currentUser = { uid: 'phone_' + phone, email: '', name, phone, birthdate };
-    updateAuthUI();
-    closeModal('authModal');
-    showToast('Регистрация успешна!');
-    logAnalyticsEvent('sign_up', { method: 'phone' });
-});
-
-document.getElementById('switchToRegisterPhone').addEventListener('click', () => { document.getElementById('loginPhoneForm').style.display = 'none'; document.getElementById('registerPhoneForm').style.display = 'block'; });
-document.getElementById('switchToLoginPhone').addEventListener('click', () => { document.getElementById('registerPhoneForm').style.display = 'none'; document.getElementById('loginPhoneForm').style.display = 'block'; });
-document.getElementById('switchToRegisterEmail').addEventListener('click', () => { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerFormEmail').style.display = 'block'; });
-document.getElementById('switchToLoginEmail').addEventListener('click', () => { document.getElementById('registerFormEmail').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; });
-
-// Email авторизация
-document.getElementById('loginSubmit').addEventListener('click', async () => {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    document.getElementById('loginError').innerText = '';
-    if (!email || !password) { document.getElementById('loginError').innerText = 'Заполните все поля'; return; }
-    try { 
-        await auth.signInWithEmailAndPassword(email, password); 
-        closeModal('authModal'); 
-        logAnalyticsEvent('login', { method: 'email' });
-    } catch (err) { 
-        document.getElementById('loginError').innerText = err.message; 
-    }
-});
-
-document.getElementById('registerSubmitEmail').addEventListener('click', async () => {
-    const name = document.getElementById('regNameEmail').value.trim();
-    const email = document.getElementById('regEmailEmail').value.trim();
-    const password = document.getElementById('regPasswordEmail').value;
-    const birthdate = document.getElementById('regBirthdateEmail').value;
-    document.getElementById('registerError').innerText = '';
-    if (!name || !email || !password) { document.getElementById('registerError').innerText = 'Заполните все поля'; return; }
-    if (password.length < 6) { document.getElementById('registerError').innerText = 'Пароль должен содержать минимум 6 символов'; return; }
-    try { 
-        const cred = await auth.createUserWithEmailAndPassword(email, password); 
-        localStorage.setItem('fullseller_profile_' + cred.user.uid, JSON.stringify({ name, phone: '', birthdate })); 
-        closeModal('authModal'); 
-        logAnalyticsEvent('sign_up', { method: 'email' });
-    } catch (err) { 
-        document.getElementById('registerError').innerText = err.message; 
-    }
-});
-
-auth.onAuthStateChanged(user => {
-    if (user) {
-        const profile = JSON.parse(localStorage.getItem('fullseller_profile_' + user.uid) || '{}');
-        currentUser = { uid: user.uid, email: user.email, name: profile.name || '', phone: profile.phone || '', birthdate: profile.birthdate || '' };
-        if (analytics) { analytics.setUserId(user.uid); }
-    } else { 
-        currentUser = null; 
-        if (analytics) { analytics.setUserId(null); }
-    }
-    updateAuthUI();
-});
-
-// ---------- ТЕМА ----------
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-function setTheme(t) {
-    const isDark = t === 'dark';
-    document.body.classList.toggle('dark', isDark);
-    themeToggleBtn.innerHTML = `<i class="fas fa-${isDark ? 'sun' : 'moon'}"></i>`;
-    themeToggleBtn.title = isDark ? 'Светлая тема' : 'Тёмная тема';
-    themeToggleBtn.setAttribute('aria-label', themeToggleBtn.title);
-    localStorage.setItem('fullseller_theme', isDark ? 'dark' : 'light');
-}
-themeToggleBtn.addEventListener('click', () => setTheme(document.body.classList.contains('dark') ? 'light' : 'dark'));
-setTheme(localStorage.getItem('fullseller_theme') || 'light');
-
-document.getElementById('currencyBtn').addEventListener('click', toggleCurrency);
-document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
-
-// ---------- СЛАЙДЕР БАННЕРОВ ----------
-(function() {
-    const slidesContainer = document.getElementById('bannerSlides');
-    const dotsContainer = document.getElementById('bannerDots');
-    const slides = document.querySelectorAll('.banner-slider .slide');
-    if (!slidesContainer || slides.length === 0) return;
-    let currentIndex = 0;
-    let autoPlayInterval;
-    slides.forEach((_, i) => { const dot = document.createElement('span'); dot.classList.add('dot'); if (i === 0) dot.classList.add('active'); dot.addEventListener('click', () => goTo(i)); dotsContainer.appendChild(dot); });
-    function updateSlide(index) { slidesContainer.style.transform = `translateX(-${index * 100}%)`; document.querySelectorAll('#bannerDots .dot').forEach((d, i) => d.classList.toggle('active', i === index)); }
-    function goTo(index) { currentIndex = index; updateSlide(index); resetTimer(); }
-    function nextSlide() { goTo((currentIndex + 1) % slides.length); }
-    function resetTimer() { clearInterval(autoPlayInterval); autoPlayInterval = setInterval(nextSlide, 10000); }
-    const slider = document.getElementById('mainBannerSlider');
-    slider.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
-    slider.addEventListener('mouseleave', resetTimer);
-    let touchStartX = 0;
-    slider.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; clearInterval(autoPlayInterval); }, { passive: true });
-    slider.addEventListener('touchend', (e) => { const touchEndX = e.changedTouches[0].clientX; const diff = touchStartX - touchEndX; if (Math.abs(diff) > 40) { if (diff > 0) goTo((currentIndex + 1) % slides.length); else goTo((currentIndex - 1 + slides.length) % slides.length); } resetTimer(); });
-    slider.addEventListener('click', () => { document.getElementById('catalog').scrollIntoView(); });
-    resetTimer();
-})();
-
-// ---------- ADMIN IMAGE UPLOAD ----------
-const adminImageUploadBox = document.getElementById('adminImageUploadBox');
-const adminImageFile = document.getElementById('adminImageFile');
-const adminImagePreview = document.getElementById('adminImagePreview');
-const adminUploadProgress = document.getElementById('adminUploadProgress');
-const adminUploadActions = document.getElementById('adminUploadActions');
-const adminUploadPrompt = document.getElementById('adminUploadPrompt');
-const adminImageUrl = document.getElementById('adminImageUrl');
-
-if (adminImageUploadBox) {
-    adminImageUploadBox.addEventListener('click', (e) => {
-        if (e.target.closest('.admin-upload-actions') || e.target.closest('button')) return;
-        adminImageFile.click();
-    });
-}
-
-adminImageFile.addEventListener('change', async function() {
-    const file = this.files[0];
-    if (!file) return;
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) { showToast('Неверный формат. Разрешены: JPG, PNG, WEBP'); return; }
-    if (file.size > 5 * 1024 * 1024) { showToast('Файл слишком большой (макс 5 МБ)'); return; }
-    const preview = URL.createObjectURL(file);
-    adminImagePreview.src = preview;
-    adminImagePreview.style.display = 'block';
-    adminUploadPrompt.style.display = 'none';
-    adminUploadProgress.textContent = 'Загрузка: 0%';
-    adminUploadProgress.style.display = 'block';
-    try {
-        const ref = storage.ref(`products/${Date.now()}_${file.name}`);
-        const task = ref.put(file);
-        task.on('state_changed', 
-            snap => { const progress = (snap.bytesTransferred / snap.totalBytes) * 100; adminUploadProgress.textContent = `Загрузка: ${Math.round(progress)}%`; },
-            err => { adminUploadProgress.textContent = 'Ошибка загрузки'; showToast('Ошибка: ' + err.message); },
-            async () => { const url = await ref.getDownloadURL(); adminImageUrl.value = url; adminUploadProgress.textContent = 'Готово!'; adminUploadActions.style.display = 'flex'; showToast('Изображение загружено'); }
-        );
-    } catch (err) { adminUploadProgress.textContent = 'Ошибка'; showToast('Ошибка: ' + err.message); }
-});
-
-document.getElementById('adminRemoveImageBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    adminImagePreview.style.display = 'none';
-    adminImagePreview.src = '';
-    adminUploadPrompt.style.display = 'block';
-    adminUploadProgress.textContent = '';
-    adminUploadActions.style.display = 'none';
-    adminImageUrl.value = '';
-    adminImageFile.value = '';
-});
-
-document.getElementById('adminReplaceImageBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    adminImageFile.click();
-});
-
-// ---------- PROFILE AVATAR UPLOAD ----------
-const profileAvatarInput = document.getElementById('profileAvatarInput');
-const profileAvatarImg = document.getElementById('profileAvatarImg');
-const profileAvatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
-const profileAvatarProgress = document.getElementById('profileAvatarProgress');
-const profileRemoveAvatarBtn = document.getElementById('profileRemoveAvatarBtn');
-const profileAvatarLabel = document.getElementById('profileAvatarLabel');
-
-async function loadProfileAvatar() {
-    if (!currentUser) return;
-    try {
-        const doc = await db.collection('users').doc(currentUser.uid).get();
-        if (doc.exists && doc.data().avatarUrl) {
-            currentUser.avatarUrl = doc.data().avatarUrl;
-            profileAvatarImg.src = `${currentUser.avatarUrl}${currentUser.avatarUrl.includes('?') ? '&' : '?'}v=${Date.now()}`;
-            profileAvatarImg.style.display = 'block';
-            profileAvatarPlaceholder.style.display = 'none';
-            profileAvatarLabel.innerHTML = '<i class="fas fa-camera"></i> Заменить фото';
-            profileRemoveAvatarBtn.style.display = 'inline-block';
-        } else {
-            profileAvatarImg.style.display = 'none';
-            profileAvatarPlaceholder.style.display = 'flex';
-            profileAvatarLabel.innerHTML = '<i class="fas fa-camera"></i> Добавить фото';
-            profileRemoveAvatarBtn.style.display = 'none';
-        }
-    } catch (e) { console.error('Ошибка загрузки аватара', e); }
-}
-
-profileAvatarInput.addEventListener('change', async function() {
-    const file = this.files[0];
-    if (!file) return;
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) { showToast('Неверный формат. Разрешены: JPG, PNG, WEBP'); return; }
-    if (file.size > 5 * 1024 * 1024) { showToast('Файл слишком большой (макс 5 МБ)'); return; }
-    profileAvatarProgress.textContent = 'Загрузка: 0%';
-    try {
-        const ref = storage.ref(`avatars/${currentUser.uid}`);
-        const task = ref.put(file);
-        task.on('state_changed',
-            snap => { const progress = (snap.bytesTransferred / snap.totalBytes) * 100; profileAvatarProgress.textContent = `Загрузка: ${Math.round(progress)}%`; },
-            err => { profileAvatarProgress.textContent = 'Ошибка'; showToast('Ошибка загрузки: ' + err.message); },
-            async () => {
-                const url = await ref.getDownloadURL();
-                await db.collection('users').doc(currentUser.uid).set({ avatarUrl: url }, { merge: true });
-                currentUser.avatarUrl = url;
-                profileAvatarImg.src = `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`;
-                profileAvatarImg.style.display = 'block';
-                profileAvatarPlaceholder.style.display = 'none';
-                profileAvatarLabel.innerHTML = '<i class="fas fa-camera"></i> Заменить фото';
-                profileRemoveAvatarBtn.style.display = 'inline-block';
-                profileAvatarProgress.textContent = '';
-                showToast('Фото профиля обновлено');
-                updateAuthUI();
-            }
-        );
-    } catch (err) { profileAvatarProgress.textContent = 'Ошибка'; showToast('Ошибка: ' + err.message); }
-});
-
-profileRemoveAvatarBtn.addEventListener('click', async () => {
-    if (!currentUser) return;
-    try {
-        await storage.ref(`avatars/${currentUser.uid}`).delete().catch(() => {});
-        await db.collection('users').doc(currentUser.uid).update({ avatarUrl: firebase.firestore.FieldValue.delete() });
-        currentUser.avatarUrl = null;
-        profileAvatarImg.style.display = 'none';
-        profileAvatarPlaceholder.style.display = 'flex';
-        profileAvatarLabel.innerHTML = '<i class="fas fa-camera"></i> Добавить фото';
-        profileRemoveAvatarBtn.style.display = 'none';
-        showToast('Фото удалено');
-        updateAuthUI();
-    } catch (err) { showToast('Ошибка: ' + err.message); }
-});
-
-// ---------- ПЕРВОНАЧАЛЬНЫЙ ЗАПУСК ----------
-const siteLoader = document.getElementById('siteLoader');
-if (sessionStorage.getItem('fullseller_loader_seen')) {
-    siteLoader?.classList.add('is-hidden');
-} else {
-    sessionStorage.setItem('fullseller_loader_seen', '1');
-    window.setTimeout(() => siteLoader?.classList.add('is-hidden'), 3000);
-}
-updateCartUI();
-initOnlinePresence();
-subscribeToAllProducts();
-loadGlobalSettings();
-loadReviewsFromFirestore();
-updateBrandFilterVisibility();
-setBodyPageClass('home');
-trackPageView('home');
-
-document.addEventListener('keydown', (e) => {
-    const detailPage = document.getElementById('productDetailPage');
-    if (!detailPage.classList.contains('active')) return;
-    if (e.key === 'ArrowLeft') { currentDetailImageIndex--; updateProductDetailGallery(); }
-    if (e.key === 'ArrowRight') { currentDetailImageIndex++; updateProductDetailGallery(); }
-});
-
-// ---------- КАЛЬКУЛЯТОР КАРГО ----------
-(function() {
-    const EXCHANGE_RATE = 73.75;
-    const SOMONI_TO_RUB = 8;
-    const defaultUnitWeights = { socks: 24, underwear: 80, tshirts: 150 };
-    const categoryPrices = { socks: 13, underwear: 80, tshirts: 145 };
-    function getWholesalePrice(category, qty) { return categoryPrices[category] || 0; }
-    const qtyInput = document.getElementById('cargo-calc-qty');
-    const categorySelect = document.getElementById('cargo-calc-category');
-    const unitWeightInput = document.getElementById('cargo-calc-unit-weight');
-    const tabsContainer = document.getElementById('cargo-calc-tabs');
-    const warningEl = document.getElementById('cargo-calc-warning');
-    const resultsBlock = document.getElementById('cargo-calc-results');
-    const btnCalc = document.getElementById('cargo-calc-btn');
-    const totalContainer = document.getElementById('cargo-calc-total-container');
-    let selectedCountry = 'russia';
-    tabsContainer.addEventListener('click', (e) => {
-        const tab = e.target.closest('.cargo-calc-tab');
-        if (!tab) return;
-        document.querySelectorAll('.cargo-calc-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        selectedCountry = tab.dataset.country;
-        resultsBlock.style.display = 'none';
-    });
-    categorySelect.addEventListener('change', () => {
-        const cat = categorySelect.value;
-        if (defaultUnitWeights[cat] !== undefined) { unitWeightInput.value = defaultUnitWeights[cat]; }
-        resultsBlock.style.display = 'none';
-    });
-    const MIN_ORDER_RUB = 2000;
-    qtyInput.addEventListener('input', () => {
-        const qty = parseInt(qtyInput.value) || 0;
-        const orderAmount = qty * getWholesalePrice(categorySelect.value, qty);
-        if (qty > 0 && orderAmount < MIN_ORDER_RUB) { warningEl.textContent = 'Минимальный заказ от 2 000 ₽.'; } else { warningEl.textContent = ''; }
-        resultsBlock.style.display = 'none';
-    });
-    unitWeightInput.addEventListener('input', () => { resultsBlock.style.display = 'none'; });
-    btnCalc.addEventListener('click', (e) => {
-        e.preventDefault();
-        calculate(true);
-        resultsBlock.style.display = 'block';
-        const qty = parseInt(qtyInput.value) || 0;
-        const category = categorySelect.value;
-        const unitWeightGrams = parseFloat(unitWeightInput.value) || 0;
-        logAnalyticsEvent('calculate_cargo', { quantity: qty, category: category, unit_weight: unitWeightGrams, country: selectedCountry });
-    });
-    function calculate(showResults = true) {
-        const qty = parseInt(qtyInput.value) || 0;
-        const category = categorySelect.value;
-        const unitWeightGrams = parseFloat(unitWeightInput.value) || 0;
-        const totalEl = document.getElementById('cargo-calc-total') || totalContainer;
-        const unitPriceRub = getWholesalePrice(category, qty);
-        const productTotal = qty * unitPriceRub;
-        if (productTotal < MIN_ORDER_RUB) {
-            resultsBlock.style.display = 'none';
-            if (qty > 0) warningEl.textContent = 'Минимальный заказ от 2 000 ₽.';
-            else warningEl.textContent = '';
-            return;
-        }
-        warningEl.textContent = '';
-        const totalWeight = qty * (unitWeightGrams / 1000);
-        document.getElementById('cargo-calc-weight').textContent = totalWeight.toFixed(2) + ' кг';
-        if (selectedCountry === 'russia') {
-            const productTotal = qty * unitPriceRub;
-            const shippingUsd = totalWeight * 1.30;
-            const shippingCostRub = shippingUsd * EXCHANGE_RATE;
-            const totalInRub = productTotal + shippingCostRub;
-            const priceEl = document.getElementById('cargo-calc-product-price');
-            const shippingEl = document.getElementById('cargo-calc-shipping');
-            if (priceEl) priceEl.textContent = productTotal.toFixed(2) + ' ₽';
-            if (shippingEl) shippingEl.textContent = shippingCostRub.toFixed(2) + ' ₽';
-            if (totalEl) {
-                totalEl.innerHTML = `<div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; width: 100%;"><span style="font-size: 1.15rem; font-weight: bold; color: #1f2937;">Итого с доставкой:</span><strong style="font-size: 1.6rem; font-weight: bold; color: #e07a12; white-space: nowrap;">${totalInRub.toFixed(2)} ₽</strong></div>`;
-            }
-        } else if (selectedCountry === 'tajikistan' || selectedCountry === 'Tajikistan') {
-            const productInSomoni = (qty * unitPriceRub) / SOMONI_TO_RUB;
-            const shippingSomoni = totalWeight * 7;
-            const totalInSomoni = productInSomoni + shippingSomoni;
-            const priceEl = document.getElementById('cargo-calc-product-price');
-            const shippingEl = document.getElementById('cargo-calc-shipping');
-            if (priceEl) priceEl.textContent = productInSomoni.toFixed(2) + ' сомони';
-            if (shippingEl) shippingEl.textContent = shippingSomoni.toFixed(2) + ' сомони';
-            if (totalEl) {
-                totalEl.innerHTML = `<div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; width: 100%;"><span style="font-size: 1.15rem; font-weight: bold; color: #1f2937;">Итого с доставкой:</span><strong style="font-size: 1.6rem; font-weight: bold; color: #e07a12; white-space: nowrap;">${totalInSomoni.toFixed(2)} сомони</strong></div>`;
-            }
-        }
-        if (showResults) { resultsBlock.style.display = 'block'; }
-    }
-    resultsBlock.style.display = 'none';
-    const activeTab = document.querySelector('.cargo-calc-tab.active');
-    if (activeTab) selectedCountry = activeTab.dataset.country;
-    const initialCat = categorySelect.value;
-    if (defaultUnitWeights[initialCat] !== undefined) { unitWeightInput.value = defaultUnitWeights[initialCat]; }
-})();
-
-const cargoCalcScrollBtn = document.getElementById('cargoCalcScrollBtn');
-if (cargoCalcScrollBtn) {
-    cargoCalcScrollBtn.addEventListener('click', function() {
-        document.getElementById('cargoCalculator').scrollIntoView({ behavior: 'smooth' });
-    });
-}
-
-// ---------- СКРЫТИЕ ШАПКИ ПРИ СКРОЛЛЕ ----------
-(function() {
-    const header = document.querySelector('header');
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-    const scrollThreshold = 80;
-    function updateHeader() {
-        const currentScrollY = window.scrollY;
-        const delta = currentScrollY - lastScrollY;
-        if (currentScrollY <= 10) { header.classList.remove('header--hidden', 'header--compact'); }
-        else if (delta > 5 && currentScrollY > scrollThreshold) { header.classList.add('header--hidden'); header.classList.remove('header--compact'); }
-        else if (delta < -5) { header.classList.remove('header--hidden'); header.classList.add('header--compact'); }
-        lastScrollY = currentScrollY;
-        ticking = false;
-    }
-    window.addEventListener('scroll', function() {
-        if (!ticking) { requestAnimationFrame(updateHeader); ticking = true; }
-    }, { passive: true });
-})();
-
-// ---------- ЖИВОЙ ПОИСК ----------
-(function () {
-    const searchInput = document.getElementById('headerSearch');
-    if (!searchInput) return;
-    searchInput.addEventListener('input', function () {
-        const q = this.value.trim().toLowerCase();
-        if (q.length > 2) { logAnalyticsEvent('search', { search_term: q }); }
-        document.querySelectorAll('#catalogGrid .product-card').forEach(function (card) {
-            const nameEl = card.querySelector('.product-card__name');
-            const brandEl = card.querySelector('.product-card__brand');
-            const name = nameEl ? nameEl.textContent.toLowerCase() : '';
-            const brand = brandEl ? brandEl.textContent.toLowerCase() : '';
-            card.style.display = (!q || name.indexOf(q) !== -1 || brand.indexOf(q) !== -1) ? '' : 'none';
-        });
-    });
-    searchInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-            const cat = document.getElementById('catalog');
-            if (cat) cat.scrollIntoView({ behavior: 'smooth' });
-        }
-    });
-})();
-
-function initOnlinePresence() {
-    const countElement = document.getElementById('onlineCount');
-    if (!countElement || !db) return;
-    
-    const presenceId = sessionStorage.getItem('fullseller_presence_id') || 
-                      (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random().toString(36).slice(2)}`);
-    sessionStorage.setItem('fullseller_presence_id', presenceId);
-    
-    const presenceRef = db.collection('presence').doc(presenceId);
-    const ACTIVE_WINDOW_MS = 5 * 60 * 1000;
-    const HEARTBEAT_MS = 30000;
-    
-    let lastActivityAt = Date.now();
-    let lastHeartbeatAt = 0;
-    let latestSnapshot = null;
-    let isCleanedUp = false;
-
-    const heartbeat = () => {
-        if (isCleanedUp) return;
-        if (document.visibilityState !== 'visible' || Date.now() - lastActivityAt > ACTIVE_WINDOW_MS) return;
-        if (Date.now() - lastHeartbeatAt < HEARTBEAT_MS) return;
-        lastHeartbeatAt = Date.now();
-        presenceRef.set({ 
-            lastActivity: firebase.firestore.FieldValue.serverTimestamp() 
-        }, { merge: true }).catch(() => {});
-    };
-
-    const updateCount = () => {
-        if (!latestSnapshot) return;
-        const cutoff = Date.now() - ACTIVE_WINDOW_MS;
-        const activeCount = latestSnapshot.docs.reduce((count, doc) => {
-            const lastActivity = doc.data().lastActivity;
-            return count + (lastActivity && lastActivity.toMillis() >= cutoff ? 1 : 0);
-        }, 0);
-        countElement.textContent = activeCount;
-    };
-
-    const unsubscribe = db.collection('presence').onSnapshot(snapshot => {
-        latestSnapshot = snapshot;
-        updateCount();
-    }, () => { 
-        latestSnapshot = null; 
-        countElement.textContent = '0'; 
-    });
-
-    const activityEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
-    const registerActivity = () => {
-        if (document.visibilityState !== 'visible') return;
-        lastActivityAt = Date.now();
-        heartbeat();
-    };
-
-    activityEvents.forEach(eventName => 
-        document.addEventListener(eventName, registerActivity, { passive: true })
-    );
-
-    const countTimer = window.setInterval(updateCount, 15000);
-    
-    // Немедленный heartbeat при загрузке
-    heartbeat();
-    
-    const heartbeatTimer = window.setInterval(heartbeat, 10000);
-
-    document.addEventListener('visibilitychange', () => { 
-        if (document.visibilityState === 'visible') {
-            lastActivityAt = Date.now();
-            heartbeat();
-        }
-    });
-
-    window.addEventListener('pagehide', () => {
-        if (isCleanedUp) return;
-        isCleanedUp = true;
-        window.clearInterval(heartbeatTimer);
-        window.clearInterval(countTimer);
-        activityEvents.forEach(eventName => 
-            document.removeEventListener(eventName, registerActivity)
-        );
-        unsubscribe();
-        presenceRef.delete().catch(() => {});
-    }, { once: true });
-}
-// В конце скрипта, перед закрытием
-initOnlinePresence();
-</script>
+        console.log('✅ Приложение FULL SELLER успешно инициализировано без Firebase');
+    </script>
 </body>
 </html>
