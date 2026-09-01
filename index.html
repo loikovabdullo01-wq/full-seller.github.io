@@ -7,8 +7,8 @@
     <title>FULL SELLER | Носки, футболки, трусы оптом от производителя – интернет-магазин</title>
 
     <!-- Иконки сайта для отображения в Google и Яндекс -->
-    <link rel="icon" href="/иконнка.png" type="image/png" sizes="48x48 96x96 144x144">
-    <link rel="apple-touch-icon" href="/иконнка.png">
+    <link rel="icon" href="иконнка.png" type="image/png" sizes="48x48 96x96 144x144">
+    <link rel="apple-touch-icon" href="иконнка.png">
 
     <!-- Font Awesome для иконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -5393,9 +5393,10 @@
 
     <script>
         // ---------- КОНФИГУРАЦИЯ SUPABASE ----------
-        // ВНИМАНИЕ: указанный ниже URL совпадает с publishable-ключом, а не похож на настоящий адрес проекта
-        // (обычно вида https://<project-ref>.supabase.co). Замени supabaseUrl на реальный URL из Project Settings -> API в Supabase.
-        const supabaseUrl = 'https://sb_publishable_U30ZQe5aww9kvqSgHRBh9g_E_FIzPdL.supabase.co';
+        // Возьми Project URL из Project Settings -> Data API в Supabase (вида https://<project-ref>.supabase.co)
+        // и подставь вместо плейсхолдера ниже. Раньше здесь по ошибке был вставлен publishable-ключ вместо URL,
+        // из-за чего браузер не мог разрешить домен (ERR_NAME_NOT_RESOLVED).
+        const supabaseUrl = 'https://ilqcbcdixtgemrjowico.supabase.co';
         const supabaseAnonKey = 'sb_publishable_U30ZQe5aww9kvqSgHRBh9g_E_FIzPdL';
         // Секретный ключ нельзя использовать и хранить в клиентском коде — он нужен только для серверных Edge Functions.
         // Храни его в переменных окружения/секретах сервера, а не в этом файле.
