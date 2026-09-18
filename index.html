@@ -70,7 +70,6 @@
   --container:1240px;
   --ease:cubic-bezier(.4,0,.2,1);
 
-  /* legacy aliases */
   --bg-primary:var(--bg-soft);
   --bg-secondary:var(--bg-sunken);
   --text-primary:var(--text);
@@ -580,28 +579,8 @@ body.dark .hero{
 .product-card__favorite:hover{color:var(--favorite-hover-color);transform:scale(1.1)}
 .product-card__favorite.active i{color:var(--favorite-hover-color)}
 
-/* Quick-add — теперь в теле карточки, в потоке */
-.product-card__quick-add{
-  display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  width:100%;
-  min-height:38px;
-  padding:0 14px;
-  margin-top:6px;
-  border-radius:10px;
-  background:var(--grad-accent);color:#fff;
-  font-size:.78125rem;font-weight:500;
-  letter-spacing:.01em;
-  box-shadow:0 5px 14px -8px rgba(232,93,4,.6);
-  transition:background .2s var(--ease),transform .15s var(--ease);
-  -webkit-tap-highlight-color:transparent;
-  border:none;cursor:pointer;
-}
-.product-card__quick-add i{font-size:.75rem}
-.product-card__quick-add:hover{background:var(--grad-accent-hover)}
-.product-card__quick-add:active{transform:scale(.985)}
-
 .product-card__body{
-  display:flex;flex-direction:column;gap:8px;
+  display:flex;flex-direction:column;gap:6px;
   padding:16px 16px 18px;flex:1;
 }
 .product-card__name{
@@ -612,6 +591,16 @@ body.dark .hero{
   -webkit-box-orient:vertical;overflow:hidden;
   min-height:2.6em;letter-spacing:-.005em;
 }
+.product-card__brand{
+  font-family:var(--font-body);
+  font-size:.6875rem;font-weight:600;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-top:-2px;
+  display:none;
+}
+.product-card__brand:not(:empty){display:block}
 .product-card__price-line{
   display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
   margin-top:auto;
@@ -632,6 +621,25 @@ body.dark .hero{
   font-size:.75rem;font-weight:600;color:var(--text-2);
 }
 .product-card__rating i{color:var(--star-active);font-size:.6875rem}
+
+.product-card__quick-add{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  width:100%;
+  min-height:38px;
+  padding:0 14px;
+  margin-top:8px;
+  border-radius:10px;
+  background:var(--grad-accent);color:#fff;
+  font-size:.78125rem;font-weight:500;
+  letter-spacing:.01em;
+  box-shadow:0 5px 14px -8px rgba(232,93,4,.6);
+  transition:background .2s var(--ease),transform .15s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+  border:none;cursor:pointer;
+}
+.product-card__quick-add i{font-size:.75rem}
+.product-card__quick-add:hover{background:var(--grad-accent-hover)}
+.product-card__quick-add:active{transform:scale(.985)}
 
 /* Skeleton */
 .skeleton-card{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--card)}
@@ -1228,24 +1236,65 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .header__actions #currencyBtn,.header__actions .cargo-calc-scroll-btn{display:none}
 }
 @media(max-width:768px){
-  :root{--header-h:64px}
-  body{padding-top:calc(var(--header-h) + 54px)}
+  /* ---------- HEADER — аккуратная двухрядная раскладка ---------- */
+  body{padding-top:104px !important}
   .container{padding:0 16px}
 
-  .nav-links{display:none}
-  .burger-btn{display:inline-flex;order:-1}
-  .header__inner{flex-wrap:wrap;height:var(--header-h);gap:10px}
-  .header__actions{margin-left:auto}
-  .catalog-btn{display:none}
-  .header-search{order:10;flex-basis:100%;max-width:100%;height:44px;margin-top:-4px;margin-bottom:8px}
-  .logo{font-size:1.125rem}
+  header{padding:6px 0}
 
+  .header__inner{
+    display:grid !important;
+    grid-template-columns:auto 1fr auto;
+    grid-template-rows:auto auto;
+    align-items:center;
+    gap:8px 10px;
+    height:auto !important;
+    padding:0 12px !important;
+    flex-wrap:nowrap !important;
+  }
+  .burger-btn{grid-column:1;grid-row:1;order:0 !important;display:inline-flex !important}
+  .logo{
+    grid-column:2;grid-row:1;
+    justify-self:start;
+    font-size:1.125rem;
+    order:0 !important;
+  }
+  .nav-links{display:none}
+  .catalog-btn{display:none}
+  .header__phone{display:none}
+
+  .header__actions{
+    grid-column:3;grid-row:1;
+    justify-self:end;
+    margin-left:0 !important;
+    gap:6px;
+  }
+  .header__actions .icon-btn{width:38px;height:38px;font-size:.875rem;border-radius:10px}
+  .header__actions .login-btn,
+  .header__actions .user-dropdown-btn{
+    height:38px;padding:0 12px;font-size:.75rem;border-radius:10px;
+  }
+
+  .header-search{
+    grid-column:1/-1;grid-row:2;
+    order:0 !important;
+    flex-basis:auto !important;
+    max-width:100% !important;
+    height:40px !important;
+    margin:0 !important;
+    padding:0 14px;
+    border-radius:12px;
+  }
+  .header-search input{font-size:.875rem}
+
+  /* ---------- HERO ---------- */
   .hero{padding-top:20px}
   .hero__badges{gap:10px 16px}
   .hero__actions .btn{flex:1;min-width:160px}
   .hero__stat{left:0;bottom:-8px;padding:14px 16px;min-width:170px}
   .hero__stat-row b{font-size:.9375rem}
 
+  /* ---------- SECTIONS ---------- */
   .wholesale-section,#reviews{margin:56px 0 48px}
   .info-card{padding:24px 20px}
   .cargo-calc-wrapper{padding:22px 18px;border-radius:var(--r-lg)}
@@ -1255,20 +1304,75 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .cargo-calc-results{padding:20px 18px}
   .cargo-calc-result-item{font-size:.875rem;padding:11px 0}
 
+  /* ---------- КАТАЛОГ ---------- */
+  .category-filter{margin:24px 0 8px}
+  .brand-filter{margin:0 0 20px}
+  .category-filter-btn,.brand-filter-btn{padding:8px 14px;font-size:.75rem}
+  .catalog-title{margin-top:4px}
+
+  /* Карточка: картинка короче + contain без зума */
+  .product-card__image-wrap{
+    aspect-ratio:1/1;
+    padding:8px;
+    background:var(--bg-sunken);
+  }
+  .product-card__image-wrap>img{
+    object-fit:contain;
+    border-radius:10px;
+    background:var(--bg-sunken);
+    transform:none !important;
+  }
+  .product-card:hover .product-card__image-wrap>img{transform:none !important}
+
+  .product-card__body{padding:12px 12px 14px;gap:4px}
+  .product-card__name{font-size:.8125rem;min-height:2.4em}
+  .product-card__brand{font-size:.625rem}
+  .product-card__price{font-size:1.0625rem}
+  .product-card__price-old{font-size:.75rem}
+  .product-card__rating{font-size:.6875rem}
+
+  .product-card__quick-add{
+    min-height:34px;
+    padding:0 12px;
+    font-size:.75rem;
+    font-weight:500;
+    border-radius:9px;
+    gap:6px;
+    margin-top:8px;
+  }
+  .product-card__quick-add i{font-size:.7rem}
+
+  /* ---------- МОДАЛКИ / ПРОЧЕЕ ---------- */
   .modal{padding:12px}
   .modal-content{padding:26px 20px;border-radius:var(--r-lg);max-height:88vh}
-  .product-card__body{padding:12px 12px 14px}
-  .product-card__price{font-size:1.1875rem}
-  .category-filter-btn,.brand-filter-btn{padding:9px 16px;font-size:.75rem}
 
   .site-footer{padding-top:48px}
   .footer-bottom{justify-content:center;text-align:center}
 
-  #favoritesPage,#cartPage,#profilePage,#adminPage{padding:88px 16px 100px}
-  .product-detail{padding:88px 16px 100px}
   .product-page__slider-btn{width:40px;height:40px}
   .product-page__slider-btn--prev{left:10px}
   .product-page__slider-btn--next{right:10px}
+
+  /* ---------- INTERNAL PAGES — header полностью убран ---------- */
+  body.page-cart,
+  body.page-favorites,
+  body.page-profile,
+  body.page-admin,
+  body.page-productDetail{
+    padding-top:0 !important;
+  }
+  body.page-cart #siteHeader,
+  body.page-favorites #siteHeader,
+  body.page-profile #siteHeader,
+  body.page-admin #siteHeader,
+  body.page-productDetail #siteHeader{
+    display:none !important;
+  }
+  body.page-cart #cartPage,
+  body.page-favorites #favoritesPage,
+  body.page-profile #profilePage,
+  body.page-admin #adminPage{padding:20px 16px 100px !important}
+  body.page-productDetail .product-detail{padding:20px 16px 100px !important}
 }
 @media(max-width:480px){
   .hero__eyebrow{font-size:.6875rem;padding:7px 13px}
@@ -1282,56 +1386,24 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .trust-item span{display:none}
   .btn--lg{min-height:50px;padding:0 22px;font-size:.9375rem}
   .catalog-grid{gap:10px}
-  .product-card__name{font-size:.875rem}
-  .product-card__price{font-size:1.125rem}
+  .product-card__name{font-size:.8125rem}
+  .product-card__price{font-size:1rem}
 }
 
 /* ============================================================
    25. MOBILE-ONLY REFINEMENTS
    ============================================================ */
 @media(max-width:768px){
-  /* Полностью убираем шапку на SPA-страницах */
-  body.page-cart #siteHeader,
-  body.page-favorites #siteHeader,
-  body.page-profile #siteHeader,
-  body.page-productDetail #siteHeader,
-  body.page-admin #siteHeader {
-    display: none !important;
+  /* Кнопка «Написать» (WhatsApp float) — тоньше и аккуратнее */
+  .float-wa{
+    height:38px;
+    padding:0 13px 0 11px;
+    font-size:.71875rem;
+    font-weight:500;
+    gap:6px;
+    box-shadow:0 6px 14px -8px rgba(37,211,102,.5);
   }
-
-  /* Убираем пустые зоны сверху на этих страницах */
-  body.page-cart #cartPage,
-  body.page-favorites #favoritesPage,
-  body.page-profile #profilePage,
-  body.page-admin #adminPage {
-    padding-top: 20px !important;
-  }
-  body.page-productDetail .product-detail {
-    padding-top: 20px !important;
-  }
-
-  /* Кнопка «В корзину» — тоньше */
-  .product-card__quick-add {
-    min-height: 34px;
-    padding: 0 12px;
-    font-size: .75rem;
-    font-weight: 500;
-    border-radius: 9px;
-    gap: 6px;
-    margin-top: 4px;
-  }
-  .product-card__quick-add i { font-size: .7rem; }
-
-  /* Кнопка «Написать» (WhatsApp) — тоньше */
-  .float-wa {
-    height: 38px;
-    padding: 0 13px 0 11px;
-    font-size: .71875rem;
-    font-weight: 500;
-    gap: 6px;
-    box-shadow: 0 6px 14px -8px rgba(37,211,102,.5);
-  }
-  .float-wa i { font-size: .9375rem; }
+  .float-wa i{font-size:.9375rem}
 }
 </style>
 </head>
@@ -1406,7 +1478,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
      ============================================================ -->
 <div id="homePage" class="page active">
 
-  <!-- ---------- HERO ---------- -->
   <section class="hero">
     <div class="container hero__inner">
 
@@ -1470,7 +1541,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
     </div>
   </section>
 
-  <!-- ---------- TRUST STRIP ---------- -->
   <div class="trust-strip">
     <div class="container trust-strip__inner">
       <div class="trust-item">
@@ -1494,7 +1564,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 
   <main class="container" style="flex:1;">
 
-    <!-- ---------- BANNER SLIDER ---------- -->
     <div class="banner-slider" id="mainBannerSlider">
       <div class="slides" id="bannerSlides">
         <div class="slide"><img src="030303.png" alt="Акция FULL SELLER"></div>
@@ -1504,7 +1573,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
       <div class="dots" id="bannerDots"></div>
     </div>
 
-    <!-- ---------- CATALOG ---------- -->
     <div id="catalog"></div>
 
     <div class="category-filter" id="categoryFilter">
@@ -1557,7 +1625,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
       </div>
     </div>
 
-    <!-- ---------- WHOLESALE + CALCULATOR ---------- -->
     <section id="wholesale" class="wholesale-section">
       <div class="section-heading">
         <span class="section-eyebrow">Оптовые условия</span>
@@ -1676,7 +1743,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
       </div>
     </section>
 
-    <!-- ---------- REVIEWS ---------- -->
     <section id="reviews">
       <div class="section-heading">
         <span class="section-eyebrow">Отзывы</span>
@@ -1732,7 +1798,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 
   </main>
 
-  <!-- ---------- FOOTER ---------- -->
   <footer class="site-footer" id="contact">
     <div class="container">
       <div class="footer-grid">
@@ -1859,9 +1924,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   </div>
 </div>
 
-<!-- ============================================================
-     PRODUCT DETAIL PAGE
-     ============================================================ -->
 <div class="page" id="productDetailPage">
   <div class="product-detail">
 
@@ -1871,7 +1933,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 
     <div class="product-detail__grid">
 
-      <!-- LEFT: Gallery -->
       <div class="product-detail__media">
         <div class="product-detail__gallery">
           <div class="product-page__slider" style="height:100%">
@@ -1887,7 +1948,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
         <div class="product-page__slider-dots" id="productPageDots"></div>
       </div>
 
-      <!-- RIGHT: Info -->
       <div class="product-detail__info" id="productPageContent"></div>
 
     </div>
@@ -2407,7 +2467,6 @@ function closeModal(id) {
   if (!document.querySelector('.modal.active')) document.body.classList.remove('no-scroll');
 }
 
-/* Anchor navigation */
 document.querySelectorAll('#mainNav a[href^="#"], .footer-column a[href^="#"]').forEach(link => {
   link.addEventListener('click', function (e) {
     const href = this.getAttribute('href');
@@ -2613,7 +2672,7 @@ function updateSubtitle() {
 
 /* ------------------------------------------------------------
    Catalog render — CLEAN PREMIUM CARDS
-   Structure: photo → name → price + rating → quick add (в теле)
+   Порядок: картинка → название → бренд → цена+рейтинг → В корзину
    ------------------------------------------------------------ */
 function renderCatalog() {
   const grid = document.getElementById('catalogGrid');
@@ -2665,6 +2724,8 @@ function renderCatalog() {
       ? `<img src="${first}" alt="${p.name}" loading="lazy">`
       : `<i class="fas fa-shirt"></i>`;
 
+    const brandLine = (p.brand && p.brand.trim()) ? `<div class="product-card__brand">${p.brand}</div>` : '';
+
     return `
       <article class="product-card" data-id="${p.id}">
         <div class="product-card__image-wrap">
@@ -2679,6 +2740,7 @@ function renderCatalog() {
 
         <div class="product-card__body">
           <h3 class="product-card__name">${p.name}</h3>
+          ${brandLine}
 
           <div class="product-card__price-line">
             <span class="product-card__price">${finalPriceStr(finalPrice)}</span>
@@ -3898,8 +3960,10 @@ document.getElementById('currencyBtn').addEventListener('click', toggleCurrency)
 document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
 
 /* ------------------------------------------------------------
-   Header scroll (только для главной; на SPA-страницах шапка
-   полностью скрыта через CSS display:none)
+   Header scroll
+   • desktop — как было (hide на скролл вниз, show на скролл вверх)
+   • mobile  — панель полностью скрывается, как только начинается каталог,
+               и возвращается только при скролле вверх
    ------------------------------------------------------------ */
 (function () {
   const header = document.getElementById('siteHeader');
@@ -3908,15 +3972,33 @@ document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? 
   function update() {
     const y = window.scrollY;
     const delta = y - lastY;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
     header.classList.toggle('is-scrolled', y > 8);
 
-    if (y <= 10) {
-      header.classList.remove('header--hidden');
-    } else if (delta > 4 && y > 80) {
-      header.classList.add('header--hidden');
-    } else if (delta < -4) {
-      header.classList.remove('header--hidden');
+    if (isMobile) {
+      const catalogEl = document.getElementById('catalog');
+      const catalogTop = catalogEl ? catalogEl.getBoundingClientRect().top : Infinity;
+
+      if (catalogTop < 100) {
+        // мы уже в зоне каталога
+        if (delta > 3) {
+          header.classList.add('header--hidden');
+        } else if (delta < -3) {
+          header.classList.remove('header--hidden');
+        }
+      } else {
+        // до каталога — шапка видна
+        header.classList.remove('header--hidden');
+      }
+    } else {
+      if (y <= 10) {
+        header.classList.remove('header--hidden');
+      } else if (delta > 6 && y > 120) {
+        header.classList.add('header--hidden');
+      } else if (delta < -6) {
+        header.classList.remove('header--hidden');
+      }
     }
 
     lastY = y;
