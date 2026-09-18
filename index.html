@@ -1236,7 +1236,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .header__actions #currencyBtn,.header__actions .cargo-calc-scroll-btn{display:none}
 }
 @media(max-width:768px){
-  /* ---------- HEADER — аккуратная двухрядная раскладка ---------- */
   body{padding-top:104px !important}
   .container{padding:0 16px}
 
@@ -1287,14 +1286,12 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   }
   .header-search input{font-size:.875rem}
 
-  /* ---------- HERO ---------- */
   .hero{padding-top:20px}
   .hero__badges{gap:10px 16px}
   .hero__actions .btn{flex:1;min-width:160px}
   .hero__stat{left:0;bottom:-8px;padding:14px 16px;min-width:170px}
   .hero__stat-row b{font-size:.9375rem}
 
-  /* ---------- SECTIONS ---------- */
   .wholesale-section,#reviews{margin:56px 0 48px}
   .info-card{padding:24px 20px}
   .cargo-calc-wrapper{padding:22px 18px;border-radius:var(--r-lg)}
@@ -1304,25 +1301,29 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .cargo-calc-results{padding:20px 18px}
   .cargo-calc-result-item{font-size:.875rem;padding:11px 0}
 
-  /* ---------- КАТАЛОГ ---------- */
   .category-filter{margin:24px 0 8px}
   .brand-filter{margin:0 0 20px}
   .category-filter-btn,.brand-filter-btn{padding:8px 14px;font-size:.75rem}
   .catalog-title{margin-top:4px}
 
-  /* Карточка: картинка короче + contain без зума */
+  /* Карточка: картинка короче + без пустого белого фона вокруг */
   .product-card__image-wrap{
-    aspect-ratio:1/1;
-    padding:8px;
-    background:var(--bg-sunken);
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    background: transparent;
+    overflow: hidden;
   }
-  .product-card__image-wrap>img{
-    object-fit:contain;
-    border-radius:10px;
-    background:var(--bg-sunken);
-    transform:none !important;
+  .product-card__image-wrap > img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    background: transparent;
+    transform: none !important;
   }
-  .product-card:hover .product-card__image-wrap>img{transform:none !important}
+  .product-card:hover .product-card__image-wrap > img{
+    transform: none !important;
+  }
 
   .product-card__body{padding:12px 12px 14px;gap:4px}
   .product-card__name{font-size:.8125rem;min-height:2.4em}
@@ -1342,7 +1343,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   }
   .product-card__quick-add i{font-size:.7rem}
 
-  /* ---------- МОДАЛКИ / ПРОЧЕЕ ---------- */
   .modal{padding:12px}
   .modal-content{padding:26px 20px;border-radius:var(--r-lg);max-height:88vh}
 
@@ -1353,7 +1353,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .product-page__slider-btn--prev{left:10px}
   .product-page__slider-btn--next{right:10px}
 
-  /* ---------- INTERNAL PAGES — header полностью убран ---------- */
   body.page-cart,
   body.page-favorites,
   body.page-profile,
@@ -1394,7 +1393,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
    25. MOBILE-ONLY REFINEMENTS
    ============================================================ */
 @media(max-width:768px){
-  /* Кнопка «Написать» (WhatsApp float) — тоньше и аккуратнее */
   .float-wa{
     height:38px;
     padding:0 13px 0 11px;
@@ -1410,9 +1408,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 
 <body>
 
-<!-- ============================================================
-     HEADER
-     ============================================================ -->
 <header id="siteHeader">
   <div class="container header__inner">
 
@@ -1473,9 +1468,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 </header>
 
 
-<!-- ============================================================
-     HOME PAGE
-     ============================================================ -->
 <div id="homePage" class="page active">
 
   <section class="hero">
@@ -1859,9 +1851,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 </div><!-- /#homePage -->
 
 
-<!-- ============================================================
-     SPA PAGES
-     ============================================================ -->
 <div class="page" id="favoritesPage">
   <h3 style="margin-bottom:20px;"><i class="fas fa-heart" style="color:var(--accent);"></i> Избранное</h3>
   <div id="favoritesContainer"></div>
@@ -2031,9 +2020,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 </div>
 
 
-<!-- ============================================================
-     MODALS
-     ============================================================ -->
 <div class="modal" id="orderModal">
   <div class="modal-content">
     <span class="modal-close" id="closeOrderModal">&times;</span>
@@ -2154,9 +2140,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 </div>
 
 
-<!-- ============================================================
-     BOTTOM NAV / MOBILE MENU / FLOATING CTA
-     ============================================================ -->
 <nav class="bottom-nav" id="bottomNav">
   <button class="bottom-nav__item active" data-action="home">
     <i class="fas fa-house"></i><span>Главная</span>
@@ -2188,13 +2171,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 </div>
 
 
-<!-- ============================================================
-     SCRIPTS
-     ============================================================ -->
 <script>
-/* ------------------------------------------------------------
-   Firebase
-   ------------------------------------------------------------ */
 const firebaseConfig = {
   apiKey: "AIzaSyBhiwklrTbPHfhkx5ePR9mtxNzvN4C5-dw",
   authDomain: "full-seller.firebaseapp.com",
@@ -2221,9 +2198,6 @@ try {
 
 const ADMIN_EMAIL = "fullselleradmin@gmail.com";
 
-/* ------------------------------------------------------------
-   State
-   ------------------------------------------------------------ */
 const State = {
   percentageDiscount: 0,
   fixedDiscountRub: 0,
@@ -2244,9 +2218,6 @@ let selectedRating = 0;
 let reviewPhotoFiles = [];
 let likeInProgress = new Set();
 
-/* ------------------------------------------------------------
-   Analytics helpers
-   ------------------------------------------------------------ */
 function logAnalyticsEvent(name, params = {}) {
   if (!analytics) return;
   try { analytics.logEvent(name, params); } catch (e) { console.warn(e); }
@@ -2263,9 +2234,6 @@ function trackPageView(pageName) {
   } catch (e) {}
 }
 
-/* ------------------------------------------------------------
-   Static products
-   ------------------------------------------------------------ */
 const STATIC_SOCKS = [
   { id:'static1',  name:"Nike Everyday (Белые)",   price:13, desc:"Классические белые носки Nike, технология Dri-FIT.", images:["67.jpg"], material:"Хлопок 75%, Полиэстер 22%", size:"38-44", brand:"Nike", rating:4.5, stock:500, category:'socks' },
   { id:'static2',  name:"Nike Everyday (Черные)",  price:13, desc:"Спортивные черные носки Nike, отличная вентиляция.", images:["12344.jpg"], material:"Хлопок 75%, Полиэстер 22%", size:"38-44", brand:"Nike", rating:4.6, stock:500, category:'socks' },
@@ -2311,9 +2279,6 @@ const STATIC_UNDERWEAR = [
   { id:'shorts1',name:"Шорты мужские трикотажные",      price:145, desc:"Удлиненные летние шорты из легкого дышащего материала.", images:["459.png"], material:"Хлопок 80%, Полиэстер 20%", size:"S-XL", brand:"Обычные", rating:4.5, stock:120, category:'shorts' }
 ];
 
-/* ------------------------------------------------------------
-   Helpers
-   ------------------------------------------------------------ */
 function saveCart()      { localStorage.setItem('fullseller_cart', JSON.stringify(cart)); updateCartUI(); }
 function saveFavorites() { localStorage.setItem('fullseller_favorites', JSON.stringify(favorites)); }
 
@@ -2387,9 +2352,6 @@ function toggleCurrency() {
   }
 }
 
-/* ------------------------------------------------------------
-   SPA navigation
-   ------------------------------------------------------------ */
 function setBodyPageClass(pageName) {
   [...document.body.classList].forEach(c => { if (c.startsWith('page-')) document.body.classList.remove(c); });
   document.body.classList.add('page-' + pageName);
@@ -2501,9 +2463,6 @@ window.addEventListener('popstate', (e) => {
   }
 });
 
-/* ------------------------------------------------------------
-   Cart
-   ------------------------------------------------------------ */
 function addToCart(productId, qty = 1) {
   const existing = cart.find(i => i.productId === productId);
   if (existing) existing.qty += qty;
@@ -2578,9 +2537,6 @@ function renderCartModal() {
   totalBlock.innerHTML = `<span>Итого</span><span>${formatPrice(total)}</span>`;
 }
 
-/* ------------------------------------------------------------
-   Products loading
-   ------------------------------------------------------------ */
 function loadStaticProducts() {
   allProducts.socks     = STATIC_SOCKS.map(s => ({ ...s }));
   allProducts.regular   = STATIC_REGULAR_SOCKS.map(s => ({ ...s }));
@@ -2670,10 +2626,6 @@ function updateSubtitle() {
   subtitle.textContent = names[currentCategory] || 'ТОВАРЫ ОПТОМ';
 }
 
-/* ------------------------------------------------------------
-   Catalog render — CLEAN PREMIUM CARDS
-   Порядок: картинка → название → бренд → цена+рейтинг → В корзину
-   ------------------------------------------------------------ */
 function renderCatalog() {
   const grid = document.getElementById('catalogGrid');
   if (!grid) return;
@@ -2762,9 +2714,6 @@ function finalPriceStr(v) {
   return Number.isInteger(r) ? r + ' ₽' : r.toFixed(2) + ' ₽';
 }
 
-/* ------------------------------------------------------------
-   Catalog interactions
-   ------------------------------------------------------------ */
 document.getElementById('catalogGrid').addEventListener('click', (e) => {
   const favBtn = e.target.closest('.product-card__favorite');
   if (favBtn) {
@@ -2788,9 +2737,6 @@ document.getElementById('catalogGrid').addEventListener('click', (e) => {
   if (card && card.dataset.id) openProductPage(card.dataset.id);
 });
 
-/* ------------------------------------------------------------
-   Product detail page
-   ------------------------------------------------------------ */
 let currentDetailImageIndex = 0;
 
 function renderProductDetailGallery(product) {
@@ -2917,9 +2863,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') { currentDetailImageIndex++; updateProductDetailGallery(); }
 });
 
-/* ------------------------------------------------------------
-   Favorites
-   ------------------------------------------------------------ */
 function toggleFavorite(productId) {
   if (favorites.includes(productId)) {
     favorites = favorites.filter(id => id !== productId);
@@ -2974,9 +2917,6 @@ function renderFavoritesModal() {
   });
 }
 
-/* ------------------------------------------------------------
-   Orders
-   ------------------------------------------------------------ */
 function openOrderModal() {
   const orderContent = document.getElementById('orderContent');
   const totalBlock   = document.getElementById('orderTotalBlock');
@@ -3082,9 +3022,6 @@ async function sendOrderTo(messenger) {
   showToast('Заказ отправлен!');
 }
 
-/* ------------------------------------------------------------
-   User orders history
-   ------------------------------------------------------------ */
 async function loadUserOrders() {
   const container = document.getElementById('ordersHistoryContainer');
   if (!currentUser) { container.innerHTML = '<p>Необходимо авторизоваться</p>'; return; }
@@ -3141,9 +3078,6 @@ window.openOrderDetail = async function (orderId) {
   } catch (e) { content.innerHTML = '<p style="color:var(--danger);">Ошибка загрузки</p>'; }
 };
 
-/* ------------------------------------------------------------
-   Admin
-   ------------------------------------------------------------ */
 function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
 
 function updateAdminUI() {
@@ -3365,9 +3299,6 @@ function loadGlobalSettings() {
   });
 }
 
-/* ------------------------------------------------------------
-   Reviews
-   ------------------------------------------------------------ */
 async function loadPurchasedProductsForReview() {
   const select = document.getElementById('reviewProductSelect');
   if (!select) return;
@@ -3598,9 +3529,6 @@ document.getElementById('submitReview').addEventListener('click', async () => {
   }
 });
 
-/* ------------------------------------------------------------
-   Auth
-   ------------------------------------------------------------ */
 function updateAuthUI() {
   const statusDiv  = document.getElementById('userStatus');
   const reviewForm = document.getElementById('reviewFormWrapper');
@@ -3674,9 +3602,6 @@ function openProfilePage() {
   loadProfileAvatar();
 }
 
-/* ------------------------------------------------------------
-   Mobile menu
-   ------------------------------------------------------------ */
 const burgerBtn = document.getElementById('burgerBtn');
 const menuOverlay = document.getElementById('menuOverlay');
 const mobileMenuPanel = document.getElementById('mobileMenuPanel');
@@ -3719,9 +3644,6 @@ mobileMenuPanel.querySelectorAll('.mobile-menu-link').forEach(link => {
   });
 });
 
-/* ------------------------------------------------------------
-   Global listeners
-   ------------------------------------------------------------ */
 document.getElementById('checkoutBtn').addEventListener('click', () => {
   if (!currentUser) { openAuthModal(); return; }
   if (!cart.length) return;
@@ -3935,9 +3857,6 @@ auth.onAuthStateChanged(user => {
   updateAuthUI();
 });
 
-/* ------------------------------------------------------------
-   Theme
-   ------------------------------------------------------------ */
 const lightBtn = document.getElementById('lightThemeBtn');
 const darkBtn  = document.getElementById('darkThemeBtn');
 
@@ -3959,12 +3878,6 @@ setTheme(localStorage.getItem('fullseller_theme') || 'light');
 document.getElementById('currencyBtn').addEventListener('click', toggleCurrency);
 document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
 
-/* ------------------------------------------------------------
-   Header scroll
-   • desktop — как было (hide на скролл вниз, show на скролл вверх)
-   • mobile  — панель полностью скрывается, как только начинается каталог,
-               и возвращается только при скролле вверх
-   ------------------------------------------------------------ */
 (function () {
   const header = document.getElementById('siteHeader');
   let lastY = window.scrollY, ticking = false;
@@ -3981,14 +3894,12 @@ document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? 
       const catalogTop = catalogEl ? catalogEl.getBoundingClientRect().top : Infinity;
 
       if (catalogTop < 100) {
-        // мы уже в зоне каталога
         if (delta > 3) {
           header.classList.add('header--hidden');
         } else if (delta < -3) {
           header.classList.remove('header--hidden');
         }
       } else {
-        // до каталога — шапка видна
         header.classList.remove('header--hidden');
       }
     } else {
@@ -4016,9 +3927,6 @@ document.getElementById('heroCalcBtn').addEventListener('click', (e) => {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
-/* ------------------------------------------------------------
-   Banner slider
-   ------------------------------------------------------------ */
 (function () {
   const slidesContainer = document.getElementById('bannerSlides');
   const dotsContainer   = document.getElementById('bannerDots');
@@ -4062,9 +3970,6 @@ document.getElementById('heroCalcBtn').addEventListener('click', (e) => {
   reset();
 })();
 
-/* ------------------------------------------------------------
-   Admin image upload
-   ------------------------------------------------------------ */
 const adminImageUploadBox = document.getElementById('adminImageUploadBox');
 const adminImageFile      = document.getElementById('adminImageFile');
 const adminImagePreview   = document.getElementById('adminImagePreview');
@@ -4125,9 +4030,6 @@ document.getElementById('adminReplaceImageBtn').addEventListener('click', (e) =>
   adminImageFile.click();
 });
 
-/* ------------------------------------------------------------
-   Profile avatar
-   ------------------------------------------------------------ */
 const profileAvatarInput = document.getElementById('profileAvatarInput');
 const profileAvatarImg   = document.getElementById('profileAvatarImg');
 const profileAvatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
@@ -4202,9 +4104,6 @@ profileRemoveAvatarBtn.addEventListener('click', async () => {
   } catch (e) { showToast('Ошибка: ' + e.message); }
 });
 
-/* ------------------------------------------------------------
-   Cargo calculator
-   ------------------------------------------------------------ */
 (function () {
   const EXCHANGE_RATE = 73.75;
   const SOMONI_TO_RUB = 8;
@@ -4318,9 +4217,6 @@ document.getElementById('cargoCalcScrollBtn').addEventListener('click', () => {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
-/* ------------------------------------------------------------
-   Live search
-   ------------------------------------------------------------ */
 (function () {
   const input = document.getElementById('headerSearch');
   if (!input) return;
@@ -4343,9 +4239,6 @@ document.getElementById('cargoCalcScrollBtn').addEventListener('click', () => {
   });
 })();
 
-/* ------------------------------------------------------------
-   Boot
-   ------------------------------------------------------------ */
 updateCartUI();
 subscribeToAllProducts();
 loadGlobalSettings();
