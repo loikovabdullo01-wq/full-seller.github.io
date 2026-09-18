@@ -541,10 +541,9 @@ body.dark .hero{
   box-shadow:var(--sh-lg);
 }
 
-/* Image ~ 75% of card height */
 .product-card__image-wrap{
   position:relative;
-  aspect-ratio:5/6;         /* subtle portrait — image dominates */
+  aspect-ratio:5/6;
   width:100%;
   background:var(--bg-sunken);
   overflow:hidden;
@@ -559,7 +558,6 @@ body.dark .hero{
   font-size:3.25rem;color:var(--accent);opacity:.35;
 }
 
-/* discount badge — only if actually discounted */
 .product-card__badge{
   position:absolute;top:12px;left:12px;z-index:2;
   padding:5px 10px;border-radius:var(--r-pill);
@@ -582,25 +580,25 @@ body.dark .hero{
 .product-card__favorite:hover{color:var(--favorite-hover-color);transform:scale(1.1)}
 .product-card__favorite.active i{color:var(--favorite-hover-color)}
 
-/* quick-add overlay */
+/* Quick-add — теперь в теле карточки, в потоке */
 .product-card__quick-add{
-  position:absolute;left:12px;right:12px;bottom:12px;z-index:3;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  min-height:44px;border-radius:12px;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  width:100%;
+  min-height:38px;
+  padding:0 14px;
+  margin-top:6px;
+  border-radius:10px;
   background:var(--grad-accent);color:#fff;
-  font-size:.8125rem;font-weight:600;
-  box-shadow:0 10px 22px -8px rgba(232,93,4,.75);
-  opacity:0;transform:translateY(12px);
-  pointer-events:none;
-  transition:opacity .28s var(--ease),transform .28s var(--ease),background .2s;
+  font-size:.78125rem;font-weight:500;
+  letter-spacing:.01em;
+  box-shadow:0 5px 14px -8px rgba(232,93,4,.6);
+  transition:background .2s var(--ease),transform .15s var(--ease);
   -webkit-tap-highlight-color:transparent;
+  border:none;cursor:pointer;
 }
-.product-card:hover .product-card__quick-add{opacity:1;transform:translateY(0);pointer-events:auto}
+.product-card__quick-add i{font-size:.75rem}
 .product-card__quick-add:hover{background:var(--grad-accent-hover)}
-.product-card__quick-add:active{transform:scale(.96)}
-@media(max-width:1023px){
-  .product-card__quick-add{opacity:1;transform:translateY(0);pointer-events:auto}
-}
+.product-card__quick-add:active{transform:scale(.985)}
 
 .product-card__body{
   display:flex;flex-direction:column;gap:8px;
@@ -634,14 +632,6 @@ body.dark .hero{
   font-size:.75rem;font-weight:600;color:var(--text-2);
 }
 .product-card__rating i{color:var(--star-active);font-size:.6875rem}
-
-.product-card__stock{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:.75rem;font-weight:500;color:var(--muted);
-}
-.product-card__stock i{color:var(--success);font-size:.6875rem}
-.product-card__stock.is-out i{color:var(--danger)}
-.product-card__stock.is-out{color:var(--danger)}
 
 /* Skeleton */
 .skeleton-card{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--card)}
@@ -873,13 +863,13 @@ body.dark .hero{
    ============================================================ */
 .float-wa{
   display:none;position:fixed;right:16px;bottom:76px;z-index:950;
-  align-items:center;gap:9px;height:52px;padding:0 20px 0 16px;
+  align-items:center;gap:6px;height:40px;padding:0 14px 0 11px;
   border-radius:var(--r-pill);background:#25D366;color:#fff;
-  font-size:.875rem;font-weight:700;
-  box-shadow:0 12px 28px -10px rgba(37,211,102,.75);
+  font-size:.75rem;font-weight:500;
+  box-shadow:0 6px 16px -8px rgba(37,211,102,.55);
   transition:.2s var(--ease);
 }
-.float-wa i{font-size:1.25rem}
+.float-wa i{font-size:1rem}
 .float-wa:active{transform:scale(.95)}
 @media(max-width:768px){.float-wa{display:inline-flex}}
 
@@ -988,7 +978,7 @@ body.page-profile #profilePage,
 body.page-admin #adminPage{padding-top:96px}
 
 /* ============================================================
-   21. PRODUCT DETAIL PAGE  —  classic left-image / right-info
+   21. PRODUCT DETAIL PAGE
    ============================================================ */
 #productDetailPage{
   position:fixed;top:0;left:0;width:100%;height:100%;
@@ -1028,7 +1018,6 @@ body.page-admin #adminPage{padding-top:96px}
   .product-detail__grid{grid-template-columns:1fr;gap:32px}
 }
 
-/* --- left: gallery --- */
 .product-detail__media{
   position:sticky;top:96px;
   border-radius:var(--r-xl);
@@ -1083,7 +1072,6 @@ body.page-admin #adminPage{padding-top:96px}
 }
 .product-page__dot.active{background:var(--accent);width:28px}
 
-/* --- right: info --- */
 .product-detail__info{padding-top:4px}
 
 .product-page__name{
@@ -1302,40 +1290,48 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
    25. MOBILE-ONLY REFINEMENTS
    ============================================================ */
 @media(max-width:768px){
-  /* Полностью скрываем шапку на внутренних страницах */
-  header.header--force-locked{transform:translateY(-100%) !important}
+  /* Полностью убираем шапку на SPA-страницах */
+  body.page-cart #siteHeader,
+  body.page-favorites #siteHeader,
+  body.page-profile #siteHeader,
+  body.page-productDetail #siteHeader,
+  body.page-admin #siteHeader {
+    display: none !important;
+  }
 
-  /* Уменьшаем верхний отступ на SPA-страницах, т.к. шапка скрыта */
-  body.page-cart      #cartPage,
-  body.page-profile   #profilePage,
+  /* Убираем пустые зоны сверху на этих страницах */
+  body.page-cart #cartPage,
   body.page-favorites #favoritesPage,
-  body.page-admin     #adminPage{padding-top:16px}
-  body.page-productDetail .product-detail{padding-top:16px}
+  body.page-profile #profilePage,
+  body.page-admin #adminPage {
+    padding-top: 20px !important;
+  }
+  body.page-productDetail .product-detail {
+    padding-top: 20px !important;
+  }
 
   /* Кнопка «В корзину» — тоньше */
-  .product-card__quick-add{
-    left:8px;right:8px;bottom:8px;
-    min-height:36px;
-    padding:0 12px;
-    font-size:.75rem;
-    font-weight:500;
-    letter-spacing:.01em;
-    border-radius:10px;
-    gap:6px;
-    box-shadow:0 6px 16px -8px rgba(232,93,4,.65);
+  .product-card__quick-add {
+    min-height: 34px;
+    padding: 0 12px;
+    font-size: .75rem;
+    font-weight: 500;
+    border-radius: 9px;
+    gap: 6px;
+    margin-top: 4px;
   }
-  .product-card__quick-add i{font-size:.75rem}
+  .product-card__quick-add i { font-size: .7rem; }
 
-  /* Кнопка «Написать» (WhatsApp float) — тоньше */
-  .float-wa{
-    height:42px;
-    padding:0 16px 0 12px;
-    font-size:.8125rem;
-    font-weight:600;
-    gap:7px;
-    box-shadow:0 8px 20px -10px rgba(37,211,102,.6);
+  /* Кнопка «Написать» (WhatsApp) — тоньше */
+  .float-wa {
+    height: 38px;
+    padding: 0 13px 0 11px;
+    font-size: .71875rem;
+    font-weight: 500;
+    gap: 6px;
+    box-shadow: 0 6px 14px -8px rgba(37,211,102,.5);
   }
-  .float-wa i{font-size:1.0625rem}
+  .float-wa i { font-size: .9375rem; }
 }
 </style>
 </head>
@@ -1864,7 +1860,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 </div>
 
 <!-- ============================================================
-     PRODUCT DETAIL PAGE  (classic left-image / right-info)
+     PRODUCT DETAIL PAGE
      ============================================================ -->
 <div class="page" id="productDetailPage">
   <div class="product-detail">
@@ -2348,6 +2344,11 @@ function updateBottomNavActive(pageName) {
   if (map[pageName] !== undefined) items[map[pageName]].classList.add('active');
 }
 
+function resetHeaderVisibility() {
+  const header = document.getElementById('siteHeader');
+  if (header) header.classList.remove('header--hidden');
+}
+
 function showPage(pageName) {
   if (pageName === 'admin' && !isAdmin()) { showToast('Доступ запрещён'); return; }
 
@@ -2383,10 +2384,13 @@ function showPage(pageName) {
     renderAdminOrders();
   }
 
-  if (pageName === 'home') document.body.classList.remove('no-scroll');
-  else document.body.classList.add('no-scroll');
+  if (pageName === 'home') {
+    document.body.classList.remove('no-scroll');
+    resetHeaderVisibility();
+  } else {
+    document.body.classList.add('no-scroll');
+  }
 
-  updateHeaderForcedState();
   trackPageView(pageName);
 }
 
@@ -2609,7 +2613,7 @@ function updateSubtitle() {
 
 /* ------------------------------------------------------------
    Catalog render — CLEAN PREMIUM CARDS
-   Structure: photo → name → price + rating → quick add
+   Structure: photo → name → price + rating → quick add (в теле)
    ------------------------------------------------------------ */
 function renderCatalog() {
   const grid = document.getElementById('catalogGrid');
@@ -2671,10 +2675,6 @@ function renderCatalog() {
           <button class="product-card__favorite ${isFav ? 'active' : ''}" data-fav-id="${p.id}" aria-label="В избранное">
             <i class="${heart}"></i>
           </button>
-
-          <button class="product-card__quick-add">
-            <i class="fas fa-shopping-cart"></i> В корзину
-          </button>
         </div>
 
         <div class="product-card__body">
@@ -2685,6 +2685,10 @@ function renderCatalog() {
             ${showDiscount ? `<span class="product-card__price-old">${finalPriceStr(basePrice)}</span>` : ''}
             <span class="product-card__rating"><i class="fas fa-star"></i> ${rating}</span>
           </div>
+
+          <button class="product-card__quick-add">
+            <i class="fas fa-shopping-cart"></i> В корзину
+          </button>
         </div>
       </article>`;
   }).join('');
@@ -2723,7 +2727,7 @@ document.getElementById('catalogGrid').addEventListener('click', (e) => {
 });
 
 /* ------------------------------------------------------------
-   Product detail page  (left-image / right-info)
+   Product detail page
    ------------------------------------------------------------ */
 let currentDetailImageIndex = 0;
 
@@ -2792,7 +2796,6 @@ function openProductPage(productId) {
   document.getElementById('productDetailPage').dataset.currentId = productId;
   const finalPrice = getFinalPrice(p);
   const basePrice  = p.price || 0;
-  const rating     = (p.rating || State.rating).toFixed(1);
 
   renderProductDetailGallery(p);
 
@@ -2814,7 +2817,7 @@ function openProductPage(productId) {
     </div>
 
     <div class="product-page__actions">
-      <input type="number" class="qty-input" id="detailQty" value="1" min="1" max="${p.stock || 100}">
+      <input type="number" class="qty-input" id="detailQty" value="1" min="1" max="999">
       <button class="btn product-page__add" id="detailAddToCart">
         <i class="fas fa-cart-plus"></i> Добавить в заказ
       </button>
@@ -3104,7 +3107,7 @@ function renderAdminProducts() {
     <table class="admin-table">
       <thead>
         <tr>
-          <th>Название</th><th>Категория</th><th>Цена</th><th>Рейтинг</th><th>Остаток</th>
+          <th>Название</th><th>Категория</th><th>Цена</th><th>Рейтинг</th>
           <th>Бренд</th><th>Материал</th><th>Размер</th><th>Описание</th><th>Скрыт</th><th>Действия</th>
         </tr>
       </thead>
@@ -3122,7 +3125,6 @@ function renderAdminProducts() {
             </td>
             <td><input type="number" class="admin-price"  value="${p.price}" style="width:80px;"></td>
             <td><input type="number" step="0.1" min="0" max="5" class="admin-rating" value="${(p.rating || State.rating).toFixed(1)}" style="width:70px;"></td>
-            <td><input type="number" class="admin-stock" value="${p.stock || 0}" style="width:80px;"></td>
             <td><input type="text" class="admin-brand" value="${(p.brand || '').replace(/"/g,'&quot;')}" style="width:100px;"></td>
             <td><input type="text" class="admin-material" value="${(p.material || '').replace(/"/g,'&quot;')}" style="width:120px;"></td>
             <td><input type="text" class="admin-size" value="${(p.size || '').replace(/"/g,'&quot;')}" style="width:80px;"></td>
@@ -3148,27 +3150,26 @@ window.saveProductRow = async function (btn) {
   const category = row.querySelector('.admin-category').value;
   const price    = parseFloat(row.querySelector('.admin-price').value);
   const rating   = parseFloat(row.querySelector('.admin-rating').value);
-  const stock    = parseInt(row.querySelector('.admin-stock').value);
   const brand    = row.querySelector('.admin-brand')?.value.trim() || '';
   const material = row.querySelector('.admin-material')?.value.trim() || '';
   const size     = row.querySelector('.admin-size')?.value.trim() || '';
   const desc     = row.querySelector('.admin-desc').value;
   const hidden   = row.querySelector('.admin-hidden').checked;
 
-  if (!name || isNaN(price) || isNaN(rating) || isNaN(stock)) {
+  if (!name || isNaN(price) || isNaN(rating)) {
     showToast('Проверьте правильность заполнения полей');
     return;
   }
 
   try {
     await db.collection(collectionName).doc(productId).set(
-      { name, category, price, rating, stock, brand, material, size, desc, hidden },
+      { name, category, price, rating, brand, material, size, desc, hidden },
       { merge: true }
     );
     showToast('Изменения сохранены');
 
     const p = getProductById(productId);
-    if (p) Object.assign(p, { name, category, price, rating, stock, brand, material, size, desc, hidden });
+    if (p) Object.assign(p, { name, category, price, rating, brand, material, size, desc, hidden });
 
     renderAdminProducts();
     renderCatalog();
@@ -3197,7 +3198,6 @@ document.getElementById('addProductBtn').addEventListener('click', async () => {
     brand:    document.getElementById('adminBrand').value.trim(),
     material: document.getElementById('adminMaterial').value.trim(),
     size:     document.getElementById('adminSize').value.trim(),
-    stock:    parseInt(document.getElementById('adminStock').value) || 0,
     imageUrl: document.getElementById('adminImageUrl').value.trim(),
     desc:     document.getElementById('adminDesc').value.trim(),
     hidden:   false,
@@ -3210,7 +3210,6 @@ document.getElementById('addProductBtn').addEventListener('click', async () => {
     ['adminName','adminPrice','adminBrand','adminMaterial','adminSize','adminImageUrl','adminDesc'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = '';
     });
-    document.getElementById('adminStock').value = '100';
   } catch (e) { showToast('Ошибка: ' + e.message); }
 });
 
@@ -3899,39 +3898,8 @@ document.getElementById('currencyBtn').addEventListener('click', toggleCurrency)
 document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
 
 /* ------------------------------------------------------------
-   Mobile header auto-hide helpers
-   ------------------------------------------------------------ */
-function isMobileViewport() {
-  return window.matchMedia('(max-width: 768px)').matches;
-}
-function isHeaderForceHiddenPage() {
-  const b = document.body.classList;
-  return b.contains('page-cart')
-      || b.contains('page-profile')
-      || b.contains('page-favorites')
-      || b.contains('page-productDetail')
-      || b.contains('page-admin');
-}
-function isCatalogSectionActive() {
-  const el = document.getElementById('catalog');
-  if (!el) return false;
-  const rect = el.getBoundingClientRect();
-  return rect.top < window.innerHeight * 0.5;
-}
-function updateHeaderForcedState() {
-  const header = document.getElementById('siteHeader');
-  if (!header) return;
-  const force = isMobileViewport() && (isHeaderForceHiddenPage() || isCatalogSectionActive());
-  if (force) {
-    header.classList.add('header--hidden', 'header--force-locked');
-  } else {
-    header.classList.remove('header--force-locked');
-    if (window.scrollY <= 10) header.classList.remove('header--hidden');
-  }
-}
-
-/* ------------------------------------------------------------
-   Header scroll
+   Header scroll (только для главной; на SPA-страницах шапка
+   полностью скрыта через CSS display:none)
    ------------------------------------------------------------ */
 (function () {
   const header = document.getElementById('siteHeader');
@@ -3943,19 +3911,12 @@ function updateHeaderForcedState() {
 
     header.classList.toggle('is-scrolled', y > 8);
 
-    const forceHidden = isMobileViewport() && (isHeaderForceHiddenPage() || isCatalogSectionActive());
-
-    if (forceHidden) {
-      header.classList.add('header--hidden', 'header--force-locked');
-    } else {
-      header.classList.remove('header--force-locked');
-      if (y <= 10) {
-        header.classList.remove('header--hidden');
-      } else if (delta > 6 && y > 120) {
-        header.classList.add('header--hidden');
-      } else if (delta < -6) {
-        header.classList.remove('header--hidden');
-      }
+    if (y <= 10) {
+      header.classList.remove('header--hidden');
+    } else if (delta > 4 && y > 80) {
+      header.classList.add('header--hidden');
+    } else if (delta < -4) {
+      header.classList.remove('header--hidden');
     }
 
     lastY = y;
@@ -4309,7 +4270,6 @@ loadGlobalSettings();
 loadReviewsFromFirestore();
 updateBrandFilterVisibility();
 setBodyPageClass('home');
-updateHeaderForcedState();
 trackPageView('home');
 </script>
 
