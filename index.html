@@ -1297,6 +1297,46 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .product-card__name{font-size:.875rem}
   .product-card__price{font-size:1.125rem}
 }
+
+/* ============================================================
+   25. MOBILE-ONLY REFINEMENTS
+   ============================================================ */
+@media(max-width:768px){
+  /* Полностью скрываем шапку на внутренних страницах */
+  header.header--force-locked{transform:translateY(-100%) !important}
+
+  /* Уменьшаем верхний отступ на SPA-страницах, т.к. шапка скрыта */
+  body.page-cart      #cartPage,
+  body.page-profile   #profilePage,
+  body.page-favorites #favoritesPage,
+  body.page-admin     #adminPage{padding-top:16px}
+  body.page-productDetail .product-detail{padding-top:16px}
+
+  /* Кнопка «В корзину» — тоньше */
+  .product-card__quick-add{
+    left:8px;right:8px;bottom:8px;
+    min-height:36px;
+    padding:0 12px;
+    font-size:.75rem;
+    font-weight:500;
+    letter-spacing:.01em;
+    border-radius:10px;
+    gap:6px;
+    box-shadow:0 6px 16px -8px rgba(232,93,4,.65);
+  }
+  .product-card__quick-add i{font-size:.75rem}
+
+  /* Кнопка «Написать» (WhatsApp float) — тоньше */
+  .float-wa{
+    height:42px;
+    padding:0 16px 0 12px;
+    font-size:.8125rem;
+    font-weight:600;
+    gap:7px;
+    box-shadow:0 8px 20px -10px rgba(37,211,102,.6);
+  }
+  .float-wa i{font-size:1.0625rem}
+}
 </style>
 </head>
 
@@ -2346,6 +2386,7 @@ function showPage(pageName) {
   if (pageName === 'home') document.body.classList.remove('no-scroll');
   else document.body.classList.add('no-scroll');
 
+  updateHeaderForcedState();
   trackPageView(pageName);
 }
 
@@ -2568,8 +2609,7 @@ function updateSubtitle() {
 
 /* ------------------------------------------------------------
    Catalog render — CLEAN PREMIUM CARDS
-   Structure: photo → name → price + rating → stock → quick add
-   (no wholesale badges)
+   Structure: photo → name → price + rating → quick add
    ------------------------------------------------------------ */
 function renderCatalog() {
   const grid = document.getElementById('catalogGrid');
@@ -2612,7 +2652,6 @@ function renderCatalog() {
     const rating = (p.rating || State.rating).toFixed(1);
     const isFav  = favorites.includes(p.id);
     const heart  = isFav ? 'fas fa-heart' : 'far fa-heart';
-    const inStock = (p.stock || 0) > 0;
 
     const images = (p.images && Array.isArray(p.images) && p.images.length) ? p.images.filter(Boolean)
                  : (p.imageUrl ? [p.imageUrl] : []);
@@ -2645,11 +2684,6 @@ function renderCatalog() {
             <span class="product-card__price">${finalPriceStr(finalPrice)}</span>
             ${showDiscount ? `<span class="product-card__price-old">${finalPriceStr(basePrice)}</span>` : ''}
             <span class="product-card__rating"><i class="fas fa-star"></i> ${rating}</span>
-          </div>
-
-          <div class="product-card__stock ${inStock ? '' : 'is-out'}">
-            <i class="fas ${inStock ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
-            ${inStock ? `В наличии · ${p.stock} шт` : 'Нет в наличии'}
           </div>
         </div>
       </article>`;
@@ -2759,7 +2793,6 @@ function openProductPage(productId) {
   const finalPrice = getFinalPrice(p);
   const basePrice  = p.price || 0;
   const rating     = (p.rating || State.rating).toFixed(1);
-  const inStock    = (p.stock || 0) > 0;
 
   renderProductDetailGallery(p);
 
@@ -2778,7 +2811,6 @@ function openProductPage(productId) {
       <div><strong>Материал</strong><span>${p.material || '—'}</span></div>
       <div><strong>Размеры</strong><span>${p.size || '—'}</span></div>
       <div><strong>Бренд</strong><span>${p.brand || 'FULL SELLER'}</span></div>
-      <div><strong>В наличии</strong><span>${inStock ? (p.stock || 0) + ' шт' : 'Нет в наличии'}</span></div>
     </div>
 
     <div class="product-page__actions">
@@ -3867,6 +3899,38 @@ document.getElementById('currencyBtn').addEventListener('click', toggleCurrency)
 document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
 
 /* ------------------------------------------------------------
+   Mobile header auto-hide helpers
+   ------------------------------------------------------------ */
+function isMobileViewport() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+function isHeaderForceHiddenPage() {
+  const b = document.body.classList;
+  return b.contains('page-cart')
+      || b.contains('page-profile')
+      || b.contains('page-favorites')
+      || b.contains('page-productDetail')
+      || b.contains('page-admin');
+}
+function isCatalogSectionActive() {
+  const el = document.getElementById('catalog');
+  if (!el) return false;
+  const rect = el.getBoundingClientRect();
+  return rect.top < window.innerHeight * 0.5;
+}
+function updateHeaderForcedState() {
+  const header = document.getElementById('siteHeader');
+  if (!header) return;
+  const force = isMobileViewport() && (isHeaderForceHiddenPage() || isCatalogSectionActive());
+  if (force) {
+    header.classList.add('header--hidden', 'header--force-locked');
+  } else {
+    header.classList.remove('header--force-locked');
+    if (window.scrollY <= 10) header.classList.remove('header--hidden');
+  }
+}
+
+/* ------------------------------------------------------------
    Header scroll
    ------------------------------------------------------------ */
 (function () {
@@ -3879,12 +3943,19 @@ document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? 
 
     header.classList.toggle('is-scrolled', y > 8);
 
-    if (y <= 10) {
-      header.classList.remove('header--hidden');
-    } else if (delta > 6 && y > 120) {
-      header.classList.add('header--hidden');
-    } else if (delta < -6) {
-      header.classList.remove('header--hidden');
+    const forceHidden = isMobileViewport() && (isHeaderForceHiddenPage() || isCatalogSectionActive());
+
+    if (forceHidden) {
+      header.classList.add('header--hidden', 'header--force-locked');
+    } else {
+      header.classList.remove('header--force-locked');
+      if (y <= 10) {
+        header.classList.remove('header--hidden');
+      } else if (delta > 6 && y > 120) {
+        header.classList.add('header--hidden');
+      } else if (delta < -6) {
+        header.classList.remove('header--hidden');
+      }
     }
 
     lastY = y;
@@ -4238,6 +4309,7 @@ loadGlobalSettings();
 loadReviewsFromFirestore();
 updateBrandFilterVisibility();
 setBodyPageClass('home');
+updateHeaderForcedState();
 trackPageView('home');
 </script>
 
