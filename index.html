@@ -1290,6 +1290,13 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 }
 .partner-product-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md);}
 .partner-product-card h4{font-size:1rem;margin-bottom:6px;line-height:1.3;}
+.partner-product-card .pc-img{
+  width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;
+  background:var(--bg-sunken);margin-bottom:12px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--border-2);font-size:2rem;
+}
+.partner-product-card .pc-img img{width:100%;height:100%;object-fit:cover;}
 .partner-product-card .pc-category{
   display:inline-block;padding:3px 10px;border-radius:var(--r-pill);
   background:var(--accent-soft);color:var(--accent-600);
@@ -1315,6 +1322,14 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   border-radius:var(--r-xl);box-shadow:var(--sh-sm);
 }
 .partner-add-form h3{margin-bottom:20px;font-size:1.125rem;}
+
+.partner-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:var(--r-pill);
+  background:var(--accent-soft);color:var(--accent-600);
+  font-size:.6875rem;font-weight:700;letter-spacing:.04em;
+  margin-top:6px;
+}
 
 /* ============================================================
    24. RESPONSIVE / MOTION
@@ -2176,7 +2191,8 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
     <div class="partner-header">
       <div>
         <h2>Панель производителя</h2>
-        <p>Управление вашими товарами</p>
+        <p id="partnerGreeting">Управление вашими товарами</p>
+        <div id="partnerIdBadge"></div>
       </div>
       <button class="btn-outline" id="partnerLogoutBtn">
         <i class="fas fa-right-from-bracket"></i> Выйти
@@ -2223,6 +2239,25 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
         <div class="partner-field">
           <label for="partnerProductPrice">Цена (₽)</label>
           <input type="number" id="partnerProductPrice" placeholder="0" min="0" step="0.01">
+        </div>
+
+        <div class="partner-field">
+          <label>Изображение товара</label>
+          <div class="admin-image-upload" id="partnerImageUploadBox">
+            <input type="file" id="partnerImageFile" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;">
+            <div id="partnerUploadPrompt">
+              <i class="fas fa-cloud-arrow-up" style="font-size:1.75rem; color:var(--accent); margin-bottom:10px; display:block;"></i>
+              <span style="font-weight:600;">Нажмите для загрузки изображения</span>
+              <div style="font-size:.75rem; color:var(--text-secondary); margin-top:4px;">JPG, PNG, WEBP до 5 МБ</div>
+            </div>
+            <img id="partnerImagePreview" class="admin-image-preview" alt="Превью">
+            <div class="admin-upload-progress" id="partnerUploadProgress"></div>
+            <div class="admin-upload-actions" id="partnerUploadActions" style="display:none;">
+              <button class="btn-danger" id="partnerRemoveImageBtn" type="button" style="color:#fff; border-radius:8px; font-weight:600;">Удалить</button>
+              <button class="btn-outline" id="partnerReplaceImageBtn" type="button">Заменить</button>
+            </div>
+            <input type="hidden" id="partnerImageUrl" value="">
+          </div>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
@@ -2418,11 +2453,32 @@ try {
 
 const ADMIN_EMAIL = "fullselleradmin@gmail.com";
 
-/* === ПАРТНЁР (производитель) === */
-const PARTNER_LOGIN    = 'fs.partner.ru';
-const PARTNER_PASSWORD = '9100965080';
-const PARTNER_ID       = 'fs-partner-1';
+/* === ПАРТНЁРЫ (производители) ===
+   Каждый партнёр — отдельный аккаунт с уникальным partnerId.
+   Мастер-логин (fs.partner.ru / 9100965080) имеет partnerId = 'fs-partner-1' —
+   это сохраняет все ранее созданные товары за главным производителем. */
+const PARTNER_LOGIN       = 'fs.partner.ru';
+const PARTNER_PASSWORD    = '9100965080';
+const PARTNER_MASTER_ID   = 'fs-partner-1';
 const PARTNER_SESSION_KEY = 'fullseller_partner_session';
+
+/* Хелперы партнёрской сессии */
+function getPartnerSession() {
+  try {
+    const raw = localStorage.getItem(PARTNER_SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (!s || !s.partnerId) return null;
+    return s;
+  } catch (e) { return null; }
+}
+function setPartnerSession(session) {
+  if (session) localStorage.setItem(PARTNER_SESSION_KEY, JSON.stringify(session));
+  else localStorage.removeItem(PARTNER_SESSION_KEY);
+}
+function isPartnerLoggedIn() {
+  return !!getPartnerSession();
+}
 
 const State = {
   percentageDiscount: 0,
@@ -4483,20 +4539,26 @@ document.getElementById('cargoCalcScrollBtn').addEventListener('click', () => {
 })();
 
 /* ============================================================
-   PARTNER PANEL LOGIC (вторая админ-панель — для производителей)
+   PARTNER PANEL LOGIC (мульти-аккаунт)
    ============================================================ */
-function isPartnerLoggedIn() {
-  return localStorage.getItem(PARTNER_SESSION_KEY) === '1';
-}
-
 function renderPartnerPage() {
   const loginWrap = document.getElementById('partnerLoginWrap');
   const panel     = document.getElementById('partnerPanel');
   if (!loginWrap || !panel) return;
 
-  if (isPartnerLoggedIn()) {
+  const session = getPartnerSession();
+  if (session) {
     loginWrap.style.display = 'none';
     panel.style.display = 'block';
+
+    const greet = document.getElementById('partnerGreeting');
+    if (greet) greet.textContent = 'Вы вошли как: ' + (session.name || session.login || 'производитель');
+
+    const badge = document.getElementById('partnerIdBadge');
+    if (badge) {
+      badge.innerHTML = `<span class="partner-badge"><i class="fas fa-id-badge"></i> ID: ${escapeHtml(session.partnerId)}</span>`;
+    }
+
     loadPartnerProducts();
   } else {
     loginWrap.style.display = 'block';
@@ -4510,25 +4572,63 @@ function renderPartnerPage() {
   }
 }
 
-function partnerLogin() {
+async function partnerLogin() {
   const login = document.getElementById('partnerLoginInput').value.trim();
   const pass  = document.getElementById('partnerPasswordInput').value;
   const errEl = document.getElementById('partnerLoginError');
   errEl.textContent = '';
 
   if (!login || !pass) { errEl.textContent = 'Заполните логин и пароль'; return; }
-  if (login !== PARTNER_LOGIN || pass !== PARTNER_PASSWORD) {
-    errEl.textContent = 'Неверный логин или пароль';
-    return;
-  }
 
-  localStorage.setItem(PARTNER_SESSION_KEY, '1');
-  showToast('Добро пожаловать, партнёр!');
-  renderPartnerPage();
+  const btn = document.getElementById('partnerLoginBtn');
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Вход...';
+
+  try {
+    let partner = null;
+
+    /* 1) Ищем в коллекции `partners` (для дополнительных производителей) */
+    try {
+      const snap = await db.collection('partners').where('login', '==', login).limit(1).get();
+      if (!snap.empty) {
+        const doc = snap.docs[0];
+        const d = doc.data();
+        if (d.password === pass) {
+          partner = {
+            partnerId: d.partnerId || doc.id,
+            login: d.login,
+            name: d.name || d.login
+          };
+        }
+      }
+    } catch (e) { console.warn('Partners lookup failed:', e); }
+
+    /* 2) Fallback: главный партнёр (сохраняет все ранее созданные товары) */
+    if (!partner && login === PARTNER_LOGIN && pass === PARTNER_PASSWORD) {
+      partner = {
+        partnerId: PARTNER_MASTER_ID,
+        login: PARTNER_LOGIN,
+        name: 'Главный производитель'
+      };
+    }
+
+    if (!partner) {
+      errEl.textContent = 'Неверный логин или пароль';
+      return;
+    }
+
+    setPartnerSession(partner);
+    showToast('Добро пожаловать, ' + (partner.name || 'партнёр') + '!');
+    renderPartnerPage();
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
 }
 
 function partnerLogout() {
-  localStorage.removeItem(PARTNER_SESSION_KEY);
+  setPartnerSession(null);
   showToast('Вы вышли из панели производителя');
   showPage('home');
 }
@@ -4540,6 +4640,9 @@ function escapeHtml(str) {
 }
 
 async function loadPartnerProducts() {
+  const session = getPartnerSession();
+  if (!session) return;
+
   const container = document.getElementById('partnerProductsContainer');
   if (!container) return;
   container.innerHTML = '<div class="loading-spinner" style="grid-column:1/-1;"><i class="fas fa-spinner"></i> Загрузка…</div>';
@@ -4549,7 +4652,7 @@ async function loadPartnerProducts() {
 
   try {
     for (const col of collections) {
-      const snap = await db.collection(col).where('partnerId', '==', PARTNER_ID).get();
+      const snap = await db.collection(col).where('partnerId', '==', session.partnerId).get();
       snap.forEach(doc => {
         partnerProductsCache.push({ id: doc.id, collection: col, ...doc.data() });
       });
@@ -4560,7 +4663,6 @@ async function loadPartnerProducts() {
     return;
   }
 
-  // сортировка по дате (свежие сверху)
   partnerProductsCache.sort((a, b) => {
     const ta = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : 0;
     const tb = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : 0;
@@ -4574,25 +4676,32 @@ async function loadPartnerProducts() {
 
   const categoryNames = { socks:'Носки', tshirts:'Футболки', underwear:'Трусы' };
 
-  container.innerHTML = partnerProductsCache.map(p => `
-    <div class="partner-product-card">
-      <span class="pc-category">${categoryNames[p.category] || p.category || '—'}</span>
-      <h4>${escapeHtml(p.name || 'Без названия')}</h4>
-      <p class="pc-desc">${escapeHtml(p.desc || 'Без описания')}</p>
-      <div class="pc-meta">
-        <span>Бренд: ${escapeHtml(p.brand || '—')}</span>
-        <span>${(p.price != null ? p.price : 0)} ₽</span>
+  container.innerHTML = partnerProductsCache.map(p => {
+    const imgBlock = p.imageUrl
+      ? `<div class="pc-img"><img src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name || '')}" loading="lazy"></div>`
+      : `<div class="pc-img"><i class="fas fa-image"></i></div>`;
+
+    return `
+      <div class="partner-product-card">
+        ${imgBlock}
+        <span class="pc-category">${categoryNames[p.category] || p.category || '—'}</span>
+        <h4>${escapeHtml(p.name || 'Без названия')}</h4>
+        <p class="pc-desc">${escapeHtml(p.desc || 'Без описания')}</p>
+        <div class="pc-meta">
+          <span>Бренд: ${escapeHtml(p.brand || '—')}</span>
+          <span>${(p.price != null ? p.price : 0)} ₽</span>
+        </div>
+        <div class="pc-actions">
+          <button type="button" class="btn-outline" onclick="editPartnerProduct('${p.id}','${p.collection}')">
+            <i class="fas fa-pen"></i> Изменить
+          </button>
+          <button type="button" class="btn-danger" style="color:#fff;" onclick="deletePartnerProduct('${p.id}','${p.collection}')">
+            <i class="fas fa-trash"></i> Удалить
+          </button>
+        </div>
       </div>
-      <div class="pc-actions">
-        <button type="button" class="btn-outline" onclick="editPartnerProduct('${p.id}','${p.collection}')">
-          <i class="fas fa-pen"></i> Изменить
-        </button>
-        <button type="button" class="btn-danger" style="color:#fff;" onclick="deletePartnerProduct('${p.id}','${p.collection}')">
-          <i class="fas fa-trash"></i> Удалить
-        </button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function clearPartnerForm() {
@@ -4602,8 +4711,20 @@ function clearPartnerForm() {
   setV('partnerProductCategory', 'socks');
   setV('partnerProductBrand', '');
   setV('partnerProductPrice', '');
+  setV('partnerImageUrl', '');
   partnerEditingId = null;
   partnerEditingColl = null;
+
+  const preview = document.getElementById('partnerImagePreview');
+  const prompt  = document.getElementById('partnerUploadPrompt');
+  const actions = document.getElementById('partnerUploadActions');
+  const progress = document.getElementById('partnerUploadProgress');
+  const fileInput = document.getElementById('partnerImageFile');
+  if (preview) { preview.style.display = 'none'; preview.src = ''; }
+  if (prompt)  prompt.style.display = 'block';
+  if (actions) actions.style.display = 'none';
+  if (progress) progress.textContent = '';
+  if (fileInput) fileInput.value = '';
 
   const btn = document.getElementById('partnerAddBtn');
   if (btn) btn.innerHTML = '<i class="fas fa-plus"></i> Добавить товар';
@@ -4633,6 +4754,22 @@ window.editPartnerProduct = function (id, collection) {
   setV('partnerProductCategory', p.category || 'socks');
   setV('partnerProductBrand', p.brand || '');
   setV('partnerProductPrice', p.price != null ? p.price : '');
+  setV('partnerImageUrl', p.imageUrl || '');
+
+  const preview  = document.getElementById('partnerImagePreview');
+  const prompt   = document.getElementById('partnerUploadPrompt');
+  const actions  = document.getElementById('partnerUploadActions');
+  const progress = document.getElementById('partnerUploadProgress');
+  if (p.imageUrl) {
+    if (preview) { preview.src = p.imageUrl; preview.style.display = 'block'; }
+    if (prompt)  prompt.style.display = 'none';
+    if (actions) actions.style.display = 'flex';
+    if (progress) progress.textContent = '';
+  } else {
+    if (preview) { preview.style.display = 'none'; preview.src = ''; }
+    if (prompt)  prompt.style.display = 'block';
+    if (actions) actions.style.display = 'none';
+  }
 
   const btn = document.getElementById('partnerAddBtn');
   if (btn) btn.innerHTML = '<i class="fas fa-check"></i> Сохранить изменения';
@@ -4654,12 +4791,16 @@ window.deletePartnerProduct = async function (id, collection) {
 };
 
 async function addPartnerProduct() {
+  const session = getPartnerSession();
+  if (!session) { showToast('Сессия истекла. Войдите заново.'); return; }
+
   const name = document.getElementById('partnerProductName').value.trim();
   const desc = document.getElementById('partnerProductDesc').value.trim();
   const category = document.getElementById('partnerProductCategory').value;
   const brand = document.getElementById('partnerProductBrand').value.trim();
   const priceRaw = document.getElementById('partnerProductPrice').value;
   const price = priceRaw === '' ? 0 : (parseFloat(priceRaw) || 0);
+  const imageUrl = (document.getElementById('partnerImageUrl')?.value || '').trim();
 
   if (!name) { showToast('Введите название товара'); return; }
   if (!category) { showToast('Выберите категорию'); return; }
@@ -4674,15 +4815,22 @@ async function addPartnerProduct() {
 
   try {
     if (partnerEditingId && partnerEditingColl) {
-      await db.collection(partnerEditingColl).doc(partnerEditingId).set({
-        name, desc, category, brand, price
-      }, { merge: true });
+      /* Проверяем, что товар действительно принадлежит текущему производителю */
+      const ref = db.collection(partnerEditingColl).doc(partnerEditingId);
+      const doc = await ref.get();
+      if (!doc.exists) { showToast('Товар не найден'); return; }
+      const existing = doc.data();
+      if (existing.partnerId && existing.partnerId !== session.partnerId) {
+        showToast('Это не ваш товар');
+        return;
+      }
+      await ref.set({ name, desc, category, brand, price, imageUrl }, { merge: true });
       showToast('Товар обновлён');
     } else {
       await db.collection(collectionName).add({
         name, desc, category, brand, price,
-        partnerId: PARTNER_ID,
-        imageUrl: '',
+        imageUrl: imageUrl || '',
+        partnerId: session.partnerId,
         material: '',
         size: '',
         rating: State.rating || 4.2,
@@ -4707,6 +4855,83 @@ async function addPartnerProduct() {
       btn.innerHTML = originalHtml;
     }
   }
+}
+
+/* === Загрузка изображений товаров производителя === */
+const partnerImageUploadBox = document.getElementById('partnerImageUploadBox');
+const partnerImageFile      = document.getElementById('partnerImageFile');
+const partnerImagePreview   = document.getElementById('partnerImagePreview');
+const partnerUploadProgress = document.getElementById('partnerUploadProgress');
+const partnerUploadActions  = document.getElementById('partnerUploadActions');
+const partnerUploadPrompt   = document.getElementById('partnerUploadPrompt');
+const partnerImageUrlInput  = document.getElementById('partnerImageUrl');
+
+if (partnerImageUploadBox) {
+  partnerImageUploadBox.addEventListener('click', (e) => {
+    if (e.target.closest('.admin-upload-actions') || e.target.closest('button')) return;
+    partnerImageFile.click();
+  });
+}
+
+if (partnerImageFile) {
+  partnerImageFile.addEventListener('change', async function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const session = getPartnerSession();
+    if (!session) { showToast('Сессия истекла. Войдите заново.'); this.value = ''; return; }
+
+    const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!valid.includes(file.type)) { showToast('Неверный формат. Разрешены: JPG, PNG, WEBP'); this.value = ''; return; }
+    if (file.size > 5 * 1024 * 1024) { showToast('Файл слишком большой (макс 5 МБ)'); this.value = ''; return; }
+
+    partnerImagePreview.src = URL.createObjectURL(file);
+    partnerImagePreview.style.display = 'block';
+    partnerUploadPrompt.style.display = 'none';
+    partnerUploadProgress.textContent = 'Загрузка: 0%';
+
+    try {
+      const safeName = file.name.replace(/[^\w.-]+/g, '_');
+      const ref = storage.ref(`partner-products/${session.partnerId}/${Date.now()}_${safeName}`);
+      const task = ref.put(file);
+      task.on('state_changed',
+        snap => { partnerUploadProgress.textContent = `Загрузка: ${Math.round((snap.bytesTransferred / snap.totalBytes) * 100)}%`; },
+        err  => { partnerUploadProgress.textContent = 'Ошибка загрузки'; showToast('Ошибка: ' + err.message); },
+        async () => {
+          const url = await ref.getDownloadURL();
+          partnerImageUrlInput.value = url;
+          partnerUploadProgress.textContent = 'Готово!';
+          partnerUploadActions.style.display = 'flex';
+          showToast('Изображение загружено');
+        }
+      );
+    } catch (e) {
+      partnerUploadProgress.textContent = 'Ошибка';
+      showToast('Ошибка: ' + e.message);
+    }
+  });
+}
+
+const partnerRemoveImageBtn = document.getElementById('partnerRemoveImageBtn');
+if (partnerRemoveImageBtn) {
+  partnerRemoveImageBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    partnerImagePreview.style.display = 'none';
+    partnerImagePreview.src = '';
+    partnerUploadPrompt.style.display = 'block';
+    partnerUploadProgress.textContent = '';
+    partnerUploadActions.style.display = 'none';
+    partnerImageUrlInput.value = '';
+    partnerImageFile.value = '';
+  });
+}
+
+const partnerReplaceImageBtn = document.getElementById('partnerReplaceImageBtn');
+if (partnerReplaceImageBtn) {
+  partnerReplaceImageBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    partnerImageFile.click();
+  });
 }
 
 /* === Инициализация партнёрской панели === */
@@ -4739,7 +4964,6 @@ async function addPartnerProduct() {
     });
   });
 
-  // Ссылки на партнёрскую панель
   const footerLink = document.getElementById('footerPartnerLink');
   if (footerLink) {
     footerLink.addEventListener('click', (e) => {
