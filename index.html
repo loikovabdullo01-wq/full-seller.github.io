@@ -2462,6 +2462,12 @@ const PARTNER_PASSWORD    = '9100965080';
 const PARTNER_MASTER_ID   = 'fs-partner-1';
 const PARTNER_SESSION_KEY = 'fullseller_partner_session';
 
+/* === IMGBB API KEYS (для загрузки изображений товаров) === */
+const IMGBB_KEYS = [
+  '044c84fb33e068293052ead694715174',
+  'ae79450043550a3062e2c2d40308a877'
+];
+
 /* Хелперы партнёрской сессии */
 function getPartnerSession() {
   try {
@@ -2478,6 +2484,65 @@ function setPartnerSession(session) {
 }
 function isPartnerLoggedIn() {
   return !!getPartnerSession();
+}
+
+/* === ImgBB: конвертация файла в base64 === */
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const s = String(reader.result || '');
+      const i = s.indexOf(',');
+      resolve(i >= 0 ? s.slice(i + 1) : s);
+    };
+    reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/* === ImgBB: загрузка файла, возвращает URL === */
+async function uploadImageToImgBB(file) {
+  const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  if (!valid.includes(file.type)) throw new Error('Неверный формат. Разрешены: JPG, PNG, WEBP');
+  if (file.size > 5 * 1024 * 1024) throw new Error('Файл слишком большой (макс 5 МБ)');
+
+  const base64 = await fileToBase64(file);
+  let lastError = null;
+
+  for (const key of IMGBB_KEYS) {
+    try {
+      const formData = new FormData();
+      formData.append('key', key);
+      formData.append('image', base64);
+
+      const res = await fetch('https://api.imgbb.com/1/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data && data.success && data.data) {
+        const url = data.data.url || data.data.display_url || data.data.image?.url;
+        if (url) return url;
+      }
+      lastError = new Error((data && data.error && data.error.message) || 'Ошибка ImgBB');
+    } catch (e) {
+      lastError = e;
+    }
+  }
+  throw lastError || new Error('Не удалось загрузить изображение');
+}
+
+/* === Гарантировать Firebase Auth для партнёрских записей в Firestore === */
+async function ensurePartnerFirebaseAuth() {
+  try {
+    if (auth.currentUser) return auth.currentUser;
+    const cred = await auth.signInAnonymously();
+    return cred.user;
+  } catch (e) {
+    console.warn('Anonymous Firebase sign-in failed:', e && e.code, e && e.message);
+    return null;
+  }
 }
 
 const State = {
@@ -4142,6 +4207,13 @@ document.getElementById('registerSubmitEmail').addEventListener('click', async (
 });
 
 auth.onAuthStateChanged(user => {
+  /* Анонимный пользователь — используется только для партнёрских операций с Firestore.
+     Он НЕ должен менять состояние customer-аккаунта. */
+  if (user && user.isAnonymous) {
+    updateAuthUI();
+    return;
+  }
+
   if (user) {
     const profile = JSON.parse(localStorage.getItem('fullseller_profile_' + user.uid) || '{}');
     currentUser = {
@@ -4539,7 +4611,7 @@ document.getElementById('cargoCalcScrollBtn').addEventListener('click', () => {
 })();
 
 /* ============================================================
-   PARTNER PANEL LOGIC (мульти-аккаунт)
+   PARTNER PANEL LOGIC (мульти-аккаунт + защита входа)
    ============================================================ */
 function renderPartnerPage() {
   const loginWrap = document.getElementById('partnerLoginWrap');
@@ -4619,6 +4691,13 @@ async function partnerLogin() {
     }
 
     setPartnerSession(partner);
+
+    /* Устанавливаем Firebase Auth (анонимно) — чтобы Firestore rules
+       «allow write: if request.auth != null» пропустили записи.
+       Если уже есть активный Firebase-пользователь (например, покупатель),
+       не трогаем его — его прав тоже достаточно. */
+    await ensurePartnerFirebaseAuth();
+
     showToast('Добро пожаловать, ' + (partner.name || 'партнёр') + '!');
     renderPartnerPage();
   } finally {
@@ -4628,6 +4707,11 @@ async function partnerLogin() {
 }
 
 function partnerLogout() {
+  /* Если текущая Firebase-сессия была анонимной (для партнёрских операций) — выходим из неё.
+     Реальные покупательские сессии не трогаем. */
+  if (auth.currentUser && auth.currentUser.isAnonymous) {
+    auth.signOut().catch(() => {});
+  }
   setPartnerSession(null);
   showToast('Вы вышли из панели производителя');
   showPage('home');
@@ -4781,8 +4865,19 @@ window.editPartnerProduct = function (id, collection) {
 
 window.deletePartnerProduct = async function (id, collection) {
   if (!confirm('Удалить этот товар? Действие нельзя отменить.')) return;
+  const session = getPartnerSession();
+  if (!session) { showToast('Сессия истекла. Войдите заново.'); return; }
   try {
-    await db.collection(collection).doc(id).delete();
+    /* Проверяем владельца перед удалением */
+    const ref = db.collection(collection).doc(id);
+    const doc = await ref.get();
+    if (!doc.exists) { showToast('Товар не найден'); return; }
+    const data = doc.data();
+    if (data.partnerId && data.partnerId !== session.partnerId) {
+      showToast('Это не ваш товар');
+      return;
+    }
+    await ref.delete();
     showToast('Товар удалён');
     loadPartnerProducts();
   } catch (e) {
@@ -4814,6 +4909,9 @@ async function addPartnerProduct() {
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение…';
 
   try {
+    /* Гарантируем Firebase Auth перед записью в Firestore */
+    await ensurePartnerFirebaseAuth();
+
     if (partnerEditingId && partnerEditingColl) {
       /* Проверяем, что товар действительно принадлежит текущему производителю */
       const ref = db.collection(partnerEditingColl).doc(partnerEditingId);
@@ -4846,7 +4944,12 @@ async function addPartnerProduct() {
     loadPartnerProducts();
   } catch (e) {
     console.error(e);
-    showToast('Ошибка сохранения: ' + e.message);
+    /* Более понятное сообщение для типичной ошибки */
+    let msg = e && e.message ? e.message : 'Неизвестная ошибка';
+    if (/permission|insufficient/i.test(msg)) {
+      msg = 'Нет доступа к базе. Проверьте Firestore rules (allow write: if request.auth != null) и включён ли Anonymous провайдер.';
+    }
+    showToast('Ошибка сохранения: ' + msg);
   } finally {
     btn.disabled = false;
     if (partnerEditingId) {
@@ -4857,7 +4960,7 @@ async function addPartnerProduct() {
   }
 }
 
-/* === Загрузка изображений товаров производителя === */
+/* === Загрузка изображений товаров производителя (ImgBB) === */
 const partnerImageUploadBox = document.getElementById('partnerImageUploadBox');
 const partnerImageFile      = document.getElementById('partnerImageFile');
 const partnerImagePreview   = document.getElementById('partnerImagePreview');
@@ -4879,35 +4982,45 @@ if (partnerImageFile) {
     if (!file) return;
 
     const session = getPartnerSession();
-    if (!session) { showToast('Сессия истекла. Войдите заново.'); this.value = ''; return; }
+    if (!session) {
+      showToast('Сессия истекла. Войдите заново.');
+      this.value = '';
+      return;
+    }
 
     const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!valid.includes(file.type)) { showToast('Неверный формат. Разрешены: JPG, PNG, WEBP'); this.value = ''; return; }
-    if (file.size > 5 * 1024 * 1024) { showToast('Файл слишком большой (макс 5 МБ)'); this.value = ''; return; }
+    if (!valid.includes(file.type)) {
+      showToast('Неверный формат. Разрешены: JPG, PNG, WEBP');
+      this.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Файл слишком большой (макс 5 МБ)');
+      this.value = '';
+      return;
+    }
 
+    /* Локальное превью сразу */
     partnerImagePreview.src = URL.createObjectURL(file);
     partnerImagePreview.style.display = 'block';
     partnerUploadPrompt.style.display = 'none';
-    partnerUploadProgress.textContent = 'Загрузка: 0%';
+    partnerUploadActions.style.display = 'none';
+    partnerUploadProgress.textContent = 'Загрузка на ImgBB…';
 
     try {
-      const safeName = file.name.replace(/[^\w.-]+/g, '_');
-      const ref = storage.ref(`partner-products/${session.partnerId}/${Date.now()}_${safeName}`);
-      const task = ref.put(file);
-      task.on('state_changed',
-        snap => { partnerUploadProgress.textContent = `Загрузка: ${Math.round((snap.bytesTransferred / snap.totalBytes) * 100)}%`; },
-        err  => { partnerUploadProgress.textContent = 'Ошибка загрузки'; showToast('Ошибка: ' + err.message); },
-        async () => {
-          const url = await ref.getDownloadURL();
-          partnerImageUrlInput.value = url;
-          partnerUploadProgress.textContent = 'Готово!';
-          partnerUploadActions.style.display = 'flex';
-          showToast('Изображение загружено');
-        }
-      );
+      const url = await uploadImageToImgBB(file);
+      partnerImageUrlInput.value = url;
+      partnerUploadProgress.textContent = 'Готово!';
+      partnerUploadActions.style.display = 'flex';
+      showToast('Изображение загружено');
     } catch (e) {
-      partnerUploadProgress.textContent = 'Ошибка';
-      showToast('Ошибка: ' + e.message);
+      console.error(e);
+      partnerUploadProgress.textContent = 'Ошибка загрузки';
+      showToast('Ошибка: ' + (e && e.message ? e.message : 'не удалось загрузить'));
+      /* Возвращаем форму в исходное состояние */
+      partnerImagePreview.style.display = 'none';
+      partnerImagePreview.src = '';
+      partnerUploadPrompt.style.display = 'block';
     }
   });
 }
