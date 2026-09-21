@@ -522,7 +522,7 @@ body.dark .hero{
 @media(max-width:760px){.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}
 
 /* ============================================================
-   11. PRODUCT CARD (CLEAN / PREMIUM)
+   11. PRODUCT CARD
    ============================================================ */
 .product-card{
   position:relative;display:flex;flex-direction:column;height:100%;
@@ -1258,6 +1258,9 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   background-repeat:no-repeat;background-position:right 16px center;padding-right:44px;
 }
 
+.partner-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:560px){.partner-row-2{grid-template-columns:1fr;}}
+
 .partner-header{
   display:flex;justify-content:space-between;align-items:center;
   flex-wrap:wrap;gap:14px;margin-bottom:24px;
@@ -1295,8 +1298,16 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   background:var(--bg-sunken);margin-bottom:12px;
   display:flex;align-items:center;justify-content:center;
   color:var(--border-2);font-size:2rem;
+  position:relative;
 }
 .partner-product-card .pc-img img{width:100%;height:100%;object-fit:cover;}
+.partner-product-card .pc-img-count{
+  position:absolute;top:8px;right:8px;
+  padding:3px 9px;border-radius:var(--r-pill);
+  background:rgba(28,25,23,.72);color:#fff;
+  font-size:.6875rem;font-weight:700;letter-spacing:.02em;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
 .partner-product-card .pc-category{
   display:inline-block;padding:3px 10px;border-radius:var(--r-pill);
   background:var(--accent-soft);color:var(--accent-600);
@@ -1310,14 +1321,15 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   -webkit-box-orient:vertical;overflow:hidden;
 }
 .partner-product-card .pc-meta{
-  font-size:.75rem;color:var(--muted);margin-bottom:14px;
-  display:flex;justify-content:space-between;gap:8px;
+  font-size:.75rem;color:var(--muted);margin-bottom:12px;
+  display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;
 }
+.partner-product-card .pc-meta strong{color:var(--text-2);font-weight:600;}
 .partner-product-card .pc-actions{display:flex;gap:8px;}
 .partner-product-card .pc-actions button{flex:1;min-height:36px;font-size:.75rem;border-radius:10px;}
 
 .partner-add-form{
-  max-width:600px;margin:0 auto;padding:28px 24px;
+  max-width:640px;margin:0 auto;padding:28px 24px;
   background:var(--card);border:1px solid var(--border);
   border-radius:var(--r-xl);box-shadow:var(--sh-sm);
 }
@@ -1329,6 +1341,37 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   background:var(--accent-soft);color:var(--accent-600);
   font-size:.6875rem;font-weight:700;letter-spacing:.04em;
   margin-top:6px;
+}
+
+/* --- Мультизагрузка изображений партнёра --- */
+.partner-images-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(84px,1fr));
+  gap:8px;margin-top:12px;
+}
+.partner-image-item{
+  position:relative;aspect-ratio:1;border-radius:12px;
+  overflow:hidden;background:var(--bg-sunken);
+  border:1px solid var(--border);
+}
+.partner-image-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.partner-image-item .remove-img{
+  position:absolute;top:-6px;right:-6px;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--danger);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;cursor:pointer;border:2px solid var(--card);
+  z-index:2;
+}
+.partner-image-item .img-badge{
+  position:absolute;bottom:5px;left:5px;
+  padding:2px 7px;border-radius:6px;
+  background:rgba(0,0,0,.68);color:#fff;
+  font-size:.625rem;font-weight:700;letter-spacing:.02em;
+}
+.partner-image-item.is-primary{
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px var(--accent-ring);
 }
 
 /* ============================================================
@@ -2136,7 +2179,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
         <div id="adminUploadPrompt">
           <i class="fas fa-cloud-arrow-up" style="font-size:1.75rem; color:var(--accent); margin-bottom:10px; display:block;"></i>
           <span style="font-weight:600;">Нажмите для загрузки изображения</span>
-          <div style="font-size:.75rem; color:var(--text-secondary); margin-top:4px;">JPG, PNG, WEBP до 5 МБ</div>
+          <div style="font-size:.75rem; color:var(--text-secondary); margin-top:4px;">JPG, PNG, WEBP до 8 МБ</div>
         </div>
         <img id="adminImagePreview" class="admin-image-preview" alt="Превью">
         <div class="admin-upload-progress" id="adminUploadProgress"></div>
@@ -2218,46 +2261,73 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 
         <div class="partner-field">
           <label for="partnerProductName">Название *</label>
-          <input type="text" id="partnerProductName" placeholder="Например: Носки Nike белые">
+          <input type="text" id="partnerProductName" placeholder="Например: Носки Nike белые" maxlength="120">
         </div>
         <div class="partner-field">
           <label for="partnerProductDesc">Описание</label>
           <textarea id="partnerProductDesc" rows="3" placeholder="Опишите товар, материал, особенности..."></textarea>
         </div>
-        <div class="partner-field">
-          <label for="partnerProductCategory">Категория *</label>
-          <select id="partnerProductCategory">
-            <option value="socks">Носки</option>
-            <option value="tshirts">Футболки</option>
-            <option value="underwear">Трусы</option>
-          </select>
+
+        <div class="partner-row-2">
+          <div class="partner-field">
+            <label for="partnerProductCategory">Категория *</label>
+            <select id="partnerProductCategory">
+              <option value="socks">Носки</option>
+              <option value="tshirts">Футболки</option>
+              <option value="underwear">Трусы</option>
+            </select>
+          </div>
+
+          <div class="partner-field">
+            <label for="partnerProductBrand">Бренд</label>
+            <input type="text" id="partnerProductBrand" placeholder="Например: Nike" maxlength="60">
+          </div>
         </div>
-        <div class="partner-field">
-          <label for="partnerProductBrand">Бренд</label>
-          <input type="text" id="partnerProductBrand" placeholder="Например: Nike">
-        </div>
-        <div class="partner-field">
-          <label for="partnerProductPrice">Цена (₽)</label>
-          <input type="number" id="partnerProductPrice" placeholder="0" min="0" step="0.01">
+
+        <div class="partner-row-2">
+          <div class="partner-field">
+            <label for="partnerProductSize">Размер</label>
+            <input type="text" id="partnerProductSize" placeholder="Например: 38-44 или S-XXL" maxlength="60">
+          </div>
+
+          <div class="partner-field">
+            <label for="partnerProductWeight">Вес (грамм)</label>
+            <input type="number" id="partnerProductWeight" placeholder="0" min="0" step="0.1">
+          </div>
         </div>
 
         <div class="partner-field">
-          <label>Изображение товара</label>
+          <label for="partnerProductColor">Цвет</label>
+          <select id="partnerProductColor">
+            <option value="">— Не указан —</option>
+            <option value="Белый">Белый</option>
+            <option value="Чёрный">Чёрный</option>
+            <option value="Шоколадный">Шоколадный</option>
+            <option value="Серый">Серый</option>
+            <option value="Бежевый">Бежевый</option>
+            <option value="Тёмно-синий">Тёмно-синий</option>
+          </select>
+        </div>
+
+        <div class="partner-row-2">
+          <div class="partner-field">
+            <label for="partnerProductPrice">Цена (₽)</label>
+            <input type="number" id="partnerProductPrice" placeholder="0" min="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="partner-field">
+          <label>Изображения товара (до 10, до 8 МБ каждое)</label>
           <div class="admin-image-upload" id="partnerImageUploadBox">
-            <input type="file" id="partnerImageFile" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;">
+            <input type="file" id="partnerImageFile" accept="image/jpeg,image/jpg,image/png,image/webp" multiple style="display:none;">
             <div id="partnerUploadPrompt">
               <i class="fas fa-cloud-arrow-up" style="font-size:1.75rem; color:var(--accent); margin-bottom:10px; display:block;"></i>
-              <span style="font-weight:600;">Нажмите для загрузки изображения</span>
-              <div style="font-size:.75rem; color:var(--text-secondary); margin-top:4px;">JPG, PNG, WEBP до 5 МБ</div>
+              <span style="font-weight:600;">Нажмите для загрузки изображений</span>
+              <div style="font-size:.75rem; color:var(--text-secondary); margin-top:4px;">JPG, PNG, WEBP до 8 МБ · до 10 шт</div>
             </div>
-            <img id="partnerImagePreview" class="admin-image-preview" alt="Превью">
             <div class="admin-upload-progress" id="partnerUploadProgress"></div>
-            <div class="admin-upload-actions" id="partnerUploadActions" style="display:none;">
-              <button class="btn-danger" id="partnerRemoveImageBtn" type="button" style="color:#fff; border-radius:8px; font-weight:600;">Удалить</button>
-              <button class="btn-outline" id="partnerReplaceImageBtn" type="button">Заменить</button>
-            </div>
-            <input type="hidden" id="partnerImageUrl" value="">
           </div>
+          <div class="partner-images-grid" id="partnerImagesGrid"></div>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
@@ -2453,12 +2523,30 @@ try {
 
 const ADMIN_EMAIL = "fullselleradmin@gmail.com";
 
-/* === ПАРТНЁРЫ (производители) === */
-const PARTNER_LOGIN       = 'fs.partner.ru';
+/* === ПАРТНЁРЫ (производители) — 10 изолированных аккаунтов === */
 const PARTNER_PASSWORD    = '9100965080';
-const PARTNER_MASTER_ID   = 'fs-partner-1';
 const PARTNER_SESSION_KEY = 'fullseller_partner_session';
 const PARTNER_SESSION_TTL = 7 * 24 * 60 * 60 * 1000; /* 7 дней */
+
+const PARTNERS = [
+  { partnerId: 'fs-partner-1',  login: 'fs.partner.ru',   password: PARTNER_PASSWORD, name: 'Производитель #1'  },
+  { partnerId: 'fs-partner-2',  login: 'fs.partner2.ru',  password: PARTNER_PASSWORD, name: 'Производитель #2'  },
+  { partnerId: 'fs-partner-3',  login: 'fs.partner3.ru',  password: PARTNER_PASSWORD, name: 'Производитель #3'  },
+  { partnerId: 'fs-partner-4',  login: 'fs.partner4.ru',  password: PARTNER_PASSWORD, name: 'Производитель #4'  },
+  { partnerId: 'fs-partner-5',  login: 'fs.partner5.ru',  password: PARTNER_PASSWORD, name: 'Производитель #5'  },
+  { partnerId: 'fs-partner-6',  login: 'fs.partner6.ru',  password: PARTNER_PASSWORD, name: 'Производитель #6'  },
+  { partnerId: 'fs-partner-7',  login: 'fs.partner7.ru',  password: PARTNER_PASSWORD, name: 'Производитель #7'  },
+  { partnerId: 'fs-partner-8',  login: 'fs.partner8.ru',  password: PARTNER_PASSWORD, name: 'Производитель #8'  },
+  { partnerId: 'fs-partner-9',  login: 'fs.partner9.ru',  password: PARTNER_PASSWORD, name: 'Производитель #9'  },
+  { partnerId: 'fs-partner-10', login: 'fs.partner10.ru', password: PARTNER_PASSWORD, name: 'Производитель #10' }
+];
+
+/* Разрешённые цвета товаров (строго) */
+const PRODUCT_COLORS = ['Белый','Чёрный','Шоколадный','Серый','Бежевый','Тёмно-синий'];
+
+/* Максимум изображений на товар и максимальный размер */
+const PARTNER_MAX_IMAGES  = 10;
+const PARTNER_MAX_FILE_MB = 8;
 
 /* === IMGBB API KEYS === */
 const IMGBB_KEYS = [
@@ -2474,7 +2562,6 @@ function getPartnerSession() {
     const s = JSON.parse(raw);
     if (!s || !s.partnerId) return null;
 
-    /* Проверка TTL: если сессия старше 7 дней — сбрасываем */
     if (s.loginAt && (Date.now() - s.loginAt) > PARTNER_SESSION_TTL) {
       localStorage.removeItem(PARTNER_SESSION_KEY);
       return null;
@@ -2508,7 +2595,7 @@ function fileToBase64(file) {
   });
 }
 
-/* === ImgBB: загрузка через XHR (с реальным прогрессом 0→100%) === */
+/* === ImgBB: загрузка через XHR (с реальным прогрессом 0→100%), лимит 8 МБ === */
 function uploadImageToImgBB(file, onProgress) {
   return new Promise(async (resolve, reject) => {
     const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -2516,8 +2603,8 @@ function uploadImageToImgBB(file, onProgress) {
       reject(new Error('Неверный формат. Разрешены: JPG, PNG, WEBP'));
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      reject(new Error('Файл слишком большой (макс 5 МБ)'));
+    if (file.size > PARTNER_MAX_FILE_MB * 1024 * 1024) {
+      reject(new Error('Файл слишком большой (макс ' + PARTNER_MAX_FILE_MB + ' МБ)'));
       return;
     }
 
@@ -2625,6 +2712,7 @@ let likeInProgress = new Set();
 let partnerProductsCache = [];
 let partnerEditingId     = null;
 let partnerEditingColl   = null;
+let partnerProductImages = []; /* массив URL-ов изображений в форме */
 
 function logAnalyticsEvent(name, params = {}) {
   if (!analytics) return;
@@ -2985,18 +3073,25 @@ function mergeFirestore(collectionName, key) {
         if (data.name)             p.name     = data.name;
         if (data.desc)             p.desc     = data.desc;
         if (data.imageUrl)         p.imageUrl = data.imageUrl;
+        if (Array.isArray(data.images) && data.images.length) p.images = data.images.filter(Boolean);
         if (data.brand)            p.brand    = data.brand;
         if (data.material)         p.material = data.material;
         if (data.size)             p.size     = data.size;
+        if (data.weight != null)   p.weight   = data.weight;
+        if (data.color)            p.color    = data.color;
       } else {
+        const imgs = Array.isArray(data.images) ? data.images.filter(Boolean) : [];
         allProducts[key].push({
           id: doc.id,
           name: data.name || 'Без названия',
           price: data.price || 0,
           desc: data.desc || '',
-          imageUrl: data.imageUrl || '',
+          images: imgs.length ? imgs : (data.imageUrl ? [data.imageUrl] : []),
+          imageUrl: data.imageUrl || (imgs[0] || ''),
           material: data.material || '',
           size: data.size || '',
+          weight: data.weight != null ? data.weight : 0,
+          color: data.color || '',
           brand: data.brand || '',
           rating: data.rating || State.rating,
           stock: data.stock || 0,
@@ -3228,6 +3323,14 @@ function openProductPage(productId) {
   renderProductDetailGallery(p);
 
   const content = document.getElementById('productPageContent');
+  const attrRows = [
+    `<div><strong>Материал</strong><span>${p.material || '—'}</span></div>`,
+    `<div><strong>Размеры</strong><span>${p.size || '—'}</span></div>`,
+    `<div><strong>Бренд</strong><span>${p.brand || 'FULL SELLER'}</span></div>`
+  ];
+  if (p.color)  attrRows.push(`<div><strong>Цвет</strong><span>${p.color}</span></div>`);
+  if (p.weight) attrRows.push(`<div><strong>Вес</strong><span>${p.weight} г</span></div>`);
+
   content.innerHTML = `
     <h1 class="product-page__name">${p.name}</h1>
 
@@ -3239,9 +3342,7 @@ function openProductPage(productId) {
     <p class="product-page__desc">${p.desc || 'Описание отсутствует'}</p>
 
     <div class="product-page__attributes">
-      <div><strong>Материал</strong><span>${p.material || '—'}</span></div>
-      <div><strong>Размеры</strong><span>${p.size || '—'}</span></div>
-      <div><strong>Бренд</strong><span>${p.brand || 'FULL SELLER'}</span></div>
+      ${attrRows.join('')}
     </div>
 
     <div class="product-page__actions">
@@ -4427,7 +4528,7 @@ adminImageFile.addEventListener('change', async function () {
 
   const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
   if (!valid.includes(file.type)) { showToast('Неверный формат. Разрешены: JPG, PNG, WEBP'); return; }
-  if (file.size > 5 * 1024 * 1024) { showToast('Файл слишком большой (макс 5 МБ)'); return; }
+  if (file.size > 8 * 1024 * 1024) { showToast('Файл слишком большой (макс 8 МБ)'); return; }
 
   adminImagePreview.src = URL.createObjectURL(file);
   adminImagePreview.style.display = 'block';
@@ -4676,7 +4777,7 @@ document.getElementById('cargoCalcScrollBtn').addEventListener('click', () => {
 })();
 
 /* ============================================================
-   PARTNER PANEL LOGIC (мульти-аккаунт + защита входа)
+   PARTNER PANEL LOGIC (мульти-аккаунт + защита входа + изоляция)
    ============================================================ */
 function renderPartnerPage() {
   const loginWrap = document.getElementById('partnerLoginWrap');
@@ -4725,29 +4826,30 @@ async function partnerLogin() {
   try {
     let partner = null;
 
-    /* 1) Ищем в коллекции `partners` (для дополнительных производителей) */
-    try {
-      const snap = await db.collection('partners').where('login', '==', login).limit(1).get();
-      if (!snap.empty) {
-        const doc = snap.docs[0];
-        const d = doc.data();
-        if (d.password === pass) {
-          partner = {
-            partnerId: d.partnerId || doc.id,
-            login: d.login,
-            name: d.name || d.login
-          };
-        }
+    /* 1) Локальный список — 10 изолированных аккаунтов */
+    for (const p of PARTNERS) {
+      if (p.login === login && p.password === pass) {
+        partner = { partnerId: p.partnerId, login: p.login, name: p.name };
+        break;
       }
-    } catch (e) { console.warn('Partners lookup failed:', e); }
+    }
 
-    /* 2) Fallback: главный партнёр (сохраняет все ранее созданные товары) */
-    if (!partner && login === PARTNER_LOGIN && pass === PARTNER_PASSWORD) {
-      partner = {
-        partnerId: PARTNER_MASTER_ID,
-        login: PARTNER_LOGIN,
-        name: 'Главный производитель'
-      };
+    /* 2) Резерв: ищем в коллекции `partners` (на случай ручного добавления) */
+    if (!partner) {
+      try {
+        const snap = await db.collection('partners').where('login', '==', login).limit(1).get();
+        if (!snap.empty) {
+          const doc = snap.docs[0];
+          const d = doc.data();
+          if (d.password === pass) {
+            partner = {
+              partnerId: d.partnerId || doc.id,
+              login: d.login,
+              name: d.name || d.login
+            };
+          }
+        }
+      } catch (e) { console.warn('Partners lookup failed:', e); }
     }
 
     if (!partner) {
@@ -4786,6 +4888,34 @@ function escapeHtml(str) {
   })[s]);
 }
 
+/* ==== Работа с сеткой изображений в форме партнёра ==== */
+function renderPartnerImagesGrid() {
+  const grid = document.getElementById('partnerImagesGrid');
+  if (!grid) return;
+
+  if (!partnerProductImages.length) {
+    grid.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = partnerProductImages.map((url, idx) => `
+    <div class="partner-image-item ${idx === 0 ? 'is-primary' : ''}">
+      <img src="${escapeHtml(url)}" alt="Фото ${idx + 1}" loading="lazy">
+      ${idx === 0 ? '<span class="img-badge">Главное</span>' : `<span class="img-badge">${idx + 1}</span>`}
+      <div class="remove-img" title="Удалить" onclick="removePartnerImage(${idx})">&times;</div>
+    </div>
+  `).join('');
+}
+
+window.removePartnerImage = function (idx) {
+  if (idx < 0 || idx >= partnerProductImages.length) return;
+  partnerProductImages.splice(idx, 1);
+  renderPartnerImagesGrid();
+  const progress = document.getElementById('partnerUploadProgress');
+  if (progress) progress.textContent = partnerProductImages.length ? ('Изображений: ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES) : '';
+};
+
+/* ==== Загрузка товаров партнёра (строго по его partnerId) ==== */
 async function loadPartnerProducts() {
   const session = getPartnerSession();
   if (!session) return;
@@ -4799,6 +4929,7 @@ async function loadPartnerProducts() {
 
   try {
     for (const col of collections) {
+      /* ИЗОЛЯЦИЯ: только свои товары */
       const snap = await db.collection(col).where('partnerId', '==', session.partnerId).get();
       snap.forEach(doc => {
         partnerProductsCache.push({ id: doc.id, collection: col, ...doc.data() });
@@ -4824,9 +4955,19 @@ async function loadPartnerProducts() {
   const categoryNames = { socks:'Носки', tshirts:'Футболки', underwear:'Трусы' };
 
   container.innerHTML = partnerProductsCache.map(p => {
-    const imgBlock = p.imageUrl
-      ? `<div class="pc-img"><img src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name || '')}" loading="lazy"></div>`
+    const imgs = (Array.isArray(p.images) && p.images.length)
+      ? p.images.filter(Boolean)
+      : (p.imageUrl ? [p.imageUrl] : []);
+    const first = imgs[0];
+
+    const imgBlock = first
+      ? `<div class="pc-img">
+           <img src="${escapeHtml(first)}" alt="${escapeHtml(p.name || '')}" loading="lazy">
+           ${imgs.length > 1 ? `<span class="pc-img-count"><i class="fas fa-images"></i> ${imgs.length}</span>` : ''}
+         </div>`
       : `<div class="pc-img"><i class="fas fa-image"></i></div>`;
+
+    const weightLine = (p.weight != null && p.weight !== '') ? `${p.weight} г` : '—';
 
     return `
       <div class="partner-product-card">
@@ -4835,8 +4976,11 @@ async function loadPartnerProducts() {
         <h4>${escapeHtml(p.name || 'Без названия')}</h4>
         <p class="pc-desc">${escapeHtml(p.desc || 'Без описания')}</p>
         <div class="pc-meta">
-          <span>Бренд: ${escapeHtml(p.brand || '—')}</span>
-          <span>${(p.price != null ? p.price : 0)} ₽</span>
+          <span><strong>Бренд:</strong> ${escapeHtml(p.brand || '—')}</span>
+          <span><strong>Цена:</strong> ${(p.price != null ? p.price : 0)} ₽</span>
+          <span><strong>Размер:</strong> ${escapeHtml(p.size || '—')}</span>
+          <span><strong>Вес:</strong> ${weightLine}</span>
+          <span><strong>Цвет:</strong> ${escapeHtml(p.color || '—')}</span>
         </div>
         <div class="pc-actions">
           <button type="button" class="btn-outline" onclick="editPartnerProduct('${p.id}','${p.collection}')">
@@ -4857,21 +5001,21 @@ function clearPartnerForm() {
   setV('partnerProductDesc', '');
   setV('partnerProductCategory', 'socks');
   setV('partnerProductBrand', '');
+  setV('partnerProductSize', '');
+  setV('partnerProductWeight', '');
+  setV('partnerProductColor', '');
   setV('partnerProductPrice', '');
-  setV('partnerImageUrl', '');
-  partnerEditingId = null;
-  partnerEditingColl = null;
 
-  const preview = document.getElementById('partnerImagePreview');
-  const prompt  = document.getElementById('partnerUploadPrompt');
-  const actions = document.getElementById('partnerUploadActions');
+  partnerEditingId     = null;
+  partnerEditingColl   = null;
+  partnerProductImages = [];
+
   const progress = document.getElementById('partnerUploadProgress');
   const fileInput = document.getElementById('partnerImageFile');
-  if (preview) { preview.style.display = 'none'; preview.src = ''; }
-  if (prompt)  prompt.style.display = 'block';
-  if (actions) actions.style.display = 'none';
   if (progress) progress.textContent = '';
   if (fileInput) fileInput.value = '';
+
+  renderPartnerImagesGrid();
 
   const btn = document.getElementById('partnerAddBtn');
   if (btn) btn.innerHTML = '<i class="fas fa-plus"></i> Добавить товар';
@@ -4895,7 +5039,7 @@ window.editPartnerProduct = function (id, collection) {
 
   const p = partnerProductsCache.find(x => x.id === id);
   if (!p) return;
-  partnerEditingId = id;
+  partnerEditingId   = id;
   partnerEditingColl = collection;
 
   const setV = (i, v) => { const el = document.getElementById(i); if (el) el.value = v; };
@@ -4903,23 +5047,20 @@ window.editPartnerProduct = function (id, collection) {
   setV('partnerProductDesc', p.desc || '');
   setV('partnerProductCategory', p.category || 'socks');
   setV('partnerProductBrand', p.brand || '');
+  setV('partnerProductSize', p.size || '');
+  setV('partnerProductWeight', (p.weight != null && p.weight !== '') ? p.weight : '');
+  setV('partnerProductColor', PRODUCT_COLORS.includes(p.color) ? p.color : '');
   setV('partnerProductPrice', p.price != null ? p.price : '');
-  setV('partnerImageUrl', p.imageUrl || '');
 
-  const preview  = document.getElementById('partnerImagePreview');
-  const prompt   = document.getElementById('partnerUploadPrompt');
-  const actions  = document.getElementById('partnerUploadActions');
+  /* Загружаем уже существующие изображения (по приоритету — массив images, иначе imageUrl) */
+  const imgs = (Array.isArray(p.images) && p.images.length)
+    ? p.images.filter(Boolean).slice(0, PARTNER_MAX_IMAGES)
+    : (p.imageUrl ? [p.imageUrl] : []);
+  partnerProductImages = imgs;
+  renderPartnerImagesGrid();
+
   const progress = document.getElementById('partnerUploadProgress');
-  if (p.imageUrl) {
-    if (preview) { preview.src = p.imageUrl; preview.style.display = 'block'; }
-    if (prompt)  prompt.style.display = 'none';
-    if (actions) actions.style.display = 'flex';
-    if (progress) progress.textContent = '';
-  } else {
-    if (preview) { preview.style.display = 'none'; preview.src = ''; }
-    if (prompt)  prompt.style.display = 'block';
-    if (actions) actions.style.display = 'none';
-  }
+  if (progress) progress.textContent = imgs.length ? ('Изображений: ' + imgs.length + ' / ' + PARTNER_MAX_IMAGES) : '';
 
   const btn = document.getElementById('partnerAddBtn');
   if (btn) btn.innerHTML = '<i class="fas fa-check"></i> Сохранить изменения';
@@ -4960,15 +5101,23 @@ async function addPartnerProduct() {
   const desc = document.getElementById('partnerProductDesc').value.trim();
   const category = document.getElementById('partnerProductCategory').value;
   const brand = document.getElementById('partnerProductBrand').value.trim();
+  const size  = document.getElementById('partnerProductSize').value.trim();
+  const weightRaw = document.getElementById('partnerProductWeight').value;
+  const weight = weightRaw === '' ? 0 : (parseFloat(weightRaw) || 0);
+  const color = document.getElementById('partnerProductColor').value;
   const priceRaw = document.getElementById('partnerProductPrice').value;
   const price = priceRaw === '' ? 0 : (parseFloat(priceRaw) || 0);
-  const imageUrl = (document.getElementById('partnerImageUrl')?.value || '').trim();
 
   if (!name) { showToast('Введите название товара'); return; }
   if (!category) { showToast('Выберите категорию'); return; }
   if (price < 0) { showToast('Цена не может быть отрицательной'); return; }
+  if (weight < 0) { showToast('Вес не может быть отрицательным'); return; }
+  if (color && !PRODUCT_COLORS.includes(color)) { showToast('Недопустимый цвет'); return; }
 
   const collectionName = category === 'socks' ? 'products' : category;
+
+  /* Копируем массив, чтобы не потерять при перерендере */
+  const images = partnerProductImages.slice(0, PARTNER_MAX_IMAGES);
 
   const btn = document.getElementById('partnerAddBtn');
   const originalHtml = btn.innerHTML;
@@ -4990,16 +5139,23 @@ async function addPartnerProduct() {
         return;
       }
       await writeFirestoreWithAuth(() => ref.set(
-        { name, desc, category, brand, price, imageUrl }, { merge: true }
+        {
+          name, desc, category, brand, price,
+          size, weight, color,
+          images,
+          imageUrl: images[0] || '' /* backward compat */
+        },
+        { merge: true }
       ));
       showToast('Товар обновлён');
     } else {
       await writeFirestoreWithAuth(() => db.collection(collectionName).add({
         name, desc, category, brand, price,
-        imageUrl: imageUrl || '',
+        size, weight, color,
+        images,
+        imageUrl: images[0] || '',
         partnerId: session.partnerId,
         material: '',
-        size: '',
         rating: State.rating || 4.2,
         stock: 0,
         hidden: false,
@@ -5028,27 +5184,20 @@ async function addPartnerProduct() {
   }
 }
 
-/* === Загрузка изображений товаров производителя (ImgBB) === */
+/* === Загрузка изображений товаров производителя (ImgBB, до 10 шт, до 8 МБ) === */
 const partnerImageUploadBox = document.getElementById('partnerImageUploadBox');
 const partnerImageFile      = document.getElementById('partnerImageFile');
-const partnerImagePreview   = document.getElementById('partnerImagePreview');
 const partnerUploadProgress = document.getElementById('partnerUploadProgress');
-const partnerUploadActions  = document.getElementById('partnerUploadActions');
-const partnerUploadPrompt   = document.getElementById('partnerUploadPrompt');
-const partnerImageUrlInput  = document.getElementById('partnerImageUrl');
 
 if (partnerImageUploadBox) {
   partnerImageUploadBox.addEventListener('click', (e) => {
-    if (e.target.closest('.admin-upload-actions') || e.target.closest('button')) return;
+    if (e.target.closest('button')) return;
     partnerImageFile.click();
   });
 }
 
 if (partnerImageFile) {
   partnerImageFile.addEventListener('change', async function () {
-    const file = this.files[0];
-    if (!file) return;
-
     const session = getPartnerSession();
     if (!session) {
       showToast('Сессия истекла. Войдите заново.');
@@ -5056,51 +5205,53 @@ if (partnerImageFile) {
       return;
     }
 
-    /* Локальное превью сразу */
-    partnerImagePreview.src = URL.createObjectURL(file);
-    partnerImagePreview.style.display = 'block';
-    partnerUploadPrompt.style.display = 'none';
-    partnerUploadActions.style.display = 'none';
-    partnerUploadProgress.textContent = 'Загрузка: 0%';
+    const files = Array.from(this.files || []);
+    this.value = '';
 
-    try {
-      const url = await uploadImageToImgBB(file, (percent) => {
-        partnerUploadProgress.textContent = 'Загрузка: ' + percent + '%';
-      });
-      partnerImageUrlInput.value = url;
-      partnerUploadProgress.textContent = 'Готово!';
-      partnerUploadActions.style.display = 'flex';
-      showToast('Изображение загружено');
-    } catch (e) {
-      console.error(e);
-      partnerUploadProgress.textContent = 'Ошибка загрузки';
-      showToast('Ошибка: ' + (e && e.message ? e.message : 'не удалось загрузить'));
-      partnerImagePreview.style.display = 'none';
-      partnerImagePreview.src = '';
-      partnerUploadPrompt.style.display = 'block';
+    if (!files.length) return;
+
+    const slots = Math.max(0, PARTNER_MAX_IMAGES - partnerProductImages.length);
+    if (slots === 0) {
+      showToast('Уже загружено максимальное число изображений (' + PARTNER_MAX_IMAGES + ')');
+      return;
     }
-  });
-}
 
-const partnerRemoveImageBtn = document.getElementById('partnerRemoveImageBtn');
-if (partnerRemoveImageBtn) {
-  partnerRemoveImageBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    partnerImagePreview.style.display = 'none';
-    partnerImagePreview.src = '';
-    partnerUploadPrompt.style.display = 'block';
-    partnerUploadProgress.textContent = '';
-    partnerUploadActions.style.display = 'none';
-    partnerImageUrlInput.value = '';
-    partnerImageFile.value = '';
-  });
-}
+    const toProcess = files.slice(0, slots);
+    if (toProcess.length < files.length) {
+      showToast('Можно загрузить не более ' + PARTNER_MAX_IMAGES + ' изображений');
+    }
 
-const partnerReplaceImageBtn = document.getElementById('partnerReplaceImageBtn');
-if (partnerReplaceImageBtn) {
-  partnerReplaceImageBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    partnerImageFile.click();
+    const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+    for (let i = 0; i < toProcess.length; i++) {
+      const file = toProcess[i];
+
+      if (!valid.includes(file.type)) {
+        showToast('Неверный формат: ' + file.name);
+        continue;
+      }
+      if (file.size > PARTNER_MAX_FILE_MB * 1024 * 1024) {
+        showToast('Файл слишком большой: ' + file.name + ' (макс ' + PARTNER_MAX_FILE_MB + ' МБ)');
+        continue;
+      }
+
+      try {
+        partnerUploadProgress.textContent = `Загрузка ${i + 1} из ${toProcess.length}: 0%`;
+        const url = await uploadImageToImgBB(file, (percent) => {
+          partnerUploadProgress.textContent = `Загрузка ${i + 1} из ${toProcess.length}: ${percent}%`;
+        });
+        partnerProductImages.push(url);
+        renderPartnerImagesGrid();
+        partnerUploadProgress.textContent = 'Изображений: ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES;
+      } catch (e) {
+        console.error(e);
+        showToast('Ошибка загрузки: ' + (e && e.message ? e.message : 'не удалось'));
+      }
+    }
+
+    if (partnerProductImages.length) {
+      partnerUploadProgress.textContent = 'Изображений: ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES;
+    }
   });
 }
 
@@ -5143,6 +5294,9 @@ if (partnerReplaceImageBtn) {
       showPage('partner');
     });
   }
+
+  /* Первичная отрисовка сетки изображений */
+  renderPartnerImagesGrid();
 })();
 
 updateCartUI();
