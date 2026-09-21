@@ -1347,31 +1347,77 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 .partner-images-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(84px,1fr));
-  gap:8px;margin-top:12px;
+  gap:10px;margin-top:14px;
 }
 .partner-image-item{
-  position:relative;aspect-ratio:1;border-radius:12px;
-  overflow:hidden;background:var(--bg-sunken);
-  border:1px solid var(--border);
+  position:relative;aspect-ratio:1;
 }
-.partner-image-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.partner-image-item .partner-image-wrap{
+  width:100%;height:100%;
+  border-radius:12px;overflow:hidden;
+  background:var(--bg-sunken);
+  border:1px solid var(--border);
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
+}
+.partner-image-item .partner-image-wrap img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
 .partner-image-item .remove-img{
-  position:absolute;top:-6px;right:-6px;
-  width:22px;height:22px;border-radius:50%;
+  position:absolute;top:-7px;right:-7px;
+  width:24px;height:24px;border-radius:50%;
   background:var(--danger);color:#fff;
   display:flex;align-items:center;justify-content:center;
-  font-size:.75rem;cursor:pointer;border:2px solid var(--card);
-  z-index:2;
+  font-size:.8125rem;line-height:1;cursor:pointer;
+  border:2px solid var(--card);
+  z-index:3;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);
+  transition:transform .15s var(--ease),background .15s var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+.partner-image-item .remove-img:hover{
+  transform:scale(1.12);
+  background:var(--danger-hover);
+}
+.partner-image-item .remove-img:active{
+  transform:scale(1);
 }
 .partner-image-item .img-badge{
-  position:absolute;bottom:5px;left:5px;
-  padding:2px 7px;border-radius:6px;
-  background:rgba(0,0,0,.68);color:#fff;
+  position:absolute;bottom:6px;left:6px;
+  padding:2px 8px;border-radius:6px;
+  background:rgba(0,0,0,.72);color:#fff;
   font-size:.625rem;font-weight:700;letter-spacing:.02em;
+  z-index:2;
+  pointer-events:none;
+  -webkit-backdrop-filter:blur(4px);
+  backdrop-filter:blur(4px);
 }
-.partner-image-item.is-primary{
+.partner-image-item.is-primary .partner-image-wrap{
   border-color:var(--accent);
   box-shadow:0 0 0 2px var(--accent-ring);
+}
+.partner-image-item.is-primary .img-badge{
+  background:var(--grad-accent);
+}
+
+/* Счётчик загруженных фото */
+.partner-images-counter{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:12px;padding:8px 14px;border-radius:var(--r-pill);
+  background:var(--bg-sunken);border:1px solid var(--border);
+  font-size:.75rem;font-weight:600;color:var(--text-2);
+  transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+}
+.partner-images-counter i{font-size:.75rem;color:var(--accent);}
+.partner-images-counter.is-max{
+  background:var(--accent-soft);
+  border-color:rgba(232,93,4,.28);
+  color:var(--accent-600);
+}
+.partner-images-counter.is-max i{color:var(--accent-600);}
+
+/* Отключённая зона загрузки при достижении лимита */
+.admin-image-upload.is-disabled{
+  opacity:.55;cursor:not-allowed;pointer-events:none;
 }
 
 /* ============================================================
@@ -2025,7 +2071,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
       <div class="footer-bottom">
         <span>&copy; 2026 FULL SELLER. Все права защищены.</span>
         <span>Оптовые поставки трикотажа из Узбекистана</span>
-        <a href="#" class="partner-link" id="footerPartnerLink">Вход для производителей</a>
+        <a href="#" class="partner-link" id="footerPartnerLink"></a>
       </div>
     </div>
   </footer>
@@ -2328,6 +2374,10 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
             <div class="admin-upload-progress" id="partnerUploadProgress"></div>
           </div>
           <div class="partner-images-grid" id="partnerImagesGrid"></div>
+          <div class="partner-images-counter" id="partnerImagesCounter" style="display:none;">
+            <i class="fas fa-images"></i>
+            <span id="partnerImagesCounterText">Загружено 0 из 10</span>
+          </div>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
@@ -2595,7 +2645,7 @@ function fileToBase64(file) {
   });
 }
 
-/* === ImgBB: загрузка через XHR (с реальным прогрессом 0→100%), лимит 8 МБ === */
+/* === ImgBB: загрузка через XHR (прогресс + таймаут + понятные ошибки) === */
 function uploadImageToImgBB(file, onProgress) {
   return new Promise(async (resolve, reject) => {
     const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -2610,7 +2660,7 @@ function uploadImageToImgBB(file, onProgress) {
 
     let base64;
     try { base64 = await fileToBase64(file); }
-    catch (e) { reject(e); return; }
+    catch (e) { reject(new Error('Не удалось прочитать файл')); return; }
 
     let lastError = null;
 
@@ -2620,6 +2670,8 @@ function uploadImageToImgBB(file, onProgress) {
         const url = await new Promise((res, rej) => {
           const xhr = new XMLHttpRequest();
           xhr.open('POST', 'https://api.imgbb.com/1/upload', true);
+          xhr.timeout = 90000;           /* 90 секунд */
+          xhr.withCredentials = false;
 
           xhr.upload.onprogress = (e) => {
             if (e.lengthComputable && typeof onProgress === 'function') {
@@ -2632,17 +2684,23 @@ function uploadImageToImgBB(file, onProgress) {
             try {
               const data = JSON.parse(xhr.responseText || '{}');
               if (data && data.success && data.data) {
-                const u = data.data.url || data.data.display_url || (data.data.image && data.data.image.url);
+                const u = data.data.url
+                       || data.data.display_url
+                       || (data.data.image && data.data.image.url);
                 if (u) { res(u); return; }
               }
-              const msg = (data && data.error && data.error.message) ? data.error.message : ('HTTP ' + xhr.status);
+              /* Достаём человекочитаемое сообщение об ошибке */
+              let msg = 'HTTP ' + xhr.status;
+              if (data && data.error && data.error.message) msg = data.error.message;
+              else if (data && data.status_txt)              msg = data.status_txt;
               rej(new Error(msg));
             } catch (e) {
-              rej(new Error('Некорректный ответ ImgBB'));
+              rej(new Error('Некорректный ответ сервера ImgBB'));
             }
           };
-          xhr.onerror = () => rej(new Error('Сеть недоступна или CORS'));
-          xhr.ontimeout = () => rej(new Error('Таймаут запроса'));
+          xhr.onerror   = () => rej(new Error('Ошибка сети. Проверьте соединение.'));
+          xhr.ontimeout = () => rej(new Error('Превышено время ожидания. Попробуйте ещё раз.'));
+          xhr.onabort   = () => rej(new Error('Загрузка отменена'));
 
           const fd = new FormData();
           fd.append('key', key);
@@ -2713,6 +2771,7 @@ let partnerProductsCache = [];
 let partnerEditingId     = null;
 let partnerEditingColl   = null;
 let partnerProductImages = []; /* массив URL-ов изображений в форме */
+let partnerUploadInProgress = false;
 
 function logAnalyticsEvent(name, params = {}) {
   if (!analytics) return;
@@ -4888,23 +4947,54 @@ function escapeHtml(str) {
   })[s]);
 }
 
-/* ==== Работа с сеткой изображений в форме партнёра ==== */
+/* ==== Счётчик "Загружено X из 10" + авто-блокировка зоны загрузки ==== */
+function updatePartnerImagesCounter() {
+  const counter     = document.getElementById('partnerImagesCounter');
+  const counterText = document.getElementById('partnerImagesCounterText');
+  const uploadBox   = document.getElementById('partnerImageUploadBox');
+  if (!counter || !counterText) return;
+
+  const count = partnerProductImages.length;
+  const max   = PARTNER_MAX_IMAGES;
+
+  if (count === 0) {
+    counter.style.display = 'none';
+  } else {
+    counter.style.display = 'inline-flex';
+    counterText.textContent = 'Загружено ' + count + ' из ' + max;
+    counter.classList.toggle('is-max', count >= max);
+  }
+
+  if (uploadBox) {
+    uploadBox.classList.toggle('is-disabled', count >= max);
+  }
+}
+
+/* ==== Сетка превью загруженных изображений ==== */
 function renderPartnerImagesGrid() {
   const grid = document.getElementById('partnerImagesGrid');
   if (!grid) return;
 
   if (!partnerProductImages.length) {
     grid.innerHTML = '';
+    updatePartnerImagesCounter();
     return;
   }
 
   grid.innerHTML = partnerProductImages.map((url, idx) => `
     <div class="partner-image-item ${idx === 0 ? 'is-primary' : ''}">
-      <img src="${escapeHtml(url)}" alt="Фото ${idx + 1}" loading="lazy">
-      ${idx === 0 ? '<span class="img-badge">Главное</span>' : `<span class="img-badge">${idx + 1}</span>`}
-      <div class="remove-img" title="Удалить" onclick="removePartnerImage(${idx})">&times;</div>
+      <div class="partner-image-wrap">
+        <img src="${escapeHtml(url)}" alt="Фото ${idx + 1}" loading="lazy">
+      </div>
+      ${idx === 0
+        ? '<span class="img-badge">Главное</span>'
+        : `<span class="img-badge">${idx + 1}</span>`}
+      <div class="remove-img" title="Удалить" role="button" aria-label="Удалить фото"
+           onclick="removePartnerImage(${idx})">&times;</div>
     </div>
   `).join('');
+
+  updatePartnerImagesCounter();
 }
 
 window.removePartnerImage = function (idx) {
@@ -5184,7 +5274,7 @@ async function addPartnerProduct() {
   }
 }
 
-/* === Загрузка изображений товаров производителя (ImgBB, до 10 шт, до 8 МБ) === */
+/* === Загрузка изображений партнёра (ImgBB, до 10 шт, до 8 МБ, с защитой от двойного клика) === */
 const partnerImageUploadBox = document.getElementById('partnerImageUploadBox');
 const partnerImageFile      = document.getElementById('partnerImageFile');
 const partnerUploadProgress = document.getElementById('partnerUploadProgress');
@@ -5198,6 +5288,12 @@ if (partnerImageUploadBox) {
 
 if (partnerImageFile) {
   partnerImageFile.addEventListener('change', async function () {
+    if (partnerUploadInProgress) {
+      showToast('Дождитесь завершения текущей загрузки');
+      this.value = '';
+      return;
+    }
+
     const session = getPartnerSession();
     if (!session) {
       showToast('Сессия истекла. Войдите заново.');
@@ -5207,50 +5303,93 @@ if (partnerImageFile) {
 
     const files = Array.from(this.files || []);
     this.value = '';
-
     if (!files.length) return;
 
-    const slots = Math.max(0, PARTNER_MAX_IMAGES - partnerProductImages.length);
-    if (slots === 0) {
+    const remaining = PARTNER_MAX_IMAGES - partnerProductImages.length;
+    if (remaining <= 0) {
       showToast('Уже загружено максимальное число изображений (' + PARTNER_MAX_IMAGES + ')');
       return;
     }
 
-    const toProcess = files.slice(0, slots);
-    if (toProcess.length < files.length) {
-      showToast('Можно загрузить не более ' + PARTNER_MAX_IMAGES + ' изображений');
+    const valid    = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxBytes = PARTNER_MAX_FILE_MB * 1024 * 1024;
+
+    /* Фильтруем некорректные файлы ДО начала загрузки */
+    const accepted = [];
+    let skippedBadFormat = 0;
+    let skippedTooBig    = 0;
+
+    for (const f of files) {
+      if (!valid.includes(f.type))   { skippedBadFormat++; continue; }
+      if (f.size > maxBytes)         { skippedTooBig++;    continue; }
+      accepted.push(f);
+      if (accepted.length >= remaining) break;
     }
 
-    const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (skippedBadFormat > 0) {
+      showToast('Пропущено файлов с неверным форматом: ' + skippedBadFormat);
+    }
+    if (skippedTooBig > 0) {
+      showToast('Пропущено файлов больше ' + PARTNER_MAX_FILE_MB + ' МБ: ' + skippedTooBig);
+    }
+    if (accepted.length < files.length - skippedBadFormat - skippedTooBig) {
+      showToast('За раз можно загрузить не более ' + remaining + ' фото');
+    }
 
-    for (let i = 0; i < toProcess.length; i++) {
-      const file = toProcess[i];
+    if (!accepted.length) return;
 
-      if (!valid.includes(file.type)) {
-        showToast('Неверный формат: ' + file.name);
-        continue;
-      }
-      if (file.size > PARTNER_MAX_FILE_MB * 1024 * 1024) {
-        showToast('Файл слишком большой: ' + file.name + ' (макс ' + PARTNER_MAX_FILE_MB + ' МБ)');
-        continue;
-      }
+    partnerUploadInProgress = true;
+    const progressEl = document.getElementById('partnerUploadProgress');
+
+    let successCount = 0;
+    let failCount    = 0;
+
+    for (let i = 0; i < accepted.length; i++) {
+      const file = accepted[i];
+      const fileLabel = (file.name && file.name.length > 22)
+        ? (file.name.slice(0, 20) + '…')
+        : (file.name || ('файл ' + (i + 1)));
 
       try {
-        partnerUploadProgress.textContent = `Загрузка ${i + 1} из ${toProcess.length}: 0%`;
+        if (progressEl) {
+          progressEl.textContent = `Загрузка ${i + 1} из ${accepted.length}: ${fileLabel} — 0%`;
+        }
+
         const url = await uploadImageToImgBB(file, (percent) => {
-          partnerUploadProgress.textContent = `Загрузка ${i + 1} из ${toProcess.length}: ${percent}%`;
+          if (progressEl) {
+            progressEl.textContent = `Загрузка ${i + 1} из ${accepted.length}: ${fileLabel} — ${percent}%`;
+          }
         });
+
         partnerProductImages.push(url);
         renderPartnerImagesGrid();
-        partnerUploadProgress.textContent = 'Изображений: ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES;
+        successCount++;
+
+        if (progressEl) {
+          progressEl.textContent = 'Загружено ' + partnerProductImages.length + ' из ' + PARTNER_MAX_IMAGES;
+        }
       } catch (e) {
-        console.error(e);
-        showToast('Ошибка загрузки: ' + (e && e.message ? e.message : 'не удалось'));
+        console.error('Upload failed:', e);
+        failCount++;
+        const errMsg = (e && e.message) ? e.message : 'неизвестная ошибка';
+        showToast('Не удалось загрузить «' + fileLabel + '»: ' + errMsg);
       }
     }
 
-    if (partnerProductImages.length) {
-      partnerUploadProgress.textContent = 'Изображений: ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES;
+    partnerUploadInProgress = false;
+
+    if (progressEl) {
+      if (partnerProductImages.length) {
+        progressEl.textContent = 'Готово · Загружено ' + partnerProductImages.length + ' из ' + PARTNER_MAX_IMAGES;
+      } else {
+        progressEl.textContent = '';
+      }
+    }
+
+    if (successCount > 0 && failCount === 0) {
+      showToast(successCount === 1 ? 'Фото загружено' : ('Загружено фото: ' + successCount));
+    } else if (successCount > 0 && failCount > 0) {
+      showToast('Загружено: ' + successCount + ', с ошибкой: ' + failCount);
     }
   });
 }
