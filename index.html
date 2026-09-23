@@ -1170,6 +1170,13 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
           </div>
         </div>
 
+        <!-- ===== НОВОЕ ПОЛЕ: МАТЕРИАЛ ===== -->
+        <div class="partner-field">
+          <label for="partnerProductMaterial" data-i18n="partner_field_material">Материал</label>
+          <input type="text" id="partnerProductMaterial" maxlength="120" data-i18n-placeholder="partner_ph_material" placeholder="Например: Хлопок 80%, эластан 20%">
+        </div>
+        <!-- ===== /НОВОЕ ПОЛЕ: МАТЕРИАЛ ===== -->
+
         <div class="partner-field">
           <label for="partnerProductColor" data-i18n="partner_field_color">Цвет</label>
           <select id="partnerProductColor">
@@ -1414,9 +1421,11 @@ const I18N = {
     partner_field_name: 'Название *', partner_field_desc: 'Описание', partner_field_cat: 'Категория *',
     partner_field_aud: 'Аудитория *', partner_field_sizes: 'Выбор размера (можно выбрать несколько)',
     partner_field_brand: 'Бренд', partner_field_weight: 'Вес (грамм)', partner_field_color: 'Цвет', partner_field_price: 'Цена (₽)',
+    partner_field_material: 'Материал',
     partner_field_images: 'Изображения товара (до 10, до 8 МБ каждое)',
     partner_ph_name: 'Например: Носки Nike белые', partner_ph_desc: 'Опишите товар, материал, особенности...',
     partner_ph_aud: '— Выберите —', partner_ph_brand: 'Например: Nike',
+    partner_ph_material: 'Например: Хлопок 80%, эластан 20%',
     partner_color_none: '— Не указан —',
     partner_ph_upload: 'Нажмите для загрузки изображений', partner_ph_upload_limit: 'до 8 МБ · до 10 шт',
     partner_add_btn: 'Добавить товар', partner_clear: 'Очистить', partner_save_changes: 'Сохранить изменения',
@@ -1492,9 +1501,11 @@ const I18N = {
     partner_field_name: 'Name *', partner_field_desc: 'Description', partner_field_cat: 'Category *',
     partner_field_aud: 'Audience *', partner_field_sizes: 'Size selection (multiple allowed)',
     partner_field_brand: 'Brand', partner_field_weight: 'Weight (grams)', partner_field_color: 'Color', partner_field_price: 'Price (₽)',
+    partner_field_material: 'Material',
     partner_field_images: 'Product images (up to 10, up to 8 MB each)',
     partner_ph_name: 'e.g. Nike socks white', partner_ph_desc: 'Describe product, material, features...',
     partner_ph_aud: '— Select —', partner_ph_brand: 'e.g. Nike',
+    partner_ph_material: 'e.g. Cotton 80%, elastane 20%',
     partner_color_none: '— Not specified —',
     partner_ph_upload: 'Click to upload images', partner_ph_upload_limit: 'up to 8 MB · up to 10 pcs',
     partner_add_btn: 'Add product', partner_clear: 'Clear', partner_save_changes: 'Save changes',
@@ -1570,9 +1581,11 @@ const I18N = {
     partner_field_name: 'Nomi *', partner_field_desc: 'Tavsif', partner_field_cat: 'Kategoriya *',
     partner_field_aud: 'Auditoriya *', partner_field_sizes: 'O‘lchamni tanlash (bir nechta)',
     partner_field_brand: 'Brend', partner_field_weight: 'Og‘irligi (gramm)', partner_field_color: 'Rang', partner_field_price: 'Narx (₽)',
+    partner_field_material: 'Material',
     partner_field_images: 'Mahsulot rasmlari (10 tagacha, har biri 8 MB gacha)',
     partner_ph_name: 'Masalan: Nike oq paypoq', partner_ph_desc: 'Mahsulot, material, xususiyatlar...',
     partner_ph_aud: '— Tanlang —', partner_ph_brand: 'Masalan: Nike',
+    partner_ph_material: 'Masalan: Paxta 80%, elastan 20%',
     partner_color_none: '— Ko‘rsatilmagan —',
     partner_ph_upload: 'Rasmlarni yuklash uchun bosing', partner_ph_upload_limit: '8 MB gacha · 10 tagacha',
     partner_add_btn: 'Mahsulot qo‘shish', partner_clear: 'Tozalash', partner_save_changes: 'O‘zgarishlarni saqlash',
@@ -1668,9 +1681,12 @@ async function setLanguage(lang, fromUser) {
 /* Перерисовка карточек товаров производителя (для обновления языка) */
 function renderPartnerProductCardsLocale() {
   if (typeof partnerProductsCache !== 'undefined' && typeof loadPartnerProducts === 'function') {
-    // Просто перерисуем из кэша
     const container = document.getElementById('partnerProductsContainer');
-    if (!container || !partnerProductsCache.length) return;
+    if (!container) return;
+    if (!partnerProductsCache.length) {
+      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-box-open"></i></div>';
+      return;
+    }
     const catName = c => t(c === 'socks' ? 'cat_socks' : c === 'tshirts' ? 'cat_tshirts' : c === 'underwear' ? 'cat_underwear' : c);
     container.innerHTML = partnerProductsCache.map(p => {
       const imgs = (Array.isArray(p.images) && p.images.length) ? p.images.filter(Boolean) : (p.imageUrl ? [p.imageUrl] : []);
@@ -1680,6 +1696,7 @@ function renderPartnerProductCardsLocale() {
         : `<div class="pc-img"><i class="fas fa-image"></i></div>`;
       const weightLine = (p.weight != null && p.weight !== '') ? `${p.weight} г` : '—';
       const sizesLine = Array.isArray(p.sizes) && p.sizes.length ? p.sizes.join(', ') : (p.size || '—');
+      const materialLine = p.material ? escapeHtml(p.material) : '—';
       return `
         <div class="partner-product-card">
           ${imgBlock}
@@ -1691,6 +1708,7 @@ function renderPartnerProductCardsLocale() {
             <span><strong>${t('partner_field_price').replace(' *','')}:</strong> ${(p.price != null ? p.price : 0)} ₽</span>
             <span><strong>${t('pd_size')}:</strong> ${escapeHtml(sizesLine)}</span>
             <span><strong>${t('partner_field_weight').replace(' (грамм)','')}:</strong> ${weightLine}</span>
+            <span><strong>${t('pd_material')}:</strong> ${materialLine}</span>
             <span><strong>${t('partner_field_color')}:</strong> ${escapeHtml(p.color || '—')}</span>
             <span><strong>${t('partner_field_aud').replace(' *','')}:</strong> ${p.audience ? t('aud_' + p.audience) : '—'}</span>
           </div>
@@ -1705,28 +1723,54 @@ function renderPartnerProductCardsLocale() {
 
 /* ============================================================
    GeoIP — один раз при первом визите
+   Определяет язык по стране:
+   - UZ → uz
+   - СНГ (RU, KZ, KG, TJ, BY, AM, AZ, MD) → ru
+   - остальные → en
+   Использует 3 резервных API с таймаутом, чтобы не подвешивать загрузку.
    ============================================================ */
 async function initGeoIP() {
-  const hasSaved = !!localStorage.getItem(LANG_KEY);
-  if (hasSaved) return; // уже выбирали вручную или уже сработал GeoIP
+  if (localStorage.getItem(LANG_KEY)) return; // пользователь уже выбирал / GeoIP сработал
+
+  const CIS = new Set(['RU','KZ','KG','TJ','BY','AM','AZ','MD']);
+  const mapCC = (cc) => {
+    const code = String(cc || '').toUpperCase();
+    if (code === 'UZ') return 'uz';
+    if (CIS.has(code)) return 'ru';
+    return 'en';
+  };
+
+  const fetchJson = async (url, pick) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4000);
+    try {
+      const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+      const data = await res.json();
+      return pick(data);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  let lang = 'ru'; // безопасный фолбэк
   try {
-    const res = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
-    const data = await res.json();
-    const cc = (data && data.country_code) ? String(data.country_code).toUpperCase() : '';
-    let lang = 'en';
-    if (cc === 'UZ') lang = 'uz';
-    else if (cc === 'RU') lang = 'ru';
-    else lang = 'en';
-    await setLanguage(lang, false);
-  } catch (e) {
-    // Фолбэк: русский
-    localStorage.setItem(LANG_KEY, 'ru');
-    applyTranslations();
+    lang = mapCC(await fetchJson('https://ipapi.co/json/', d => d && d.country_code));
+  } catch (e1) {
+    try {
+      lang = mapCC(await fetchJson('https://ipwho.is/', d => d && d.country_code));
+    } catch (e2) {
+      try {
+        lang = mapCC(await fetchJson('https://ipinfo.io/json', d => d && d.country));
+      } catch (e3) {
+        lang = 'ru';
+      }
+    }
   }
+  await setLanguage(lang, false);
 }
 
 /* ============================================================
-   Firebase init (как в исходнике)
+   Firebase init
    ============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyBhiwklrTbPHfhkx5ePR9mtxNzvN4C5-dw",
@@ -1898,6 +1942,7 @@ let partnerEditingId = null;
 let partnerEditingColl = null;
 let partnerProductImages = [];
 let partnerUploadInProgress = false;
+let partnerLoadingTimer = null;
 
 function logAnalyticsEvent(name, params = {}) { if (!analytics) return; try { analytics.logEvent(name, params); } catch (e) {} }
 function trackPageView(name) { if (!analytics) return; try { analytics.logEvent('page_view', { page_title: name, page_location: window.location.href, page_path: '/' + name }); analytics.setCurrentScreen(name); } catch (e) {} }
@@ -2053,7 +2098,7 @@ function renderCatalog() {
   }
   if (currentAudienceFilter !== 'all') {
     products = products.filter(p => {
-      if (!p.audience) return currentAudienceFilter === 'all'; // не скрываем товары без аудитории на "all", но при конкретной — скрываем
+      if (!p.audience) return currentAudienceFilter === 'all';
       return p.audience === currentAudienceFilter;
     });
   }
@@ -2676,14 +2721,12 @@ document.getElementById('saveProfileBtn').addEventListener('click', () => {
   const bdate = document.getElementById('profileBirthdate').value;
   localStorage.setItem('fullseller_profile_' + currentUser.uid, JSON.stringify({ name, phone, birthdate: bdate }));
   currentUser.name = name; currentUser.phone = phone; currentUser.birthdate = bdate;
-  // Sync language if user chose
   try { db.collection('users').doc(currentUser.uid).set({ name, phone, birthdate: bdate, language: currentLang }, { merge: true }); } catch (e) {}
   updateAuthUI(); showToast('OK');
 });
 window.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal')) closeModal(e.target.id);
   const menu = document.getElementById('userDropdownMenu'); if (menu && !e.target.closest('.user-dropdown')) menu.classList.remove('active');
-  // close lang dropdown
   const langMenu = document.getElementById('headerLangMenu');
   if (langMenu && !e.target.closest('#headerLangSwitch')) langMenu.classList.remove('active');
 });
@@ -2795,7 +2838,6 @@ auth.onAuthStateChanged(user => {
     const profile = JSON.parse(localStorage.getItem('fullseller_profile_' + user.uid) || '{}');
     currentUser = { uid: user.uid, email: user.email, name: profile.name || '', phone: profile.phone || '', birthdate: profile.birthdate || '' };
     if (analytics) analytics.setUserId(user.uid);
-    // Подтянем язык из Firebase
     db.collection('users').doc(user.uid).get().then(doc => {
       if (doc.exists && doc.data().language && !localStorage.getItem(LANG_KEY)) {
         setLanguage(doc.data().language, false);
@@ -3077,18 +3119,50 @@ window.removePartnerImage = function (idx) {
   const progress = document.getElementById('partnerUploadProgress');
   if (progress) progress.textContent = partnerProductImages.length ? ('Изображений: ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES) : '';
 };
+/* ------------------------------------------------------------------
+   Загрузка товаров производителя.
+   Спиннер показывается максимум 3.5 секунды — потом гарантированно
+   снимается, панель работает. Если Firestore ответит позже — контент
+   отрендерится повторно.
+   ------------------------------------------------------------------ */
 async function loadPartnerProducts() {
   const session = getPartnerSession(); if (!session) return;
   const container = document.getElementById('partnerProductsContainer'); if (!container) return;
+
   container.innerHTML = '<div class="loading-spinner" style="grid-column:1/-1;"><i class="fas fa-spinner"></i></div>';
   partnerProductsCache = [];
+
+  if (partnerLoadingTimer) { clearTimeout(partnerLoadingTimer); partnerLoadingTimer = null; }
+  const LOAD_TIMEOUT_MS = 3500;
+  let spinnerCleared = false;
+
+  partnerLoadingTimer = setTimeout(() => {
+    if (spinnerCleared) return;
+    spinnerCleared = true;
+    // Снимаем спиннер: показываем то, что успело загрузиться (или пустое состояние)
+    if (!partnerProductsCache.length) {
+      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-box-open"></i></div>';
+    } else {
+      partnerProductsCache.sort((a, b) => {
+        const ta = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : 0;
+        const tb = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : 0;
+        return tb - ta;
+      });
+      renderPartnerProductCardsLocale();
+    }
+  }, LOAD_TIMEOUT_MS);
+
   const collections = ['products','tshirts','underwear'];
   try {
     for (const col of collections) {
       const snap = await db.collection(col).where('partnerId','==',session.partnerId).get();
       snap.forEach(doc => { partnerProductsCache.push({ id: doc.id, collection: col, ...doc.data() }); });
     }
-  } catch (e) { container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">Error</div>'; return; }
+  } catch (e) {
+    console.warn('partner load error', e);
+  }
+
+  if (partnerLoadingTimer) { clearTimeout(partnerLoadingTimer); partnerLoadingTimer = null; }
   partnerProductsCache.sort((a, b) => {
     const ta = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : 0;
     const tb = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : 0;
@@ -3096,12 +3170,13 @@ async function loadPartnerProducts() {
   });
   renderPartnerProductCardsLocale();
 }
+
 function clearPartnerForm() {
   const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
   setV('partnerProductName',''); setV('partnerProductDesc','');
   setV('partnerProductCategory','socks'); setV('partnerProductAudience','');
   setV('partnerProductBrand',''); setV('partnerProductWeight','');
-  setV('partnerProductColor',''); setV('partnerProductPrice','');
+  setV('partnerProductMaterial',''); setV('partnerProductColor',''); setV('partnerProductPrice','');
   document.querySelectorAll('#partnerSizeGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
   partnerEditingId = null; partnerEditingColl = null; partnerProductImages = [];
   const progress = document.getElementById('partnerUploadProgress'); const fileInput = document.getElementById('partnerImageFile');
@@ -3125,8 +3200,8 @@ window.editPartnerProduct = function (id, collection) {
   setV('partnerProductName', p.name || ''); setV('partnerProductDesc', p.desc || '');
   setV('partnerProductCategory', p.category || 'socks'); setV('partnerProductAudience', p.audience || '');
   setV('partnerProductBrand', p.brand || ''); setV('partnerProductWeight', (p.weight != null && p.weight !== '') ? p.weight : '');
+  setV('partnerProductMaterial', p.material || '');
   setV('partnerProductColor', PRODUCT_COLORS.includes(p.color) ? p.color : ''); setV('partnerProductPrice', p.price != null ? p.price : '');
-  // sizes
   document.querySelectorAll('#partnerSizeGrid input[type="checkbox"]').forEach(cb => {
     cb.checked = Array.isArray(p.sizes) && p.sizes.includes(cb.value);
   });
@@ -3158,6 +3233,7 @@ async function addPartnerProduct() {
   const brand = document.getElementById('partnerProductBrand').value.trim();
   const weightRaw = document.getElementById('partnerProductWeight').value;
   const weight = weightRaw === '' ? 0 : (parseFloat(weightRaw) || 0);
+  const material = document.getElementById('partnerProductMaterial').value.trim();
   const color = document.getElementById('partnerProductColor').value;
   const priceRaw = document.getElementById('partnerProductPrice').value;
   const price = priceRaw === '' ? 0 : (parseFloat(priceRaw) || 0);
@@ -3181,9 +3257,9 @@ async function addPartnerProduct() {
       const doc = await ref.get(); if (!doc.exists) return;
       const existing = doc.data();
       if (existing.partnerId && existing.partnerId !== session.partnerId) { showToast('!'); return; }
-      await writeFirestoreWithAuth(() => ref.set({ name, desc, category, brand, price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '' }, { merge: true }));
+      await writeFirestoreWithAuth(() => ref.set({ name, desc, category, brand, price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '', material }, { merge: true }));
     } else {
-      await writeFirestoreWithAuth(() => db.collection(collectionName).add({ name, desc, category, brand, price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '', partnerId: session.partnerId, material: '', rating: State.rating || 4.2, stock: 0, hidden: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }));
+      await writeFirestoreWithAuth(() => db.collection(collectionName).add({ name, desc, category, brand, price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '', partnerId: session.partnerId, material, rating: State.rating || 4.2, stock: 0, hidden: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }));
     }
     clearPartnerForm(); switchPartnerTab('list'); loadPartnerProducts();
   } catch (e) {
@@ -3256,22 +3332,18 @@ if (partnerImageFile) {
 /* ============================================================
    ПЕРЕКЛЮЧАТЕЛИ ЯЗЫКА (обработчики)
    ============================================================ */
-// Header dropdown
 const headerLangBtn = document.getElementById('headerLangBtn');
 const headerLangMenu = document.getElementById('headerLangMenu');
 if (headerLangBtn) headerLangBtn.addEventListener('click', (e) => { e.stopPropagation(); headerLangMenu.classList.toggle('active'); });
 document.querySelectorAll('#headerLangMenu .lang-option').forEach(btn => {
   btn.addEventListener('click', () => { setLanguage(btn.dataset.lang, true); headerLangMenu.classList.remove('active'); });
 });
-// Profile
 document.querySelectorAll('#profileLangSwitch button').forEach(btn => {
   btn.addEventListener('click', () => setLanguage(btn.dataset.lang, true));
 });
-// Partner panel
 document.querySelectorAll('#partnerLangSwitch button').forEach(btn => {
   btn.addEventListener('click', () => setLanguage(btn.dataset.lang, true));
 });
-// Mobile menu
 document.querySelectorAll('#mobileLangSwitch button').forEach(btn => {
   btn.addEventListener('click', () => setLanguage(btn.dataset.lang, true));
 });
