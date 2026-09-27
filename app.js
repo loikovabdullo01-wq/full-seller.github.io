@@ -1,0 +1,2423 @@
+const CURRENT_FILE = (document.body.dataset.pageFile || 'index.html');
+const PAGE_FILE = { home:'index.html', favorites:'favorites.html', cart:'cart.html', profile:'profile.html', productDetail:'product.html', admin:'admin.html', partner:'partner.html' };
+const SECTION_PAGE = { catalog:'catalog.html', wholesale:'wholesale.html', contact:'contact.html', reviews:'reviews.html' };
+
+/* ============================================================
+   i18n — СЛОВАРИ RU / EN / UZ
+   ============================================================ */
+const I18N = {
+  ru: {
+    nav_catalog: 'Каталог', nav_wholesale: 'Условия', nav_reviews: 'Отзывы', nav_contacts: 'Контакты', nav_admin: 'Админ',
+    search_placeholder: 'Поиск: носки Nike, футболки…',
+    btn_login: 'Войти', btn_view_catalog: 'Смотреть каталог', btn_calc_delivery: 'Рассчитать доставку', btn_cart: 'В корзину',
+    hero_eyebrow: 'Прямые поставки с фабрик Узбекистана',
+    hero_title_1: 'Оптовые носки, футболки и бельё', hero_title_2: 'напрямую от фабрик',
+    hero_from: 'от 13 ₽ / шт', hero_min: 'Минимальный заказ', hero_delivery: 'Доставка карго в', hero_countries: 'Россию и Таджикистан',
+    hero_price_sub: 'оптовая цена от фабрики', hero_days: '7–10 дней', hero_days_sub: 'доставка карго в РФ',
+    badge_direct: 'Прямые поставки', badge_quality: 'Проверенное качество', badge_marketplaces: 'Работаем с маркетплейсами',
+    trust_direct_t: 'Прямые поставки', trust_direct_s: 'без посредников и наценок',
+    trust_min_t: 'От 2000 шт', trust_min_s: 'минимальный заказ',
+    trust_countries_t: 'РФ и Таджикистан', trust_countries_s: 'проверенное карго',
+    trust_quality_t: 'Проверенное качество', trust_quality_s: 'контроль на фабрике',
+    cat_all: 'Все товары', cat_socks: 'Носки', cat_tshirts: 'Футболки', cat_underwear: 'Шорты / Штаны / Трусы',
+    brand_regular: 'Обычные',
+    aud_all: 'Все аудитории', aud_male: 'Мужские', aud_female: 'Женские', aud_kids: 'Детские',
+    catalog_title: 'Популярные товары',
+    wh_eyebrow: 'Оптовые условия', wh_title: 'Оптовые условия и доставка',
+    wh_copy: 'Надёжный партнёр для регулярных оптовых закупок: прозрачные условия, стабильные поставки и цены напрямую от фабрики.',
+    wh_card1_title: 'Цена и условия', wh_card1_li1: 'Оптовая цена:', wh_card1_li2: 'Минимальный заказ:', wh_card1_li2b: 'от 2 000 шт',
+    wh_card1_li3: 'Доставка по РФ', wh_card1_li4: 'Доставка в Таджикистан',
+    wh_card1_note: 'Работаем напрямую с производителями. Качество проверено.',
+    wh_card2_title: 'О товаре', wh_card2_li1: 'Носки, футболки, трусы, шорты и штаны оптом', wh_card2_li2: 'Средний и премиум сегмент',
+    wh_card2_li3: 'Качественные материалы и плотный трикотаж', wh_card2_li4: 'Разнообразные цвета и размерные сетки',
+    wh_card3_title: 'Доставка (карго)', wh_card3_li1: 'Отправляем через проверенные карго-службы',
+    wh_card3_li2: 'Таджикистан:', wh_card3_li2b: 'от 7 сомони/кг', wh_card3_li3: 'Россия:', wh_card3_li3b: 'от 1.30 $/кг',
+    wh_card3_li4: 'Отправка в день оплаты', wh_card3_note: 'Цена доставки может меняться от курса $ и сезона.',
+    calc_title: 'Калькулятор доставки карго', calc_qty: 'Количество (шт.)', calc_cat: 'Категория товара',
+    calc_unit_weight: 'Вес одной штуки (грамм)', calc_country: 'Страна доставки',
+    calc_country_ru: 'Россия', calc_country_tj: 'Таджикистан', calc_btn: 'Рассчитать',
+    calc_res_weight: 'Общий вес', calc_res_price: 'Цена товара (опт)', calc_res_shipping: 'Стоимость доставки',
+    calc_disclaimer: 'Цена доставки может меняться в зависимости от курса валют и сезона. Отправка в день оплаты.',
+    rev_eyebrow: 'Отзывы', rev_title: 'Отзывы клиентов',
+    rev_copy: 'Более 200 оптовых покупателей из России и Таджикистана уже работают с нами.',
+    rev_show_all: 'Показать все отзывы', rev_form_title: 'Оставить отзыв', rev_choose_product: 'Выберите товар',
+    rev_placeholder: 'Расскажите о качестве, сроках и упаковке...', rev_add_photo: 'Добавить фото', rev_photo_limit: '(макс 5, до 5 МБ)',
+    rev_formats: 'Разрешённые форматы: JPG, JPEG, PNG, WEBP', rev_submit: 'Отправить отзыв',
+    rev_login_prompt: 'Чтобы оставить отзыв,', rev_login_link: 'авторизуйтесь',
+    footer_about: 'Ваш надёжный поставщик трикотажа напрямую от фабрик Узбекистана. Оптом: носки, футболки, трусы, шорты и штаны — от популярных брендов до базовых моделей. Доставка в Россию и Таджикистан.',
+    footer_contacts: 'Контакты', footer_address: 'Узбекистан, г. Коканд', footer_nav: 'Навигация', footer_buyers: 'Покупателям',
+    footer_b1: 'Доставка по РФ и Таджикистану', footer_b2: 'Минимальный заказ от 2 000 шт',
+    footer_b3: 'Оптовые цены от 13 ₽/шт', footer_b4: 'Проверенное качество',
+    footer_rights: 'Все права защищены.', footer_tagline: 'Оптовые поставки трикотажа из Узбекистана', footer_partner: 'Для производителей',
+    fav_title: 'Избранное', fav_empty: 'Вы пока ничего не добавили в избранное',
+    cart_title: 'Корзина', cart_checkout: 'Оформить заказ',
+    profile_title: 'Личный кабинет', profile_tab_info: 'Профиль', profile_tab_orders: 'История заказов',
+    profile_add_photo: 'Добавить фото', profile_remove_photo: 'Удалить фото',
+    profile_name: 'Имя', profile_phone: 'Телефон', profile_birth: 'Дата рождения', profile_email: 'Email (нельзя изменить)',
+    profile_lang: 'Язык приложения', profile_save: 'Сохранить',
+    product_back: 'Назад в каталог', pd_material: 'Материал', pd_size: 'Размер', pd_brand: 'Бренд',
+    admin_title: 'Админ-панель', admin_tab_settings: 'Настройки', admin_tab_products: 'Товары', admin_tab_add: 'Добавить', admin_tab_orders: 'Заказы',
+    admin_global_title: 'Глобальные параметры', admin_discount_pct: 'Скидка %', admin_discount_rub: 'Скидка ₽',
+    admin_rating: 'Рейтинг по умолчанию', admin_apply: 'Применить параметры',
+    admin_manage: 'Управление товарами', admin_add_new: 'Добавить товар', admin_add_btn: 'Добавить товар', admin_orders: 'Заказы',
+    order_title: 'Ваш заказ', order_details: 'Детали заказа',
+    bn_home: 'Главная', bn_fav: 'Избранное', bn_cart: 'Корзина', bn_profile: 'Профиль', float_write: 'Написать',
+    /* Partner panel */
+    partner_title: 'Панель производителя', partner_login_sub: 'Вход для партнёров FULL SELLER',
+    partner_login: 'Логин', partner_password: 'Пароль', partner_enter: 'Войти', partner_back_home: 'На главную',
+    partner_greeting: 'Управление вашими товарами', partner_logout: 'Выйти',
+    partner_support: 'Связаться с разработчиком',
+    partner_tab_my: 'Мои товары', partner_tab_add: 'Добавить товар',
+    partner_new_product: 'Новый товар',
+    partner_field_name: 'Название *', partner_field_desc: 'Описание', partner_field_cat: 'Категория *',
+    partner_field_aud: 'Аудитория *', partner_field_sizes: 'Выбор размера (можно выбрать несколько)',
+    partner_field_brand: 'Бренд', partner_field_weight: 'Вес (грамм)', partner_field_color: 'Цвет', partner_field_price: 'Цена (₽)',
+    partner_field_material: 'Материал',
+    partner_field_images: 'Изображения товара (до 10, до 8 МБ каждое)',
+    partner_ph_name: 'Например: Носки Nike белые', partner_ph_desc: 'Опишите товар, материал, особенности...',
+    partner_ph_aud: '— Выберите —', partner_ph_brand: 'Например: Nike',
+    partner_ph_material: 'Например: Хлопок 80%, эластан 20%',
+    partner_color_none: '— Не указан —',
+    partner_ph_upload: 'Нажмите для загрузки изображений', partner_ph_upload_limit: 'до 8 МБ · до 10 шт',
+    partner_add_btn: 'Добавить товар', partner_clear: 'Очистить', partner_save_changes: 'Сохранить изменения',
+    partner_edit: 'Изменить', partner_delete: 'Удалить',
+    size_male_socks: 'Мужские носки 41-43', size_female_socks: 'Женские носки 37-39',
+    size_kid_1: 'Детские 0-1 год: рост 68-80', size_kid_2: 'Детские 2-3 года: рост 92-98 см',
+    size_kid_3: 'Детские 4-6 лет: рост 104-116 см', size_kid_4: 'Детские 7-8 лет: рост 122-128 см',
+    support_whatsapp_text: 'Здравствуйте! Я производитель, нужна поддержка.'
+  },
+  en: {
+    nav_catalog: 'Catalog', nav_wholesale: 'Terms', nav_reviews: 'Reviews', nav_contacts: 'Contacts', nav_admin: 'Admin',
+    search_placeholder: 'Search: Nike socks, t-shirts…',
+    btn_login: 'Sign in', btn_view_catalog: 'View catalog', btn_calc_delivery: 'Calculate delivery', btn_cart: 'Add to cart',
+    hero_eyebrow: 'Direct supplies from factories in Uzbekistan',
+    hero_title_1: 'Wholesale socks, t-shirts and underwear', hero_title_2: 'directly from factories',
+    hero_from: 'from 13 ₽/pc', hero_min: 'Minimum order', hero_delivery: 'Cargo delivery to', hero_countries: 'Russia and Tajikistan',
+    hero_price_sub: 'wholesale price from factory', hero_days: '7–10 days', hero_days_sub: 'cargo delivery to RU',
+    badge_direct: 'Direct supplies', badge_quality: 'Verified quality', badge_marketplaces: 'We work with marketplaces',
+    trust_direct_t: 'Direct supplies', trust_direct_s: 'no intermediaries or markups',
+    trust_min_t: 'From 2000 pcs', trust_min_s: 'minimum order',
+    trust_countries_t: 'Russia & Tajikistan', trust_countries_s: 'verified cargo',
+    trust_quality_t: 'Verified quality', trust_quality_s: 'factory control',
+    cat_all: 'All products', cat_socks: 'Socks', cat_tshirts: 'T-shirts', cat_underwear: 'Shorts / Pants / Underwear',
+    brand_regular: 'Regular',
+    aud_all: 'All audiences', aud_male: 'Men', aud_female: 'Women', aud_kids: 'Kids',
+    catalog_title: 'Popular products',
+    wh_eyebrow: 'Wholesale terms', wh_title: 'Wholesale terms and delivery',
+    wh_copy: 'Reliable partner for regular wholesale purchases: transparent terms, stable supplies and prices directly from the factory.',
+    wh_card1_title: 'Price & terms', wh_card1_li1: 'Wholesale price:', wh_card1_li2: 'Minimum order:', wh_card1_li2b: 'from 2,000 pcs',
+    wh_card1_li3: 'Delivery to RU', wh_card1_li4: 'Delivery to Tajikistan',
+    wh_card1_note: 'We work directly with manufacturers. Quality verified.',
+    wh_card2_title: 'About the product', wh_card2_li1: 'Socks, t-shirts, underwear, shorts and pants wholesale',
+    wh_card2_li2: 'Mid and premium segment', wh_card2_li3: 'Quality materials and dense knitwear',
+    wh_card2_li4: 'Various colors and size grids',
+    wh_card3_title: 'Delivery (cargo)', wh_card3_li1: 'We ship via verified cargo services',
+    wh_card3_li2: 'Tajikistan:', wh_card3_li2b: 'from 7 somoni/kg', wh_card3_li3: 'Russia:', wh_card3_li3b: 'from $1.30/kg',
+    wh_card3_li4: 'Shipping on payment day', wh_card3_note: 'Delivery price may change with exchange rate and season.',
+    calc_title: 'Cargo delivery calculator', calc_qty: 'Quantity (pcs)', calc_cat: 'Product category',
+    calc_unit_weight: 'Weight per unit (grams)', calc_country: 'Delivery country',
+    calc_country_ru: 'Russia', calc_country_tj: 'Tajikistan', calc_btn: 'Calculate',
+    calc_res_weight: 'Total weight', calc_res_price: 'Product price (wholesale)', calc_res_shipping: 'Shipping cost',
+    calc_disclaimer: 'Delivery price may change with exchange rate and season. Shipping on payment day.',
+    rev_eyebrow: 'Reviews', rev_title: 'Customer reviews',
+    rev_copy: 'More than 200 wholesale buyers from Russia and Tajikistan already work with us.',
+    rev_show_all: 'Show all reviews', rev_form_title: 'Leave a review', rev_choose_product: 'Choose product',
+    rev_placeholder: 'Tell us about quality, timing and packaging...', rev_add_photo: 'Add photo', rev_photo_limit: '(max 5, up to 5 MB)',
+    rev_formats: 'Allowed formats: JPG, JPEG, PNG, WEBP', rev_submit: 'Submit review',
+    rev_login_prompt: 'To leave a review,', rev_login_link: 'sign in',
+    footer_about: 'Your reliable knitwear supplier directly from factories in Uzbekistan. Wholesale: socks, t-shirts, underwear, shorts and pants — from popular brands to basic models. Delivery to Russia and Tajikistan.',
+    footer_contacts: 'Contacts', footer_address: 'Uzbekistan, Kokand', footer_nav: 'Navigation', footer_buyers: 'For buyers',
+    footer_b1: 'Delivery to RU and Tajikistan', footer_b2: 'Minimum order from 2,000 pcs',
+    footer_b3: 'Wholesale prices from 13 ₽/pc', footer_b4: 'Verified quality',
+    footer_rights: 'All rights reserved.', footer_tagline: 'Wholesale knitwear from Uzbekistan', footer_partner: 'For manufacturers',
+    fav_title: 'Favorites', fav_empty: "You haven't added anything to favorites yet",
+    cart_title: 'Cart', cart_checkout: 'Checkout',
+    profile_title: 'My account', profile_tab_info: 'Profile', profile_tab_orders: 'Order history',
+    profile_add_photo: 'Add photo', profile_remove_photo: 'Remove photo',
+    profile_name: 'Name', profile_phone: 'Phone', profile_birth: 'Date of birth', profile_email: 'Email (cannot be changed)',
+    profile_lang: 'App language', profile_save: 'Save',
+    product_back: 'Back to catalog', pd_material: 'Material', pd_size: 'Size', pd_brand: 'Brand',
+    admin_title: 'Admin panel', admin_tab_settings: 'Settings', admin_tab_products: 'Products', admin_tab_add: 'Add', admin_tab_orders: 'Orders',
+    admin_global_title: 'Global parameters', admin_discount_pct: 'Discount %', admin_discount_rub: 'Discount ₽',
+    admin_rating: 'Default rating', admin_apply: 'Apply parameters',
+    admin_manage: 'Manage products', admin_add_new: 'Add product', admin_add_btn: 'Add product', admin_orders: 'Orders',
+    order_title: 'Your order', order_details: 'Order details',
+    bn_home: 'Home', bn_fav: 'Favorites', bn_cart: 'Cart', bn_profile: 'Profile', float_write: 'Message',
+    partner_title: 'Manufacturer panel', partner_login_sub: 'Login for FULL SELLER partners',
+    partner_login: 'Login', partner_password: 'Password', partner_enter: 'Sign in', partner_back_home: 'Home',
+    partner_greeting: 'Manage your products', partner_logout: 'Log out',
+    partner_support: 'Contact developer',
+    partner_tab_my: 'My products', partner_tab_add: 'Add product',
+    partner_new_product: 'New product',
+    partner_field_name: 'Name *', partner_field_desc: 'Description', partner_field_cat: 'Category *',
+    partner_field_aud: 'Audience *', partner_field_sizes: 'Size selection (multiple allowed)',
+    partner_field_brand: 'Brand', partner_field_weight: 'Weight (grams)', partner_field_color: 'Color', partner_field_price: 'Price (₽)',
+    partner_field_material: 'Material',
+    partner_field_images: 'Product images (up to 10, up to 8 MB each)',
+    partner_ph_name: 'e.g. Nike socks white', partner_ph_desc: 'Describe product, material, features...',
+    partner_ph_aud: '— Select —', partner_ph_brand: 'e.g. Nike',
+    partner_ph_material: 'e.g. Cotton 80%, elastane 20%',
+    partner_color_none: '— Not specified —',
+    partner_ph_upload: 'Click to upload images', partner_ph_upload_limit: 'up to 8 MB · up to 10 pcs',
+    partner_add_btn: 'Add product', partner_clear: 'Clear', partner_save_changes: 'Save changes',
+    partner_edit: 'Edit', partner_delete: 'Delete',
+    size_male_socks: 'Men socks 41-43', size_female_socks: 'Women socks 37-39',
+    size_kid_1: 'Kids 0-1 year: height 68-80', size_kid_2: 'Kids 2-3 years: height 92-98 cm',
+    size_kid_3: 'Kids 4-6 years: height 104-116 cm', size_kid_4: 'Kids 7-8 years: height 122-128 cm',
+    support_whatsapp_text: "Hello! I'm a manufacturer, I need support."
+  },
+  uz: {
+    nav_catalog: 'Katalog', nav_wholesale: 'Shartlar', nav_reviews: 'Sharhlar', nav_contacts: 'Kontaktlar', nav_admin: 'Admin',
+    search_placeholder: 'Qidiruv: Nike paypoq, futbolka…',
+    btn_login: 'Kirish', btn_view_catalog: 'Katalogni ko‘rish', btn_calc_delivery: 'Yetkazib berishni hisoblash', btn_cart: 'Savatga',
+    hero_eyebrow: 'O‘zbekiston fabrikalaridan to‘g‘ridan-to‘g‘ri yetkazib berish',
+    hero_title_1: 'Ulgurji paypoq, futbolka va ichki kiyim', hero_title_2: 'to‘g‘ridan-to‘g‘ri fabrikalardan',
+    hero_from: '13 ₽/dona dan', hero_min: 'Minimal buyurtma', hero_delivery: 'Kargo yetkazib berish', hero_countries: 'Rossiya va Tojikiston',
+    hero_price_sub: 'fabrikadan ulgurji narx', hero_days: '7–10 kun', hero_days_sub: 'Rossiyaga kargo yetkazib berish',
+    badge_direct: 'To‘g‘ridan-to‘g‘ri yetkazib berish', badge_quality: 'Tekshirilgan sifat', badge_marketplaces: 'Marketpleyslar bilan ishlaymiz',
+    trust_direct_t: 'To‘g‘ridan-to‘g‘ri', trust_direct_s: 'vositachilarsiz va ustamasiz',
+    trust_min_t: '2000 donadan', trust_min_s: 'minimal buyurtma',
+    trust_countries_t: 'Rossiya va Tojikiston', trust_countries_s: 'tekshirilgan kargo',
+    trust_quality_t: 'Tekshirilgan sifat', trust_quality_s: 'fabrikada nazorat',
+    cat_all: 'Barcha mahsulotlar', cat_socks: 'Paypoqlar', cat_tshirts: 'Futbolkalar', cat_underwear: 'Shortik / Shim / Ichki kiyim',
+    brand_regular: 'Oddiy',
+    aud_all: 'Barcha auditoriya', aud_male: 'Erkaklar', aud_female: 'Ayollar', aud_kids: 'Bolalar',
+    catalog_title: 'Mashhur mahsulotlar',
+    wh_eyebrow: 'Ulgurji shartlar', wh_title: 'Ulgurji shartlar va yetkazib berish',
+    wh_copy: 'Muntazam ulgurji xaridlar uchun ishonchli hamkor: shaffof shartlar, barqaror yetkazib berish va fabrikadan to‘g‘ridan-to‘g‘ri narxlar.',
+    wh_card1_title: 'Narx va shartlar', wh_card1_li1: 'Ulgurji narx:', wh_card1_li2: 'Minimal buyurtma:', wh_card1_li2b: '2000 donadan',
+    wh_card1_li3: 'Rossiyaga yetkazib berish', wh_card1_li4: 'Tojikistonga yetkazib berish',
+    wh_card1_note: 'Ishlab chiqaruvchilar bilan to‘g‘ridan-to‘g‘ri ishlaymiz. Sifat tekshirilgan.',
+    wh_card2_title: 'Mahsulot haqida', wh_card2_li1: 'Paypoq, futbolka, ichki kiyim, shortik va shimlar ulgurji',
+    wh_card2_li2: 'O‘rta va premium segment', wh_card2_li3: 'Sifatli materiallar va zich trikotaj',
+    wh_card2_li4: 'Turli ranglar va o‘lchamlar',
+    wh_card3_title: 'Yetkazib berish (kargo)', wh_card3_li1: 'Tekshirilgan kargo xizmatlari orqali yuboramiz',
+    wh_card3_li2: 'Tojikiston:', wh_card3_li2b: '7 somoni/kg dan', wh_card3_li3: 'Rossiya:', wh_card3_li3b: '1.30 $/kg dan',
+    wh_card3_li4: 'To‘lov kunida jo‘natiladi', wh_card3_note: 'Yetkazib berish narxi valyuta kursi va mavsumga qarab o‘zgarishi mumkin.',
+    calc_title: 'Kargo yetkazib berish kalkulyatori', calc_qty: 'Miqdor (dona)', calc_cat: 'Mahsulot kategoriyasi',
+    calc_unit_weight: 'Bir dona og‘irligi (gramm)', calc_country: 'Yetkazib berish mamlakati',
+    calc_country_ru: 'Rossiya', calc_country_tj: 'Tojikiston', calc_btn: 'Hisoblash',
+    calc_res_weight: 'Umumiy og‘irlik', calc_res_price: 'Mahsulot narxi (ulgurji)', calc_res_shipping: 'Yetkazib berish narxi',
+    calc_disclaimer: 'Yetkazib berish narxi valyuta kursi va mavsumga qarab o‘zgarishi mumkin. To‘lov kunida jo‘natiladi.',
+    rev_eyebrow: 'Sharhlar', rev_title: 'Mijozlar sharhlari',
+    rev_copy: 'Rossiya va Tojikistondan 200 dan ortiq ulgurji xaridorlar biz bilan ishlaydi.',
+    rev_show_all: 'Barcha sharhlarni ko‘rsatish', rev_form_title: 'Sharh qoldirish', rev_choose_product: 'Mahsulotni tanlang',
+    rev_placeholder: 'Sifat, muddat va qadoqlash haqida yozing...', rev_add_photo: 'Rasm qo‘shish', rev_photo_limit: '(maks 5, 5 MB gacha)',
+    rev_formats: 'Ruxsat etilgan formatlar: JPG, JPEG, PNG, WEBP', rev_submit: 'Sharhni yuborish',
+    rev_login_prompt: 'Sharh qoldirish uchun,', rev_login_link: 'tizimga kiring',
+    footer_about: 'O‘zbekiston fabrikalaridan to‘g‘ridan-to‘g‘ri trikotaj yetkazib beruvchingiz. Ulgurji: paypoq, futbolka, ichki kiyim, shortik va shimlar — mashhur brendlardan oddiy modellargacha. Rossiya va Tojikistonga yetkazib berish.',
+    footer_contacts: 'Kontaktlar', footer_address: 'O‘zbekiston, Qo‘qon sh.', footer_nav: 'Navigatsiya', footer_buyers: 'Xaridorlarga',
+    footer_b1: 'Rossiya va Tojikistonga yetkazib berish', footer_b2: '2000 donadan minimal buyurtma',
+    footer_b3: '13 ₽/dona dan ulgurji narxlar', footer_b4: 'Tekshirilgan sifat',
+    footer_rights: 'Barcha huquqlar himoyalangan.', footer_tagline: 'O‘zbekistondan ulgurji trikotaj', footer_partner: 'Ishlab chiqaruvchilar uchun',
+    fav_title: 'Sevimlilar', fav_empty: 'Siz hali sevimlilarga hech narsa qo‘shmadingiz',
+    cart_title: 'Savat', cart_checkout: 'Buyurtma berish',
+    profile_title: 'Shaxsiy kabinet', profile_tab_info: 'Profil', profile_tab_orders: 'Buyurtmalar tarixi',
+    profile_add_photo: 'Rasm qo‘shish', profile_remove_photo: 'Rasmni o‘chirish',
+    profile_name: 'Ism', profile_phone: 'Telefon', profile_birth: 'Tug‘ilgan sana', profile_email: 'Email (o‘zgartirib bo‘lmaydi)',
+    profile_lang: 'Ilova tili', profile_save: 'Saqlash',
+    product_back: 'Katalogga qaytish', pd_material: 'Material', pd_size: 'O‘lcham', pd_brand: 'Brend',
+    admin_title: 'Admin panel', admin_tab_settings: 'Sozlamalar', admin_tab_products: 'Mahsulotlar', admin_tab_add: 'Qo‘shish', admin_tab_orders: 'Buyurtmalar',
+    admin_global_title: 'Global parametrlar', admin_discount_pct: 'Chegirma %', admin_discount_rub: 'Chegirma ₽',
+    admin_rating: 'Standart reyting', admin_apply: 'Parametrlarni qo‘llash',
+    admin_manage: 'Mahsulotlarni boshqarish', admin_add_new: 'Mahsulot qo‘shish', admin_add_btn: 'Mahsulot qo‘shish', admin_orders: 'Buyurtmalar',
+    order_title: 'Sizning buyurtmangiz', order_details: 'Buyurtma tafsilotlari',
+    bn_home: 'Asosiy', bn_fav: 'Sevimlilar', bn_cart: 'Savat', bn_profile: 'Profil', float_write: 'Yozish',
+    partner_title: 'Ishlab chiqaruvchi paneli', partner_login_sub: 'FULL SELLER hamkorlari uchun kirish',
+    partner_login: 'Login', partner_password: 'Parol', partner_enter: 'Kirish', partner_back_home: 'Asosiy sahifa',
+    partner_greeting: 'Mahsulotlaringizni boshqaring', partner_logout: 'Chiqish',
+    partner_support: 'Ishlab chiquvchi bilan bog‘lanish',
+    partner_tab_my: 'Mening mahsulotlarim', partner_tab_add: 'Mahsulot qo‘shish',
+    partner_new_product: 'Yangi mahsulot',
+    partner_field_name: 'Nomi *', partner_field_desc: 'Tavsif', partner_field_cat: 'Kategoriya *',
+    partner_field_aud: 'Auditoriya *', partner_field_sizes: 'O‘lchamni tanlash (bir nechta)',
+    partner_field_brand: 'Brend', partner_field_weight: 'Og‘irligi (gramm)', partner_field_color: 'Rang', partner_field_price: 'Narx (₽)',
+    partner_field_material: 'Material',
+    partner_field_images: 'Mahsulot rasmlari (10 tagacha, har biri 8 MB gacha)',
+    partner_ph_name: 'Masalan: Nike oq paypoq', partner_ph_desc: 'Mahsulot, material, xususiyatlar...',
+    partner_ph_aud: '— Tanlang —', partner_ph_brand: 'Masalan: Nike',
+    partner_ph_material: 'Masalan: Paxta 80%, elastan 20%',
+    partner_color_none: '— Ko‘rsatilmagan —',
+    partner_ph_upload: 'Rasmlarni yuklash uchun bosing', partner_ph_upload_limit: '8 MB gacha · 10 tagacha',
+    partner_add_btn: 'Mahsulot qo‘shish', partner_clear: 'Tozalash', partner_save_changes: 'O‘zgarishlarni saqlash',
+    partner_edit: 'O‘zgartirish', partner_delete: 'O‘chirish',
+    size_male_socks: 'Erkaklar paypoqi 41-43', size_female_socks: 'Ayollar paypoqi 37-39',
+    size_kid_1: 'Bolalar 0-1 yosh: bo‘y 68-80', size_kid_2: 'Bolalar 2-3 yosh: bo‘y 92-98 sm',
+    size_kid_3: 'Bolalar 4-6 yosh: bo‘y 104-116 sm', size_kid_4: 'Bolalar 7-8 yosh: bo‘y 122-128 sm',
+    support_whatsapp_text: 'Assalomu alaykum! Men ishlab chiqaruvchiman, yordam kerak.'
+  }
+};
+
+/* ============================================================
+   STATE ЯЗЫКА
+   ============================================================ */
+const LANG_KEY = 'fullseller_lang';
+let currentLang = localStorage.getItem(LANG_KEY) || 'ru';
+
+function t(key) {
+  const dict = I18N[currentLang] || I18N.ru;
+  return (dict[key] != null ? dict[key] : (I18N.ru[key] != null ? I18N.ru[key] : key));
+}
+
+function applyTranslations(root) {
+  const scope = root || document;
+  scope.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  scope.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.setAttribute('placeholder', t(key));
+  });
+  document.documentElement.lang = currentLang;
+  document.title = ({
+    ru: 'FULL SELLER — оптовые носки, футболки, бельё напрямую от фабрик',
+    en: 'FULL SELLER — wholesale socks, t-shirts, underwear from factories',
+    uz: 'FULL SELLER — ulgurji paypoq, futbolka, ichki kiyim fabrikalardan'
+  })[currentLang] || document.title;
+}
+
+function updateLangSwitchers() {
+  const label = document.getElementById('headerLangLabel');
+  if (label) label.textContent = currentLang.toUpperCase();
+
+  document.querySelectorAll('#headerLangMenu .lang-option').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === currentLang);
+  });
+  document.querySelectorAll('#profileLangSwitch button, #partnerLangSwitch button, #mobileLangSwitch button').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === currentLang);
+  });
+  updatePartnerSupportLink();
+}
+
+function updatePartnerSupportLink() {
+  const btn = document.getElementById('partnerSupportBtn');
+  if (!btn) return;
+  const text = encodeURIComponent(t('support_whatsapp_text'));
+  btn.href = 'https://wa.me/79385401876?text=' + text;
+}
+
+async function setLanguage(lang, fromUser) {
+  if (!I18N[lang]) lang = 'ru';
+  currentLang = lang;
+  localStorage.setItem(LANG_KEY, lang);
+
+  // Для авторизованного пользователя — пишем в Firebase
+  if (fromUser && currentUser && currentUser.uid) {
+    try {
+      await db.collection('users').doc(currentUser.uid).set({ language: lang }, { merge: true });
+    } catch (e) { console.warn('lang save failed', e); }
+  }
+  // Для авторизованного партнёра — пишем в документ партнёра
+  if (fromUser) {
+    const session = getPartnerSession ? getPartnerSession() : null;
+    if (session && session.partnerId) {
+      try {
+        await db.collection('partners').doc(session.partnerId).set({ language: lang }, { merge: true });
+      } catch (e) { /* ignore */ }
+    }
+  }
+
+  applyTranslations();
+  updateLangSwitchers();
+  // Перерисовываем динамические элементы
+  try { renderCatalog(); } catch (e) {}
+  try { renderReviews(); } catch (e) {}
+  try { updateSubtitle(); } catch (e) {}
+  if (document.getElementById('partnerPanel') && document.getElementById('partnerPanel').style.display !== 'none') {
+    try { renderPartnerProductCardsLocale(); } catch (e) {}
+  }
+}
+
+/* Перерисовка карточек товаров производителя (для обновления языка) */
+function renderPartnerProductCardsLocale() {
+  if (typeof partnerProductsCache !== 'undefined' && typeof loadPartnerProducts === 'function') {
+    const container = document.getElementById('partnerProductsContainer');
+    if (!container) return;
+    if (!partnerProductsCache.length) {
+      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-box-open"></i></div>';
+      return;
+    }
+    const catName = c => t(c === 'socks' ? 'cat_socks' : c === 'tshirts' ? 'cat_tshirts' : c === 'underwear' ? 'cat_underwear' : c);
+    container.innerHTML = partnerProductsCache.map(p => {
+      const imgs = (Array.isArray(p.images) && p.images.length) ? p.images.filter(Boolean) : (p.imageUrl ? [p.imageUrl] : []);
+      const first = imgs[0];
+      const imgBlock = first
+        ? `<div class="pc-img"><img src="${escapeHtml(first)}" alt="${escapeHtml(p.name || '')}" loading="lazy">${imgs.length > 1 ? `<span class="pc-img-count"><i class="fas fa-images"></i> ${imgs.length}</span>` : ''}</div>`
+        : `<div class="pc-img"><i class="fas fa-image"></i></div>`;
+      const weightLine = (p.weight != null && p.weight !== '') ? `${p.weight} г` : '—';
+      const sizesLine = Array.isArray(p.sizes) && p.sizes.length ? p.sizes.join(', ') : (p.size || '—');
+      const materialLine = p.material ? escapeHtml(p.material) : '—';
+      return `
+        <div class="partner-product-card">
+          ${imgBlock}
+          <span class="pc-category">${catName(p.category)}</span>
+          <span class="pc-status ${p.hidden ? 'pc-status--pending' : 'pc-status--live'}">${p.hidden ? 'На проверке' : 'Опубликован'}</span>
+          <h4>${escapeHtml(p.name || '—')}</h4>
+          <p class="pc-desc">${escapeHtml(p.desc || '—')}</p>
+          <div class="pc-meta">
+            <span><strong>${t('pd_brand')}:</strong> ${escapeHtml(p.brand || '—')}</span>
+            <span><strong>${t('partner_field_price').replace(' *','')}:</strong> ${(p.price != null ? p.price : 0)} ₽</span>
+            <span><strong>${t('pd_size')}:</strong> ${escapeHtml(sizesLine)}</span>
+            <span><strong>${t('partner_field_weight').replace(' (грамм)','')}:</strong> ${weightLine}</span>
+            <span><strong>${t('pd_material')}:</strong> ${materialLine}</span>
+            <span><strong>${t('partner_field_color')}:</strong> ${escapeHtml(p.color || '—')}</span>
+            <span><strong>${t('partner_field_aud').replace(' *','')}:</strong> ${p.audience ? t('aud_' + p.audience) : '—'}</span>
+          </div>
+          <div class="pc-actions">
+            <button type="button" class="btn-outline" onclick="editPartnerProduct('${p.id}','${p.collection}')"><i class="fas fa-pen"></i> ${t('partner_edit')}</button>
+            <button type="button" class="btn-danger" style="color:#fff;" onclick="deletePartnerProduct('${p.id}','${p.collection}')"><i class="fas fa-trash"></i> ${t('partner_delete')}</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+}
+
+/* ============================================================
+   GeoIP — один раз при первом визите
+   Определяет язык по стране:
+   - UZ → uz
+   - СНГ (RU, KZ, KG, TJ, BY, AM, AZ, MD) → ru
+   - остальные → en
+   Использует 3 резервных API с таймаутом, чтобы не подвешивать загрузку.
+   ============================================================ */
+async function initGeoIP() {
+  if (localStorage.getItem(LANG_KEY)) return; // пользователь уже выбирал / GeoIP сработал
+
+  const CIS = new Set(['RU','KZ','KG','TJ','BY','AM','AZ','MD']);
+  const mapCC = (cc) => {
+    const code = String(cc || '').toUpperCase();
+    if (code === 'UZ') return 'uz';
+    if (CIS.has(code)) return 'ru';
+    return 'en';
+  };
+
+  const fetchJson = async (url, pick) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4000);
+    try {
+      const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+      const data = await res.json();
+      return pick(data);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  let lang = 'ru'; // безопасный фолбэк
+  try {
+    lang = mapCC(await fetchJson('https://ipapi.co/json/', d => d && d.country_code));
+  } catch (e1) {
+    try {
+      lang = mapCC(await fetchJson('https://ipwho.is/', d => d && d.country_code));
+    } catch (e2) {
+      try {
+        lang = mapCC(await fetchJson('https://ipinfo.io/json', d => d && d.country));
+      } catch (e3) {
+        lang = 'ru';
+      }
+    }
+  }
+  await setLanguage(lang, false);
+}
+
+/* ============================================================
+   Firebase init
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBhiwklrTbPHfhkx5ePR9mtxNzvN4C5-dw",
+  authDomain: "full-seller.firebaseapp.com",
+  projectId: "full-seller",
+  storageBucket: "full-seller.firebasestorage.app",
+  messagingSenderId: "858609506770",
+  appId: "1:858609506770:web:b83498774cfe14f1cbd00b",
+  measurementId: "G-SKPL9X4NVM"
+};
+function _fsStub() {
+  const fn = function () { return _fsStub(); };
+  return new Proxy(fn, {
+    get(target, prop) { return prop === 'then' ? undefined : _fsStub(); },
+    apply() { return _fsStub(); }
+  });
+}
+let auth, db, storage, analytics = null;
+try {
+  if (typeof firebase === 'undefined') throw new Error('Firebase SDK failed to load (network/CDN unreachable)');
+  firebase.initializeApp(firebaseConfig);
+  auth    = firebase.auth();
+  db      = firebase.firestore();
+  storage = firebase.storage();
+  if (firebase.analytics) { analytics = firebase.analytics(); analytics.setAnalyticsCollectionEnabled(true); }
+} catch (e) {
+  console.warn('[FULL SELLER] Firebase unavailable, running in offline/degraded mode:', e);
+  auth = _fsStub(); db = _fsStub(); storage = _fsStub();
+}
+
+const ADMIN_EMAIL = "fullselleradmin@gmail.com";
+const PARTNER_PASSWORD = '9100965080';
+const PARTNER_SESSION_KEY = 'fullseller_partner_session';
+const PARTNER_SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
+const PARTNERS = [
+  { partnerId: 'fs-partner-1', login:'fs.partner.ru', password:PARTNER_PASSWORD, name:'Производитель #1' },
+  { partnerId: 'fs-partner-2', login:'fs.partner2.ru', password:PARTNER_PASSWORD, name:'Производитель #2' },
+  { partnerId: 'fs-partner-3', login:'fs.partner3.ru', password:PARTNER_PASSWORD, name:'Производитель #3' },
+  { partnerId: 'fs-partner-4', login:'fs.partner4.ru', password:PARTNER_PASSWORD, name:'Производитель #4' },
+  { partnerId: 'fs-partner-5', login:'fs.partner5.ru', password:PARTNER_PASSWORD, name:'Производитель #5' },
+  { partnerId: 'fs-partner-6', login:'fs.partner6.ru', password:PARTNER_PASSWORD, name:'Производитель #6' },
+  { partnerId: 'fs-partner-7', login:'fs.partner7.ru', password:PARTNER_PASSWORD, name:'Производитель #7' },
+  { partnerId: 'fs-partner-8', login:'fs.partner8.ru', password:PARTNER_PASSWORD, name:'Производитель #8' },
+  { partnerId: 'fs-partner-9', login:'fs.partner9.ru', password:PARTNER_PASSWORD, name:'Производитель #9' },
+  { partnerId: 'fs-partner-10', login:'fs.partner10.ru', password:PARTNER_PASSWORD, name:'Производитель #10' }
+];
+const PRODUCT_COLORS = ['Белый','Чёрный','Шоколадный','Серый','Бежевый','Тёмно-синий'];
+const PARTNER_MAX_IMAGES = 10;
+const PARTNER_MAX_FILE_MB = 8;
+const IMGBB_KEYS = ['044c84fb33e068293052ead694715174','ae79450043550a3062e2c2d40308a877'];
+
+/* --- Size helpers --- */
+const SIZE_OPTIONS = [
+  { value: '41-43',  audience: 'male',   label: 'size_male_socks'   },
+  { value: '37-39',  audience: 'female', label: 'size_female_socks' },
+  { value: '68-80',  audience: 'kids',   label: 'size_kid_1'        },
+  { value: '92-98',  audience: 'kids',   label: 'size_kid_2'        },
+  { value: '104-116',audience: 'kids',   label: 'size_kid_3'        },
+  { value: '122-128',audience: 'kids',   label: 'size_kid_4'        }
+];
+function getSizeDisplayForProduct(p) {
+  if (!p) return '';
+  const category = p.category;
+  const audience = p.audience || '';
+  const isClothes = category === 'tshirts' || category === 'underwear' || category === 'shorts' || category === 'pants';
+  const isSocks = category === 'socks' || category === 'regular';
+  if (Array.isArray(p.sizes) && p.sizes.length) return p.sizes.join(', ');
+  if (isSocks) {
+    if (audience === 'male')   return '41-43';
+    if (audience === 'female') return '37-39';
+    if (audience === 'kids')   return '68-80, 92-98, 104-116, 122-128';
+    return p.size || '38-44';
+  }
+  if (isClothes) {
+    if (audience === 'male')   return 'M, L, XL (50-54)';
+    if (audience === 'female') return 'S, M, L (44-48)';
+    if (audience === 'kids')   return '68-80, 92-98, 104-116, 122-128';
+    return p.size || 'S-XXL';
+  }
+  return p.size || '';
+}
+
+function getPartnerSession() {
+  try {
+    const raw = localStorage.getItem(PARTNER_SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (!s || !s.partnerId) return null;
+    if (s.loginAt && (Date.now() - s.loginAt) > PARTNER_SESSION_TTL) { localStorage.removeItem(PARTNER_SESSION_KEY); return null; }
+    return s;
+  } catch (e) { return null; }
+}
+function setPartnerSession(session) {
+  if (session) { session.loginAt = Date.now(); localStorage.setItem(PARTNER_SESSION_KEY, JSON.stringify(session)); }
+  else localStorage.removeItem(PARTNER_SESSION_KEY);
+}
+function isPartnerLoggedIn() { return !!getPartnerSession(); }
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => { const s = String(reader.result || ''); const i = s.indexOf(','); resolve(i >= 0 ? s.slice(i + 1) : s); };
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+function uploadImageToImgBB(file, onProgress) {
+  return new Promise(async (resolve, reject) => {
+    const valid = ['image/jpeg','image/jpg','image/png','image/webp'];
+    if (!valid.includes(file.type)) { reject(new Error('Bad format')); return; }
+    if (file.size > PARTNER_MAX_FILE_MB * 1024 * 1024) { reject(new Error('Too big')); return; }
+    let base64; try { base64 = await fileToBase64(file); } catch (e) { reject(e); return; }
+    let lastError = null;
+    for (let i = 0; i < IMGBB_KEYS.length; i++) {
+      const key = IMGBB_KEYS[i];
+      try {
+        const url = await new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', 'https://api.imgbb.com/1/upload', true);
+          xhr.timeout = 90000; xhr.withCredentials = false;
+          xhr.upload.onprogress = (e) => { if (e.lengthComputable && typeof onProgress === 'function') onProgress(Math.round((e.loaded / e.total) * 100)); };
+          xhr.onload = () => {
+            try {
+              const data = JSON.parse(xhr.responseText || '{}');
+              if (data && data.success && data.data) {
+                const u = data.data.url || data.data.display_url || (data.data.image && data.data.image.url);
+                if (u) { res(u); return; }
+              }
+              let msg = 'HTTP ' + xhr.status;
+              if (data && data.error && data.error.message) msg = data.error.message;
+              rej(new Error(msg));
+            } catch (e) { rej(new Error('Bad response')); }
+          };
+          xhr.onerror = () => rej(new Error('Network'));
+          xhr.ontimeout = () => rej(new Error('Timeout'));
+          const fd = new FormData(); fd.append('key', key); fd.append('image', base64); xhr.send(fd);
+        });
+        resolve(url); return;
+      } catch (e) { console.warn('ImgBB key ' + i + ' failed:', e && e.message); lastError = e; }
+    }
+    reject(lastError || new Error('Upload failed'));
+  });
+}
+async function ensurePartnerFirebaseAuth() {
+  if (auth.currentUser) return auth.currentUser;
+  try { const cred = await auth.signInAnonymously(); return cred.user; } catch (e) { return null; }
+}
+async function writeFirestoreWithAuth(doWrite) {
+  try { return await doWrite(); }
+  catch (e) {
+    const code = (e && e.code) ? String(e.code) : '';
+    const msg = (e && e.message) ? String(e.message) : '';
+    if (/permission-denied|unauth|insufficient/i.test(code) || /permission|insufficient/i.test(msg)) {
+      await ensurePartnerFirebaseAuth();
+      return await doWrite();
+    }
+    throw e;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Новый бекенд (ASP.NET Core + PostgreSQL) на своём сервере — постепенный
+   переход с Firebase для личного кабинета партнёра (вход, добавление и
+   редактирование товаров). Остальной сайт (заказы/отзывы/клиенты/админка)
+   пока остаётся на Firebase. Требует, чтобы api.full-seller.ru указывал
+   (A-запись) на сервер бекенда и имел действующий SSL-сертификат —
+   иначе браузер заблокирует запросы с https-страницы как mixed content.
+   ------------------------------------------------------------------ */
+const PARTNER_API_BASE = 'https://api.full-seller.ru/api';
+const PARTNER_CATEGORY_TO_ID = {
+  socks: 'ef45badd-483e-40a1-8040-00cde2f92550',
+  tshirts: '8ba474a6-2eda-43ad-adc0-749f0c980e8b',
+  underwear: 'c277d19f-a1d4-4658-b153-9b0eb01b808d'
+};
+const PARTNER_ID_TO_CATEGORY = Object.fromEntries(Object.entries(PARTNER_CATEGORY_TO_ID).map(([k, v]) => [v, k]));
+
+async function partnerRefreshToken() {
+  const session = getPartnerSession();
+  if (!session || !session.refreshToken) return false;
+  try {
+    const res = await fetch(PARTNER_API_BASE + '/partner/refresh', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: session.refreshToken })
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    session.accessToken = data.accessToken; session.refreshToken = data.refreshToken; session.accessTokenExpiresAt = data.accessTokenExpiresAt;
+    setPartnerSession(session);
+    return true;
+  } catch (e) { return false; }
+}
+async function partnerApiFetch(path, options) {
+  options = options || {};
+  const doFetch = () => {
+    const session = getPartnerSession();
+    const opts = Object.assign({}, options);
+    opts.headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {}, session && session.accessToken ? { 'Authorization': 'Bearer ' + session.accessToken } : {});
+    return fetch(PARTNER_API_BASE + path, opts);
+  };
+  let res = await doFetch();
+  if (res.status === 401) {
+    const refreshed = await partnerRefreshToken();
+    if (refreshed) res = await doFetch();
+  }
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    const msg = (data && (data.message || data.title)) || ('HTTP ' + res.status);
+    throw new Error(msg);
+  }
+  return data;
+}
+
+const State = {
+  percentageDiscount: 0, fixedDiscountRub: 0, rating: 4.2,
+  currency: localStorage.getItem('fullseller_currency') || 'RUB',
+  exchangeRate: 95
+};
+
+let currentUser = null;
+let currentCategory = 'all';
+let currentBrandFilter = 'all';
+let currentAudienceFilter = 'all';
+let allProducts = { socks: [], regular: [], tshirts: [], underwear: [] };
+let cart = JSON.parse(localStorage.getItem('fullseller_cart')) || [];
+let favorites = JSON.parse(localStorage.getItem('fullseller_favorites')) || [];
+let allReviews = [];
+let showAllReviews = false;
+let selectedRating = 0;
+let reviewPhotoFiles = [];
+let likeInProgress = new Set();
+
+let partnerProductsCache = [];
+let partnerEditingId = null;
+let partnerEditingColl = null;
+let partnerProductImages = [];
+let partnerUploadInProgress = false;
+let partnerLoadingTimer = null;
+
+function logAnalyticsEvent(name, params = {}) { if (!analytics) return; try { analytics.logEvent(name, params); } catch (e) {} }
+function trackPageView(name) { if (!analytics) return; try { analytics.logEvent('page_view', { page_title: name, page_location: window.location.href, page_path: '/' + name }); analytics.setCurrentScreen(name); } catch (e) {} }
+
+/* === STATIC PRODUCTS === */
+const STATIC_SOCKS = [
+  { id:'static1', name:"Nike Everyday (Белые)", price:13, desc:"Классические белые носки Nike, технология Dri-FIT.", images:["assets/images/0 (5).jpg"], material:"Хлопок 75%, Полиэстер 22%", size:"41-43", brand:"Nike", rating:4.5, stock:500, category:'socks', audience:'male' },
+  { id:'static2', name:"Nike Everyday (Черные)", price:13, desc:"Спортивные черные носки Nike, отличная вентиляция.", images:["assets/images/0 (6).jpg"], material:"Хлопок 75%, Полиэстер 22%", size:"41-43", brand:"Nike", rating:4.6, stock:500, category:'socks', audience:'male' },
+  { id:'static3', name:"Nike Everyday (Серые)", price:13, desc:"Универсальные серые носки Nike, Dri-FIT и мягкий пояс.", images:["assets/images/0 (19).jpg"], material:"Хлопок 75%, Полиэстер 22%", size:"41-43", brand:"Nike", rating:4.4, stock:500, category:'socks', audience:'male' },
+  { id:'static4', name:"Nike Everyday (Синие)", price:13, desc:"Тёмно-синие носки Nike, повседневный комфорт.", images:["assets/images/0 (12).jpg"], material:"Хлопок 75%, Полиэстер 22%", size:"41-43", brand:"Nike", rating:4.3, stock:500, category:'socks', audience:'male' },
+  { id:'static5', name:"Adidas Cushioned (Белые)", price:13, desc:"Белые носки Adidas с мягкой подошвой.", images:["assets/images/0 (4).jpg"], material:"Хлопок 60%, Полиэстер 36%", size:"41-43", brand:"Adidas", rating:4.5, stock:500, category:'socks', audience:'male' },
+  { id:'static6', name:"Adidas Cushioned (Черные)", price:13, desc:"Черные носки Adidas, усиленная пятка и мысок.", images:["assets/images/0 (7).jpg"], material:"Хлопок 60%, Полиэстер 36%", size:"41-43", brand:"Adidas", rating:4.7, stock:500, category:'socks', audience:'male' },
+  { id:'static7', name:"Adidas Cushioned (Серые)", price:13, desc:"Серые носки Adidas с амортизацией.", images:["assets/images/0 (13).jpg"], material:"Хлопок 60%, Полиэстер 36%", size:"41-43", brand:"Adidas", rating:4.4, stock:500, category:'socks', audience:'male' },
+  { id:'static8', name:"Adidas Cushioned (Синие)", price:13, desc:"Синие носки Adidas с поддержкой свода стопы.", images:["assets/images/адд.png"], material:"Хлопок 60%, Полиэстер 36%", size:"41-43", brand:"Adidas", rating:4.5, stock:500, category:'socks', audience:'male' },
+  { id:'static9', name:"Puma Performance (Белые)", price:13, desc:"Спортивные белые носки Puma.", images:["assets/images/24.jpg"], material:"Хлопок 78%, Полиамид 18%", size:"41-43", brand:"Puma", rating:4.3, stock:500, category:'socks', audience:'male' },
+  { id:'static10', name:"Puma Performance (Черные)", price:13, desc:"Черные носки Puma для тренировок и отдыха.", images:["assets/images/25.jpg"], material:"Хлопок 78%, Полиамид 18%", size:"41-43", brand:"Puma", rating:4.6, stock:500, category:'socks', audience:'male' },
+  { id:'static11', name:"Puma Performance (Серые)", price:13, desc:"Серые носки Puma, дышащая сетка.", images:["assets/images/9.jpg"], material:"Хлопок 78%, Полиамид 18%", size:"41-43", brand:"Puma", rating:4.4, stock:500, category:'socks', audience:'male' },
+  { id:'static12', name:"Puma Performance (Синие)", price:13, desc:"Ярко-синие носки Puma с отводом влаги.", images:["assets/images/pmm.png"], material:"Хлопок 78%, Полиамид 18%", size:"41-43", brand:"Puma", rating:4.2, stock:500, category:'socks', audience:'male' },
+  { id:'static13', name:"Fila Retro (Белые)", price:13, desc:"Белые носки Fila в ретро-стиле.", images:["assets/images/30.png"], material:"Хлопок 80%, Эластан 5%", size:"37-39", brand:"Fila", rating:4.1, stock:500, category:'socks', audience:'male' },
+  { id:'static14', name:"Fila Retro (Черные)", price:13, desc:"Черные носки Fila.", images:["assets/images/27.jpg"], material:"Хлопок 80%, Эластан 5%", size:"37-39", brand:"Fila", rating:4.5, stock:500, category:'socks', audience:'male' },
+  { id:'static15', name:"Fila Retro (Серые)", price:13, desc:"Серые ретро-носки Fila.", images:["assets/images/5206550087578883063.jpg"], material:"Хлопок 80%, Эластан 5%", size:"37-39", brand:"Fila", rating:4.3, stock:500, category:'socks', audience:'male' },
+  { id:'static16', name:"Fila Retro (Синие)", price:13, desc:"Синие носки Fila.", images:["assets/images/5206550087578883063.jpg"], material:"Хлопок 80%, Эластан 5%", size:"37-39", brand:"Fila", rating:4.4, stock:500, category:'socks', audience:'male' }
+];
+const STATIC_REGULAR_SOCKS = [
+  { id:'regular1', name:"Обычные носки (Белые)", price:13, desc:"Классические белые носки.", images:["assets/images/80.jpg"], material:"Хлопок 80%", size:"41-43", brand:"Обычные", rating:4.0, stock:500, category:'regular', audience:'male' },
+  { id:'regular2', name:"Обычные носки (Черные)", price:13, desc:"Черные базовые носки.", images:["assets/images/adbel.jpg"], material:"Хлопок 80%", size:"41-43", brand:"Обычные", rating:4.1, stock:500, category:'regular', audience:'male' },
+  { id:'regular3', name:"Обычные носки (Серые)", price:13, desc:"Серые носки средней длины.", images:["assets/images/81.jpg"], material:"Хлопок 80%", size:"37-39", brand:"Обычные", rating:4.1, stock:500, category:'regular', audience:'male' },
+  { id:'regular4', name:"Обычные носки (Синие)", price:13, desc:"Синие носки на каждый день.", images:["assets/images/500.jpg"], material:"Хлопок 80%", size:"37-39", brand:"Обычные", rating:4.0, stock:500, category:'regular', audience:'male' }
+];
+const STATIC_TSHIRTS = [
+  { id:'tshirt1', name:"Classic White (Белая)", price:145, desc:"Классическая белая футболка.", images:["assets/images/90.jpg"], material:"Хлопок 100%", size:"M, L, XL (50-54)", brand:"Nike", rating:4.6, stock:300, category:'tshirts', audience:'male' },
+  { id:'tshirt4', name:"Basic Dark (Бордовая)", price:145, desc:"Однотонная бордовая футболка.", images:["assets/images/91.jpg"], material:"Хлопок 100%", size:"S, M, L (44-48)", brand:"Adidas", rating:4.6, stock:300, category:'tshirts', audience:'male' },
+  { id:'tshirt3', name:"Basic Light (Белая)", price:145, desc:"Базовая светлая футболка.", images:["assets/images/92.jpg"], material:"Хлопок 100%", size:"S, M, L (44-48)", brand:"Adidas", rating:4.5, stock:300, category:'tshirts', audience:'male' },
+  { id:'tshirt2', name:"Urban Black (Черная)", price:145, desc:"Черная футболка в городском стиле.", images:["assets/images/91.jpg"], material:"Хлопок 100%", size:"M, L, XL (50-54)", brand:"Nike", rating:4.7, stock:300, category:'tshirts', audience:'male' },
+  { id:'tshirt5', name:"Vintage Washed (Графит)", price:145, desc:"Оверсайз футболка.", images:["assets/images/92.jpg"], material:"Хлопок 100%", size:"M, L, XL (50-54)", brand:"Puma", rating:4.4, stock:300, category:'tshirts', audience:'male' },
+  { id:'tshirt6', name:"Summer Tank (Белая)", price:145, desc:"Легкая белая майка.", images:["assets/images/95.jpg"], material:"Хлопок 100%", size:"S, M, L (44-48)", brand:"Puma", rating:4.3, stock:300, category:'tshirts', audience:'male' },
+  { id:'tshirt7', name:"Футболка мужская (Белая)", price:145, desc:"Базовая футболка прямого кроя.", images:["assets/images/90.jpg"], material:"Хлопок 100%", size:"M, L, XL (50-54)", brand:"Обычные", rating:4.8, stock:200, category:'tshirts', audience:'male' },
+  { id:'tshirt8', name:"Футболка мужская (Черная)", price:145, desc:"Классическая однотонная футболка.", images:["assets/images/91.jpg"], material:"Хлопок 100%", size:"M, L, XL (50-54)", brand:"Обычные", rating:4.7, stock:250, category:'tshirts', audience:'male' },
+  { id:'tshirt9', name:"Футболка мужская (Синяя)", price:145, desc:"Стильная футболка темно-синего оттенка.", images:["assets/images/92.jpg"], material:"Хлопок 100%", size:"M, L, XL (50-54)", brand:"Обычные", rating:4.6, stock:150, category:'tshirts', audience:'male' }
+];
+const STATIC_UNDERWEAR = [
+  { id:'uw1', name:"Nike Boxer (Белые)", price:145, desc:"Белые боксеры Nike Dri-FIT.", images:["assets/images/110.png"], material:"Хлопок 95%, Эластан 5%", size:"M, L, XL (50-54)", brand:"Nike", rating:4.5, stock:400, category:'underwear', audience:'male' },
+  { id:'uw2', name:"Nike Boxer (Черные)", price:145, desc:"Черные боксеры Nike.", images:["assets/images/110.png"], material:"Хлопок 95%, Эластан 5%", size:"M, L, XL (50-54)", brand:"Nike", rating:4.6, stock:400, category:'underwear', audience:'male' },
+  { id:'pants1', name:"Брюки-джоггеры камуфляжные", price:145, desc:"Повседневные тактические штаны.", images:["assets/images/459.jpg"], material:"Хлопок 65%, Полиэстер 35%", size:"M, L, XL (50-54)", brand:"Обычные", rating:4.9, stock:80, category:'pants', audience:'male' },
+  { id:'shorts1', name:"Шорты мужские трикотажные", price:145, desc:"Удлиненные летние шорты.", images:["assets/images/459.jpg"], material:"Хлопок 80%, Полиэстер 20%", size:"M, L, XL (50-54)", brand:"Обычные", rating:4.5, stock:120, category:'shorts', audience:'male' }
+];
+
+function saveCart() { localStorage.setItem('fullseller_cart', JSON.stringify(cart)); updateCartUI(); }
+function saveFavorites() { localStorage.setItem('fullseller_favorites', JSON.stringify(favorites)); }
+function updateCartUI() {
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const badge = document.getElementById('bottomCartBadge');
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'inline-block' : 'none'; }
+}
+function showToast(msg) {
+  const t2 = document.createElement('div'); t2.textContent = msg;
+  t2.style.cssText = `position:fixed; bottom:96px; left:50%; transform:translateX(-50%) translateY(16px);background:#1C1917; color:#fff; padding:14px 26px; border-radius:999px;font-weight:600; font-size:.875rem; z-index:9999; opacity:0;box-shadow:0 20px 40px -14px rgba(0,0,0,.6);transition:opacity .25s, transform .25s; pointer-events:none; white-space:nowrap;max-width:90vw; text-align:center;`;
+  document.body.appendChild(t2);
+  requestAnimationFrame(() => { t2.style.opacity = '1'; t2.style.transform = 'translateX(-50%) translateY(0)'; });
+  setTimeout(() => { t2.style.opacity = '0'; t2.style.transform = 'translateX(-50%) translateY(16px)'; setTimeout(() => t2.remove(), 260); }, 2200);
+}
+function getProductById(id) { for (const cat in allProducts) { const p = allProducts[cat].find(x => x.id === id); if (p) return p; } return null; }
+function shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function getFinalPrice(p) { if (!p) return 0; const base = p.price || 0; let dp = State.percentageDiscount; if (dp >= 100) dp = 0; const final = (base * (1 - dp / 100)) - State.fixedDiscountRub; return Math.max(0.01, Math.round(final * 100) / 100); }
+function finalPriceStr(v) { if (State.currency === 'USD') return '$' + (v / State.exchangeRate).toFixed(2); const r = Math.round(v * 100) / 100; return Number.isInteger(r) ? r + ' ₽' : r.toFixed(2) + ' ₽'; }
+function formatPrice(rub) { if (rub == null || isNaN(rub)) return State.currency === 'USD' ? '$0.00' : '0 ₽'; if (State.currency === 'USD') return '$' + (rub / State.exchangeRate).toFixed(2); const r = Math.round(rub * 100) / 100; return Number.isInteger(r) ? r + ' ₽' : r.toFixed(2) + ' ₽'; }
+
+function setBodyPageClass(pageName) {
+  [...document.body.classList].forEach(c => { if (c.startsWith('page-')) document.body.classList.remove(c); });
+  document.body.classList.add('page-' + pageName);
+}
+function updateBottomNavActive(pageName) {
+  const nav = document.getElementById('bottomNav'); if (!nav) return;
+  nav.querySelectorAll('.bottom-nav__item').forEach(i => i.classList.remove('active'));
+  const map = { home: 0, favorites: 1, cart: 2, profile: 3 };
+  if (map[pageName] !== undefined) nav.querySelectorAll('.bottom-nav__item')[map[pageName]].classList.add('active');
+}
+function resetHeaderVisibility() { const h = document.getElementById('siteHeader'); if (h) h.classList.remove('header--hidden'); }
+
+function showPage(pageName) {
+  if (pageName === 'admin' && !isAdmin()) { showToast('Access denied'); return; }
+  const targetFile = PAGE_FILE[pageName] || 'index.html';
+  if (targetFile !== CURRENT_FILE) { location.href = targetFile; return; }
+  const pageId = pageName === 'home' ? 'homePage' : pageName + 'Page';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById(pageId);
+  if (!page) return;
+  page.classList.add('active');
+  setBodyPageClass(pageName);
+  updateBottomNavActive(pageName);
+
+  if (pageName === 'cart') renderCartModal();
+  if (pageName === 'favorites') renderFavoritesModal();
+  if (pageName === 'profile') openProfilePage();
+  if (pageName === 'partner') renderPartnerPage();
+  if (pageName === 'admin') {
+    document.getElementById('adminDiscountPercent').value = State.percentageDiscount;
+    document.getElementById('adminDiscountRub').value = State.fixedDiscountRub;
+    document.getElementById('adminRating').value = State.rating;
+    if (typeof switchAdminSection === 'function') switchAdminSection('dashboard');
+    renderAdminProducts(); renderAdminOrders();
+  }
+  if (pageName === 'home') { document.body.classList.remove('no-scroll'); resetHeaderVisibility(); }
+  else document.body.classList.add('no-scroll');
+  trackPageView(pageName);
+}
+
+function openModal(id) { const el = document.getElementById(id); if (!el) return; el.classList.add('active'); document.body.classList.add('no-scroll'); }
+function closeModal(id) { const el = document.getElementById(id); if (!el) return; el.classList.remove('active'); if (!document.querySelector('.modal.active')) document.body.classList.remove('no-scroll'); }
+
+/* ============ CATALOG ============ */
+function updateBrandFilterVisibility() {
+  const brandFilter = document.getElementById('brandFilter');
+  const audienceFilter = document.getElementById('audienceFilter');
+  if (!brandFilter) return;
+  if (currentCategory === 'socks' || currentCategory === 'all') brandFilter.style.display = 'flex';
+  else { brandFilter.style.display = 'none'; currentBrandFilter = 'all'; }
+  if (audienceFilter) audienceFilter.classList.add('visible');
+  updateSubtitle();
+}
+
+function updateSubtitle() {
+  const subtitle = document.getElementById('catalogSubtitle'); if (!subtitle) return;
+  const names = {
+    ru: { all:'ВСЕ ТОВАРЫ ОПТОМ ОТ ПРОИЗВОДИТЕЛЕЙ', socks:'НОСКИ ОПТОМ ОТ ПРОИЗВОДИТЕЛЕЙ', regular:'ОБЫЧНЫЕ НОСКИ ОПТОМ', tshirts:'ФУТБОЛКИ ОПТОМ', underwear:'ТРУСЫ ОПТОМ' },
+    en: { all:'ALL PRODUCTS WHOLESALE FROM FACTORIES', socks:'SOCKS WHOLESALE FROM FACTORIES', regular:'REGULAR SOCKS WHOLESALE', tshirts:'T-SHIRTS WHOLESALE', underwear:'UNDERWEAR WHOLESALE' },
+    uz: { all:'BARCHA MAHSULOTLAR FABRIKALARDAN', socks:'PAYPOQLAR ULGURJI', regular:'ODDIY PAYPOQLAR ULGURJI', tshirts:'FUTBOLKALAR ULGURJI', underwear:'ICHKI KIYIM ULGURJI' }
+  };
+  const langDict = names[currentLang] || names.ru;
+  subtitle.textContent = langDict[currentCategory] || langDict.all;
+}
+
+function renderCatalog() {
+  const grid = document.getElementById('catalogGrid'); if (!grid) return;
+  let products = [];
+  if (currentCategory === 'all') {
+    products = [...allProducts.socks, ...allProducts.regular, ...allProducts.tshirts, ...allProducts.underwear];
+    products = shuffleArray(products);
+  } else if (currentCategory === 'socks') {
+    products = [...allProducts.socks, ...allProducts.regular];
+  } else {
+    products = allProducts[currentCategory] || [];
+  }
+  if (currentBrandFilter !== 'all') {
+    if (currentBrandFilter === 'обычные') {
+      products = products.filter(p => p.category === 'regular' || (p.category === 'tshirts' && (!p.brand || p.brand.trim() === '')));
+    } else {
+      products = products.filter(p => p.category === 'socks' && (p.brand || '').toLowerCase() === currentBrandFilter.toLowerCase());
+    }
+  }
+  if (currentAudienceFilter !== 'all') {
+    products = products.filter(p => {
+      if (!p.audience) return currentAudienceFilter === 'all';
+      return p.audience === currentAudienceFilter;
+    });
+  }
+  if (products.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;" class="empty-state"><i class="fas fa-box-open"></i>—</div>`;
+    return;
+  }
+  grid.innerHTML = products.map(p => {
+    const finalPrice = getFinalPrice(p);
+    const basePrice = p.price || 0;
+    const discount = basePrice > 0 ? Math.round((1 - finalPrice / basePrice) * 100) : 0;
+    const showDiscount = finalPrice < basePrice && discount > 0;
+    const rating = (p.rating || State.rating).toFixed(1);
+    const isFav = favorites.includes(p.id);
+    const heart = isFav ? 'fas fa-heart' : 'far fa-heart';
+    const images = (p.images && Array.isArray(p.images) && p.images.length) ? p.images.filter(Boolean) : (p.imageUrl ? [p.imageUrl] : []);
+    const first = images[0];
+    const imgContent = first ? `<img src="${first}" alt="${p.name}" loading="lazy">` : `<i class="fas fa-shirt"></i>`;
+    const brandLine = (p.brand && p.brand.trim()) ? `<div class="product-card__brand">${p.brand}</div>` : '';
+    const sizeLine = getSizeDisplayForProduct(p);
+    const sizeBlock = sizeLine ? `<div class="product-card__size"><i class="fas fa-ruler"></i> ${sizeLine}</div>` : '';
+    return `
+      <article class="product-card" data-id="${p.id}">
+        <div class="product-card__image-wrap">
+          ${imgContent}
+          ${showDiscount ? `<span class="product-card__badge">−${discount}%</span>` : ''}
+          <button class="product-card__favorite ${isFav ? 'active' : ''}" data-fav-id="${p.id}" aria-label="Fav"><i class="${heart}"></i></button>
+        </div>
+        <div class="product-card__body">
+          <h3 class="product-card__name">${p.name}</h3>
+          ${brandLine}
+          ${sizeBlock}
+          <div class="product-card__price-line">
+            <span class="product-card__price">${finalPriceStr(finalPrice)}</span>
+            ${showDiscount ? `<span class="product-card__price-old">${finalPriceStr(basePrice)}</span>` : ''}
+            <span class="product-card__rating"><i class="fas fa-star"></i> ${rating}</span>
+          </div>
+          <button class="product-card__quick-add"><i class="fas fa-shopping-cart"></i> ${t('btn_cart')}</button>
+        </div>
+      </article>`;
+  }).join('');
+}
+
+document.getElementById('catalogGrid').addEventListener('click', (e) => {
+  const favBtn = e.target.closest('.product-card__favorite');
+  if (favBtn) { e.preventDefault(); e.stopPropagation(); const id = favBtn.dataset.favId; if (id) toggleFavorite(id); return; }
+  const cartBtn = e.target.closest('.product-card__quick-add');
+  if (cartBtn) { e.preventDefault(); e.stopPropagation(); if (!currentUser) { openAuthModal(); return; } const card = cartBtn.closest('.product-card'); const id = card?.dataset.id; if (id) { addToCart(id, 1); showToast('OK'); } return; }
+  const card = e.target.closest('.product-card');
+  if (card && card.dataset.id) openProductPage(card.dataset.id);
+});
+
+let currentDetailImageIndex = 0;
+function renderProductDetailGallery(product) {
+  const slidesContainer = document.getElementById('productPageSlides');
+  const dotsContainer = document.getElementById('productPageDots');
+  const prevBtn = document.getElementById('productPagePrevBtn');
+  const nextBtn = document.getElementById('productPageNextBtn');
+  if (!slidesContainer || !dotsContainer) return;
+  const images = (product.images && Array.isArray(product.images)) ? product.images.filter(Boolean) : [];
+  const fallback = product.imageUrl || '';
+  if (images.length === 0) {
+    slidesContainer.innerHTML = fallback ? `<div class="product-page__slide"><img src="${fallback}" alt="${product.name}"></div>` : `<div class="product-page__slide product-page__slide--empty"><i class="fas fa-image"></i></div>`;
+    dotsContainer.innerHTML = ''; currentDetailImageIndex = 0;
+    if (prevBtn) prevBtn.disabled = true; if (nextBtn) nextBtn.disabled = true;
+    return;
+  }
+  slidesContainer.innerHTML = images.map((img, i) => `<div class="product-page__slide" data-index="${i}"><img src="${img}" alt="${product.name} ${i + 1}" loading="lazy"></div>`).join('');
+  dotsContainer.innerHTML = images.map((_, i) => `<span class="product-page__dot${i === 0 ? ' active' : ''}" data-index="${i}"></span>`).join('');
+  dotsContainer.querySelectorAll('.product-page__dot').forEach(dot => { dot.addEventListener('click', () => { currentDetailImageIndex = parseInt(dot.dataset.index, 10) || 0; updateProductDetailGallery(); }); });
+  currentDetailImageIndex = 0; updateProductDetailGallery();
+}
+function updateProductDetailGallery() {
+  const slidesContainer = document.getElementById('productPageSlides');
+  const dotsContainer = document.getElementById('productPageDots');
+  const prevBtn = document.getElementById('productPagePrevBtn');
+  const nextBtn = document.getElementById('productPageNextBtn');
+  if (!slidesContainer || !dotsContainer) return;
+  const slides = slidesContainer.querySelectorAll('.product-page__slide');
+  const dots = dotsContainer.querySelectorAll('.product-page__dot');
+  if (!slides.length) return;
+  currentDetailImageIndex = Math.max(0, Math.min(currentDetailImageIndex, slides.length - 1));
+  slidesContainer.style.transform = `translateX(-${currentDetailImageIndex * 100}%)`;
+  dots.forEach((d, i) => d.classList.toggle('active', i === currentDetailImageIndex));
+  if (prevBtn) prevBtn.disabled = currentDetailImageIndex === 0;
+  if (nextBtn) nextBtn.disabled = currentDetailImageIndex === slides.length - 1;
+}
+function openProductPage(productId) {
+  if (CURRENT_FILE !== 'product.html') { location.href = 'product.html?id=' + encodeURIComponent(productId); return; }
+  const p = getProductById(productId); if (!p) return;
+  document.getElementById('productDetailPage').dataset.currentId = productId;
+  const finalPrice = getFinalPrice(p); const basePrice = p.price || 0;
+  renderProductDetailGallery(p);
+  const content = document.getElementById('productPageContent');
+  const sizeLine = getSizeDisplayForProduct(p);
+  const attrRows = [
+    `<div><strong>${t('pd_material')}</strong><span>${p.material || '—'}</span></div>`,
+    `<div><strong>${t('pd_size')}</strong><span>${sizeLine || '—'}</span></div>`,
+    `<div><strong>${t('pd_brand')}</strong><span>${p.brand || 'FULL SELLER'}</span></div>`
+  ];
+  if (p.color) attrRows.push(`<div><strong>Color</strong><span>${p.color}</span></div>`);
+  if (p.weight) attrRows.push(`<div><strong>Weight</strong><span>${p.weight} g</span></div>`);
+  content.innerHTML = `
+    <h1 class="product-page__name">${p.name}</h1>
+    <div class="product-page__price">${formatPrice(finalPrice)}${finalPrice < basePrice ? `<span class="old">${formatPrice(basePrice)}</span>` : ''}</div>
+    <p class="product-page__desc">${p.desc || '—'}</p>
+    <div class="product-page__attributes">${attrRows.join('')}</div>
+    <div class="product-page__actions">
+      <input type="number" class="qty-input" id="detailQty" value="1" min="1" max="999">
+      <button class="btn product-page__add" id="detailAddToCart"><i class="fas fa-cart-plus"></i> ${t('btn_cart')}</button>
+    </div>`;
+  document.getElementById('detailAddToCart').onclick = () => { if (!currentUser) { openAuthModal(); return; } const qty = parseInt(document.getElementById('detailQty').value) || 1; addToCart(productId, qty); showToast(`+${qty}`); };
+  showPage('productDetail');
+  logAnalyticsEvent('view_item', { currency:'RUB', value: finalPrice, items:[{ item_id:p.id, item_name:p.name, item_category:p.category, price:finalPrice }] });
+}
+document.getElementById('productPagePrevBtn').addEventListener('click', () => { currentDetailImageIndex--; updateProductDetailGallery(); });
+document.getElementById('productPageNextBtn').addEventListener('click', () => { currentDetailImageIndex++; updateProductDetailGallery(); });
+document.getElementById('productBackBtn').addEventListener('click', () => showPage('home'));
+document.addEventListener('keydown', (e) => {
+  const page = document.getElementById('productDetailPage');
+  if (!page.classList.contains('active')) return;
+  if (e.key === 'ArrowLeft') { currentDetailImageIndex--; updateProductDetailGallery(); }
+  if (e.key === 'ArrowRight') { currentDetailImageIndex++; updateProductDetailGallery(); }
+});
+
+function toggleFavorite(productId) {
+  if (favorites.includes(productId)) { favorites = favorites.filter(id => id !== productId); showToast('—'); }
+  else { favorites.push(productId); showToast('+'); }
+  saveFavorites(); renderCatalog();
+  if (document.getElementById('favoritesPage').classList.contains('active')) renderFavoritesModal();
+}
+function renderFavoritesModal() {
+  const container = document.getElementById('favoritesContainer');
+  const emptyMsg = document.getElementById('favoritesEmpty'); if (!container) return;
+  if (favorites.length === 0) { container.innerHTML = ''; emptyMsg.style.display = 'block'; return; }
+  emptyMsg.style.display = 'none';
+  container.innerHTML = favorites.map(id => {
+    const p = getProductById(id); if (!p) return '';
+    const fp = getFinalPrice(p); const img = (p.images && p.images[0]) || p.imageUrl || '';
+    return `<div class="favorites-item">${img ? `<img src="${img}" alt="${p.name}">` : ''}<div class="favorites-item-info"><div>${p.name}</div><div style="color:var(--accent); font-weight:600; font-size:.875rem; margin-top:2px;">${formatPrice(fp)}</div></div><i class="fas fa-trash favorites-item-remove" data-remove="${id}" title="X"></i></div>`;
+  }).join('');
+  container.querySelectorAll('.favorites-item-remove').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.target.dataset.remove; if (!id) return;
+      favorites = favorites.filter(f => f !== id); saveFavorites(); renderCatalog(); renderFavoritesModal();
+    });
+  });
+}
+function addToCart(productId, qty = 1) {
+  const existing = cart.find(i => i.productId === productId);
+  if (existing) existing.qty += qty; else cart.push({ productId, qty });
+  saveCart();
+  const p = getProductById(productId);
+  if (p) logAnalyticsEvent('add_to_cart', { currency:'RUB', value: getFinalPrice(p) * qty, items:[{ item_id:p.id, item_name:p.name, item_category:p.category, price:getFinalPrice(p), quantity:qty }] });
+}
+function removeFromCart(productId) { cart = cart.filter(i => i.productId !== productId); saveCart(); renderCartModal(); }
+function changeQty(productId, delta) {
+  const item = cart.find(i => i.productId === productId); if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) removeFromCart(productId); else { saveCart(); renderCartModal(); }
+}
+function renderCartModal() {
+  const container = document.getElementById('cartItemsContainer');
+  const totalBlock = document.getElementById('cartTotalBlock'); if (!container) return;
+  if (cart.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fas fa-cart-shopping"></i>${t('cart_title')}</div>`; totalBlock.innerHTML = ''; return; }
+  let total = 0;
+  container.innerHTML = cart.map(item => {
+    const p = getProductById(item.productId); if (!p) return '';
+    const fp = getFinalPrice(p); const sub = fp * item.qty; total += sub;
+    const img = (p.images && p.images[0]) || p.imageUrl || '';
+    return `<div style="display:flex; align-items:center; gap:16px; padding:16px 0; border-bottom:1px solid var(--border-light);">
+      <div style="width:64px; height:64px; border-radius:12px; overflow:hidden; background:var(--bg-secondary); flex-shrink:0;">${img ? `<img src="${img}" style="width:100%;height:100%;object-fit:cover;">` : ''}</div>
+      <div style="flex:1; min-width:0;"><div style="font-weight:600; font-size:.9375rem;">${p.name}</div><div style="color:var(--accent); font-weight:600; font-size:.875rem; margin-top:4px;">${formatPrice(fp)} × ${item.qty} = ${formatPrice(sub)}</div></div>
+      <div style="display:flex; gap:6px; align-items:center;"><button class="btn-outline" style="width:34px; min-height:34px; padding:0;" onclick="changeQty('${item.productId}', -1)">−</button><span style="min-width:26px; text-align:center;">${item.qty}</span><button class="btn-outline" style="width:34px; min-height:34px; padding:0;" onclick="changeQty('${item.productId}', 1)">+</button><button onclick="removeFromCart('${item.productId}')" style="color:var(--danger); padding:8px;"><i class="fas fa-trash"></i></button></div>
+    </div>`;
+  }).join('');
+  totalBlock.innerHTML = `<span>${t('cart_title')}</span><span>${formatPrice(total)}</span>`;
+}
+
+function loadStaticProducts() {
+  allProducts.socks = STATIC_SOCKS.map(s => ({ ...s }));
+  allProducts.regular = STATIC_REGULAR_SOCKS.map(s => ({ ...s }));
+  allProducts.tshirts = STATIC_TSHIRTS.map(s => ({ ...s }));
+  allProducts.underwear = STATIC_UNDERWEAR.map(s => ({ ...s }));
+  renderCatalog();
+}
+function mergeFirestore(collectionName, key) {
+  db.collection(collectionName).onSnapshot(snap => {
+    const baseMap = { products: STATIC_SOCKS, tshirts: STATIC_TSHIRTS, underwear: STATIC_UNDERWEAR };
+    allProducts[key] = baseMap[collectionName].map(s => ({ ...s }));
+    snap.forEach(doc => {
+      const data = doc.data();
+      const idx = allProducts[key].findIndex(p => p.id === doc.id);
+      if (idx >= 0) {
+        const p = allProducts[key][idx];
+        if (data.price != null) p.price = data.price;
+        if (data.rating != null) p.rating = data.rating;
+        if (data.stock != null) p.stock = data.stock;
+        if (data.hidden != null) p.hidden = data.hidden;
+        if (data.name) p.name = data.name;
+        if (data.desc) p.desc = data.desc;
+        if (data.imageUrl) p.imageUrl = data.imageUrl;
+        if (Array.isArray(data.images) && data.images.length) p.images = data.images.filter(Boolean);
+        if (data.brand) p.brand = data.brand;
+        if (data.material) p.material = data.material;
+        if (data.size) p.size = data.size;
+        if (data.weight != null) p.weight = data.weight;
+        if (data.color) p.color = data.color;
+        if (data.audience) p.audience = data.audience;
+        if (Array.isArray(data.sizes)) p.sizes = data.sizes;
+      } else {
+        const imgs = Array.isArray(data.images) ? data.images.filter(Boolean) : [];
+        allProducts[key].push({
+          id: doc.id, name: data.name || '—', price: data.price || 0, desc: data.desc || '',
+          images: imgs.length ? imgs : (data.imageUrl ? [data.imageUrl] : []),
+          imageUrl: data.imageUrl || (imgs[0] || ''), material: data.material || '',
+          size: data.size || '', weight: data.weight != null ? data.weight : 0,
+          color: data.color || '', brand: data.brand || '', rating: data.rating || State.rating,
+          stock: data.stock || 0, hidden: data.hidden || false,
+          partnerId: data.partnerId || null, category: key,
+          audience: data.audience || '', sizes: Array.isArray(data.sizes) ? data.sizes : []
+        });
+      }
+    });
+    if (!isAdmin()) allProducts[key] = allProducts[key].filter(p => !p.hidden);
+    renderCatalog();
+    if (document.getElementById('adminPage').classList.contains('active')) renderAdminProducts();
+    if (typeof updateNewProductsBadge === 'function') updateNewProductsBadge();
+  });
+}
+function subscribeToAllProducts() {
+  loadStaticProducts();
+  mergeFirestore('products', 'socks');
+  mergeFirestore('tshirts', 'tshirts');
+  mergeFirestore('underwear', 'underwear');
+}
+
+/* ============ CURRENCY / THEME ============ */
+function toggleCurrency() {
+  State.currency = State.currency === 'RUB' ? 'USD' : 'RUB';
+  localStorage.setItem('fullseller_currency', State.currency);
+  document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
+  renderCatalog();
+  if (document.getElementById('favoritesPage').classList.contains('active')) renderFavoritesModal();
+  if (document.getElementById('cartPage').classList.contains('active')) renderCartModal();
+  if (document.getElementById('productDetailPage').classList.contains('active')) { const id = document.getElementById('productDetailPage').dataset.currentId; if (id) openProductPage(id); }
+}
+
+/* ============ ORDER MODAL ============ */
+function openOrderModal() {
+  const orderContent = document.getElementById('orderContent');
+  const totalBlock = document.getElementById('orderTotalBlock');
+  let total = 0, html = '';
+  cart.forEach(item => {
+    const p = getProductById(item.productId); if (!p) return;
+    const fp = getFinalPrice(p); const sub = fp * item.qty; total += sub;
+    html += `<div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid var(--border-light); font-size:.875rem;"><span>${p.name}</span><span style="white-space:nowrap; font-weight:600;">${item.qty} × ${formatPrice(fp)}</span></div>`;
+  });
+  orderContent.innerHTML = html || '<p>—</p>';
+  totalBlock.innerHTML = `<span>${t('cart_title')}</span><span>${formatPrice(total)}</span>`;
+  openModal('orderModal');
+}
+function generateOrderText() {
+  let text = '🛒 FULL SELLER\n\n'; let total = 0;
+  cart.forEach(item => {
+    const p = getProductById(item.productId); if (!p) return;
+    const fp = getFinalPrice(p); const sub = fp * item.qty; total += sub;
+    text += `• ${p.name} — ${item.qty} × ${fp} ₽ = ${sub.toFixed(2)} ₽\n`;
+  });
+  text += `\n💰 ${total.toFixed(2)} ₽`;
+  if (currentUser) text += `\n👤 ${currentUser.name || currentUser.email}`;
+  return text;
+}
+async function saveOrderToFirestore(orderData) {
+  try {
+    const ref = await db.collection('orders').add({
+      ...orderData, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      userId: currentUser.uid, userEmail: currentUser.email, userName: currentUser.name || ''
+    });
+    return ref.id;
+  } catch (e) { console.error(e); return null; }
+}
+async function sendOrderTo(messenger) {
+  if (!currentUser) { openAuthModal(); return; }
+  if (cart.length === 0) { showToast('—'); return; }
+  const orderItems = []; let total = 0;
+  cart.forEach(item => {
+    const p = getProductById(item.productId); if (!p) return;
+    const fp = getFinalPrice(p); const sub = fp * item.qty; total += sub;
+    orderItems.push({ productId: item.productId, name: p.name, price: fp, qty: item.qty, subtotal: sub });
+  });
+  const orderId = await saveOrderToFirestore({ items: orderItems, total, status:'new', date: new Date().toISOString() });
+  let text = generateOrderText();
+  text += orderId ? `\n\n#${orderId}` : '';
+  const url = messenger === 'whatsapp' ? `https://wa.me/998958239490?text=${encodeURIComponent(text)}` : `https://t.me/fullsellertjmsh?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+  cart = []; saveCart(); closeModal('orderModal'); showToast('OK');
+}
+async function loadUserOrders() {
+  const container = document.getElementById('ordersHistoryContainer');
+  if (!currentUser) { container.innerHTML = '<p>—</p>'; return; }
+  container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
+  try {
+    const snap = await db.collection('orders').where('userId', '==', currentUser.uid).orderBy('createdAt','desc').limit(10).get();
+    const orders = []; snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+    if (!orders.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i>—</div>'; return; }
+    const statusNames = { new:'New', processing:'In progress', shipped:'Shipped', delivered:'Delivered', cancelled:'Cancelled' };
+    container.innerHTML = orders.map(o => {
+      const date = o.createdAt ? new Date(o.createdAt.seconds * 1000).toLocaleDateString() : '—';
+      return `<div class="order-item" onclick="openOrderDetail('${o.id}')"><div style="display:flex; justify-content:space-between; align-items:center; gap:12px;"><strong>#${o.id}</strong><span class="order-status ${o.status || 'new'}">${statusNames[o.status] || 'New'}</span></div><div style="margin-top:8px; color:var(--text-secondary); font-size:.8125rem;">${date} • ${o.items?.length || 0} • ${(o.total || 0).toFixed(2)} ₽</div></div>`;
+    }).join('');
+  } catch (e) { container.innerHTML = '<p style="color:var(--danger);">Error</p>'; }
+}
+window.openOrderDetail = async function (orderId) {
+  const content = document.getElementById('orderDetailContent');
+  content.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>'; openModal('orderDetailModal');
+  try {
+    const doc = await db.collection('orders').doc(orderId).get();
+    if (!doc.exists) { content.innerHTML = '<p>—</p>'; return; }
+    const o = doc.data();
+    const date = o.createdAt ? new Date(o.createdAt.seconds * 1000).toLocaleString() : '—';
+    content.innerHTML = `<p><strong>#${orderId}</strong></p><p style="margin-top:8px;">${o.status || 'new'}</p><p style="margin-top:6px; color:var(--text-secondary); font-size:.875rem;">${date}</p><hr style="margin:16px 0; border:none; border-top:1px solid var(--border-light);">${(o.items || []).map(i => `<div style="display:flex; justify-content:space-between; padding:7px 0; font-size:.875rem;"><span>${i.name} × ${i.qty}</span><span style="font-weight:600;">${(i.subtotal || 0).toFixed(2)} ₽</span></div>`).join('')}<hr style="margin:16px 0; border:none; border-top:1px solid var(--border-light);"><div class="cart-total"><span>${t('cart_title')}</span><span>${(o.total || 0).toFixed(2)} ₽</span></div>`;
+  } catch (e) { content.innerHTML = '<p style="color:var(--danger);">Error</p>'; }
+};
+
+/* ============ ADMIN ============ */
+function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
+function updateAdminUI() {
+  const link = document.getElementById('adminNavLink');
+  const mobileLink = document.getElementById('mobileAdminLink');
+  if (isAdmin()) {
+    if (link) { link.style.display = 'inline-flex'; link.onclick = (e) => { e.preventDefault(); showPage('admin'); }; }
+    if (mobileLink) { mobileLink.style.display = 'flex'; mobileLink.onclick = (e) => { e.preventDefault(); showPage('admin'); closeMobileMenu(); }; }
+  } else {
+    if (link) link.style.display = 'none';
+    if (mobileLink) mobileLink.style.display = 'none';
+  }
+}
+function renderAdminProducts() {
+  const container = document.getElementById('adminProductsList');
+  let allP = []; for (const cat in allProducts) allP = allP.concat(allProducts[cat].map(p => ({ ...p, category: cat })));
+  if (!allP.length) { container.innerHTML = '<p>—</p>'; return; }
+  container.innerHTML = `<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Rating</th><th>Brand</th><th>Material</th><th>Size</th><th>Desc</th><th>Hide</th><th>Act</th></tr></thead><tbody>${allP.map(p => {
+    const col = p.category === 'socks' ? 'products' : p.category;
+    return `<tr data-id="${p.id}" data-col="${col}"><td><input type="text" class="admin-name" value="${(p.name || '').replace(/"/g,'&quot;')}" style="min-width:130px;"></td><td><select class="admin-category"><option value="socks" ${p.category === 'socks' ? 'selected' : ''}>Socks</option><option value="tshirts" ${p.category === 'tshirts' ? 'selected' : ''}>T-shirts</option><option value="underwear" ${p.category === 'underwear' ? 'selected' : ''}>Underwear</option></select></td><td><input type="number" class="admin-price" value="${p.price}" style="width:80px;"></td><td><input type="number" step="0.1" min="0" max="5" class="admin-rating" value="${(p.rating || State.rating).toFixed(1)}" style="width:70px;"></td><td><input type="text" class="admin-brand" value="${(p.brand || '').replace(/"/g,'&quot;')}" style="width:100px;"></td><td><input type="text" class="admin-material" value="${(p.material || '').replace(/"/g,'&quot;')}" style="width:120px;"></td><td><input type="text" class="admin-size" value="${(p.size || '').replace(/"/g,'&quot;')}" style="width:80px;"></td><td><textarea class="admin-desc" style="width:160px; height:56px;">${p.desc || ''}</textarea></td><td style="text-align:center;"><input type="checkbox" class="admin-hidden" ${p.hidden ? 'checked' : ''}></td><td style="white-space:nowrap;"><button class="btn" onclick="saveProductRow(this)">Save</button><button class="btn btn-danger" onclick="deleteProduct('${p.id}','${col}')">Del</button></td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+window.saveProductRow = async function (btn) {
+  const row = btn.closest('tr'); const productId = row.dataset.id; const collectionName = row.dataset.col;
+  const name = row.querySelector('.admin-name').value.trim();
+  const category = row.querySelector('.admin-category').value;
+  const price = parseFloat(row.querySelector('.admin-price').value);
+  const rating = parseFloat(row.querySelector('.admin-rating').value);
+  const brand = row.querySelector('.admin-brand')?.value.trim() || '';
+  const material = row.querySelector('.admin-material')?.value.trim() || '';
+  const size = row.querySelector('.admin-size')?.value.trim() || '';
+  const desc = row.querySelector('.admin-desc').value;
+  const hidden = row.querySelector('.admin-hidden').checked;
+  if (!name || isNaN(price) || isNaN(rating)) { showToast('!'); return; }
+  try {
+    await db.collection(collectionName).doc(productId).set({ name, category, price, rating, brand, material, size, desc, hidden }, { merge: true });
+    showToast('OK'); const p = getProductById(productId); if (p) Object.assign(p, { name, category, price, rating, brand, material, size, desc, hidden });
+    renderAdminProducts(); renderCatalog();
+  } catch (e) { showToast('Err: ' + e.message); }
+};
+window.deleteProduct = async function (productId, collectionName) {
+  if (!confirm('?')) return;
+  try { await db.collection(collectionName).doc(productId).delete(); showToast('OK'); renderAdminProducts(); }
+  catch (e) { showToast('Err: ' + e.message); }
+};
+document.getElementById('addProductBtn').addEventListener('click', async () => {
+  const name = document.getElementById('adminName').value.trim();
+  const price = parseFloat(document.getElementById('adminPrice').value);
+  const category = document.getElementById('adminCategory').value;
+  if (!name || isNaN(price)) { showToast('!'); return; }
+  const collectionName = category === 'socks' ? 'products' : category;
+  const data = { name, price, brand: document.getElementById('adminBrand').value.trim(), material: document.getElementById('adminMaterial').value.trim(), size: document.getElementById('adminSize').value.trim(), imageUrl: document.getElementById('adminImageUrl').value.trim(), desc: document.getElementById('adminDesc').value.trim(), hidden: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+  try { await db.collection(collectionName).add(data); showToast('OK'); ['adminName','adminPrice','adminBrand','adminMaterial','adminSize','adminImageUrl','adminDesc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); }
+  catch (e) { showToast('Err: ' + e.message); }
+});
+async function renderAdminOrders() {
+  const container = document.getElementById('adminOrdersList');
+  container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
+  try {
+    const snap = await db.collection('orders').orderBy('createdAt','desc').limit(20).get();
+    const orders = []; snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+    if (!orders.length) { container.innerHTML = '<p>—</p>'; return; }
+    container.innerHTML = `<table class="admin-table"><thead><tr><th>ID</th><th>User</th><th>Sum</th><th>Status</th><th>Date</th><th>Act</th></tr></thead><tbody>${orders.map(o => `<tr><td>${o.id}</td><td>${o.userName || o.userEmail || '—'}</td><td>${(o.total || 0).toFixed(2)} ₽</td><td><span class="order-status ${o.status || 'new'}">${o.status || 'new'}</span></td><td>${o.createdAt ? new Date(o.createdAt.seconds * 1000).toLocaleDateString() : '—'}</td><td style="white-space:nowrap;"><select onchange="updateOrderStatus('${o.id}', this.value)"><option value="new" ${o.status === 'new' ? 'selected' : ''}>New</option><option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option><option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>Shipped</option><option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option><option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option></select> <button class="btn btn-danger" onclick="deleteOrder('${o.id}')" style="margin-left:6px;">Del</button></td></tr>`).join('')}</tbody></table>`;
+  } catch (e) { container.innerHTML = '<p style="color:var(--danger);">Error</p>'; }
+}
+window.updateOrderStatus = async function (orderId, newStatus) {
+  try { await db.collection('orders').doc(orderId).update({ status: newStatus }); showToast('OK'); }
+  catch (e) { showToast('Err: ' + e.message); }
+};
+window.deleteOrder = async function (orderId) {
+  if (!confirm('Удалить заказ?')) return;
+  try { await db.collection('orders').doc(orderId).delete(); showToast('OK'); renderAdminOrders(); if (typeof renderAdminDashboard === 'function') renderAdminDashboard(); }
+  catch (e) { showToast('Err: ' + e.message); }
+};
+document.getElementById('deleteAllOrdersBtn')?.addEventListener('click', async () => {
+  const rows = document.querySelectorAll('#adminOrdersList tbody tr');
+  if (!rows.length) { showToast('Список пуст'); return; }
+  if (!confirm('Удалить ВСЕ заказы из списка (' + rows.length + ' шт.)? Это необратимо.')) return;
+  const btn = document.getElementById('deleteAllOrdersBtn'); const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Удаление...';
+  try {
+    const ids = Array.from(rows).map(r => r.children[0].textContent.trim());
+    const batch = db.batch();
+    ids.forEach(id => batch.delete(db.collection('orders').doc(id)));
+    await batch.commit();
+    showToast('Удалено: ' + ids.length);
+    renderAdminOrders();
+    if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+  } catch (e) { showToast('Err: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = orig; }
+});
+document.getElementById('saveGlobalParamsBtn').addEventListener('click', async () => {
+  const percent = parseFloat(document.getElementById('adminDiscountPercent').value) || 0;
+  const rub = parseFloat(document.getElementById('adminDiscountRub').value) || 0;
+  const rating = Math.min(5, Math.max(0, parseFloat(document.getElementById('adminRating').value) || 4.2));
+  State.percentageDiscount = percent; State.fixedDiscountRub = rub; State.rating = rating;
+  try { await db.collection('settings').doc('global').set({ percentageDiscount: percent, fixedDiscountRub: rub, defaultRating: rating }); showToast('OK'); }
+  catch (e) { showToast('Err: ' + e.message); }
+  renderCatalog();
+});
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', function () {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    const name = this.dataset.tab;
+    document.getElementById('adminGlobalTab').style.display = name === 'global' ? 'block' : 'none';
+    document.getElementById('adminProductsTab').style.display = name === 'products' ? 'block' : 'none';
+    document.getElementById('adminAddTab').style.display = name === 'add' ? 'block' : 'none';
+    document.getElementById('adminOrdersTab').style.display = name === 'orders' ? 'block' : 'none';
+    if (name === 'products') renderAdminProducts();
+    if (name === 'orders') renderAdminOrders();
+  });
+});
+
+// ===== New admin sidebar dashboard (Дашборд/Заказы/Производители/...) =====
+const ADMIN_SECTION_TABS = { dashboard:'adminDashboardTab', orders:'adminOrdersTab', partners:'adminPartnersTab', newProducts:'adminNewProductsTab', products:'adminProductsTab', add:'adminAddTab', clients:'adminClientsTab', reviews:'adminReviewsTab', finance:'adminFinanceTab', settings:'adminGlobalTab' };
+function switchAdminSection(name) {
+  const targetId = ADMIN_SECTION_TABS[name] || 'adminDashboardTab';
+  Object.values(ADMIN_SECTION_TABS).forEach(id => { const el = document.getElementById(id); if (el) el.style.display = (id === targetId) ? 'block' : 'none'; });
+  document.querySelectorAll('.admin-nav__item').forEach(item => item.classList.toggle('is-active', item.dataset.adminSection === name));
+  if (name === 'dashboard') renderAdminDashboard();
+  if (name === 'orders') renderAdminOrders();
+  if (name === 'partners') renderAdminPartnersList();
+  if (name === 'products') renderAdminProducts();
+  if (name === 'clients') renderAdminClients();
+  if (name === 'newProducts') renderAdminNewProducts();
+}
+window.switchAdminSection = switchAdminSection;
+document.querySelectorAll('[data-admin-section]').forEach(el => {
+  el.addEventListener('click', () => switchAdminSection(el.dataset.adminSection));
+});
+async function renderAdminDashboard() {
+  let totalProducts = 0; for (const cat in allProducts) totalProducts += allProducts[cat].length;
+  const statProducts = document.getElementById('adminStatProducts'); if (statProducts) statProducts.textContent = totalProducts;
+  const statRating = document.getElementById('adminStatRating'); if (statRating) statRating.textContent = (State.rating || 4.2).toFixed(1);
+  const statOrders = document.getElementById('adminStatOrders');
+  const dashOrdersEl = document.getElementById('adminDashboardOrders');
+  try {
+    const snap = await db.collection('orders').orderBy('createdAt','desc').limit(20).get();
+    const orders = []; snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+    if (statOrders) statOrders.textContent = orders.length;
+    if (dashOrdersEl) {
+      if (!orders.length) dashOrdersEl.innerHTML = '<div class="admin-empty">Заказов пока нет</div>';
+      else dashOrdersEl.innerHTML = orders.slice(0,5).map(o => `<div class="admin-mini-row"><span>${o.userName || o.userEmail || '—'}</span><span>${(o.total || 0).toFixed(2)} ₽</span><span class="order-status ${o.status || 'new'}">${o.status || 'new'}</span></div>`).join('');
+    }
+  } catch (e) { if (dashOrdersEl) dashOrdersEl.innerHTML = '<div class="admin-empty">Ошибка загрузки</div>'; if (statOrders) statOrders.textContent = '—'; }
+  const statPartners = document.getElementById('adminStatPartners');
+  const dashPartnersEl = document.getElementById('adminDashboardPartners');
+  try {
+    let partnersDocs = [];
+    try { const psnap = await db.collection('partners').get(); psnap.forEach(doc => partnersDocs.push({ id: doc.id, ...doc.data() })); } catch (e) {}
+    const totalPartners = PARTNERS.length + partnersDocs.length;
+    if (statPartners) statPartners.textContent = totalPartners;
+    if (dashPartnersEl) {
+      const merged = [...PARTNERS.map(p => ({ name: p.name, login: p.login })), ...partnersDocs.map(p => ({ name: p.name || p.company || p.login, login: p.login }))];
+      if (!merged.length) dashPartnersEl.innerHTML = '<div class="admin-empty">Производителей пока нет</div>';
+      else dashPartnersEl.innerHTML = merged.slice(0,5).map(p => `<div class="admin-mini-row"><span>${p.name}</span><span>${p.login}</span></div>`).join('');
+    }
+  } catch (e) { if (dashPartnersEl) dashPartnersEl.innerHTML = '<div class="admin-empty">Ошибка загрузки</div>'; if (statPartners) statPartners.textContent = '—'; }
+}
+window.renderAdminDashboard = renderAdminDashboard;
+async function renderAdminPartnersList() {
+  const container = document.getElementById('adminPartnersList');
+  if (!container) return;
+  container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
+  let partnersDocs = [];
+  try { const snap = await db.collection('partners').get(); snap.forEach(doc => partnersDocs.push({ id: doc.id, ...doc.data() })); } catch (e) {}
+  const merged = [
+    ...PARTNERS.map(p => ({ name: p.name, login: p.login, company: p.name, phone: '', builtin: true })),
+    ...partnersDocs.map(p => ({ name: p.name || p.company || p.login, login: p.login, company: p.company || '', phone: p.phone || '', builtin: false }))
+  ];
+  if (!merged.length) { container.innerHTML = '<div class="admin-empty">Производителей пока нет</div>'; return; }
+  container.innerHTML = merged.map(p => `<div class="admin-partner-card"><div class="admin-partner-card__avatar">${(p.name || '?').charAt(0).toUpperCase()}</div><div class="admin-partner-card__body"><b>${p.name || p.login}</b><span>${p.company && p.company !== p.name ? p.company + ' · ' : ''}${p.login}${p.phone ? ' · ' + p.phone : ''}</span></div><span class="admin-partner-badge">${p.builtin ? 'Встроенный' : 'Активен'}</span></div>`).join('');
+}
+window.renderAdminPartnersList = renderAdminPartnersList;
+async function renderAdminClients() {
+  const container = document.getElementById('adminClientsList');
+  if (!container) return;
+  container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
+  try {
+    const snap = await db.collection('users').limit(200).get();
+    let clients = []; snap.forEach(doc => clients.push({ id: doc.id, ...doc.data() }));
+    clients.sort((a, b) => {
+      const ta = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : 0;
+      const tb = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : 0;
+      return tb - ta;
+    });
+    if (!clients.length) { container.innerHTML = '<div class="admin-empty">Клиентов пока нет</div>'; return; }
+    container.innerHTML = clients.map(c => {
+      const label = c.name || c.email || c.phone || '—';
+      const dateStr = c.createdAt && c.createdAt.seconds ? new Date(c.createdAt.seconds * 1000).toLocaleDateString() : '—';
+      return `<div class="admin-partner-card"><div class="admin-partner-card__avatar">${label.charAt(0).toUpperCase()}</div><div class="admin-partner-card__body"><b>${label}</b><span>${c.email || ''}${c.phone ? ' · ' + c.phone : ''}</span></div><span class="admin-partner-badge">${dateStr}</span></div>`;
+    }).join('');
+  } catch (e) { container.innerHTML = '<p style="color:var(--danger);">Error</p>'; }
+}
+window.renderAdminClients = renderAdminClients;
+function getPendingPartnerProducts() {
+  const items = [];
+  for (const cat in allProducts) {
+    allProducts[cat].forEach(p => { if (p.partnerId && p.hidden) items.push({ ...p, category: cat }); });
+  }
+  return items;
+}
+function updateNewProductsBadge() {
+  const badge = document.getElementById('adminNewProductsBadge');
+  if (!badge) return;
+  const count = getPendingPartnerProducts().length;
+  if (count > 0) { badge.textContent = count; badge.style.display = 'inline-flex'; }
+  else { badge.style.display = 'none'; }
+}
+function renderAdminNewProducts() {
+  const container = document.getElementById('adminNewProductsList');
+  if (!container) return;
+  const items = getPendingPartnerProducts();
+  updateNewProductsBadge();
+  if (!items.length) { container.innerHTML = '<div class="admin-empty">Новых товаров на проверку нет</div>'; return; }
+  container.innerHTML = `<table class="admin-table"><thead><tr><th>Фото</th><th>Название</th><th>Категория</th><th>Цена</th><th>Производитель</th><th>Act</th></tr></thead><tbody>${items.map(p => {
+    const col = p.category === 'socks' ? 'products' : p.category;
+    const partner = PARTNERS.find(x => x.partnerId === p.partnerId);
+    const partnerName = partner ? partner.name : (p.partnerId || '—');
+    const img = p.imageUrl || (Array.isArray(p.images) && p.images[0]) || '';
+    return `<tr><td>${img ? `<img src="${img}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;">` : '—'}</td><td>${p.name || '—'}</td><td>${p.category}</td><td>${p.price || 0} ₽</td><td>${partnerName}</td><td style="white-space:nowrap;"><button class="btn" onclick="approveNewProduct('${p.id}','${col}')">Опубликовать</button> <button class="btn btn-danger" onclick="rejectNewProduct('${p.id}','${col}')">Отклонить</button></td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+window.renderAdminNewProducts = renderAdminNewProducts;
+window.approveNewProduct = async function (id, col) {
+  try {
+    await db.collection(col).doc(id).update({ hidden: false, approvedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    showToast('OK'); renderAdminNewProducts();
+    if (typeof renderAdminProducts === 'function') renderAdminProducts();
+    if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+  } catch (e) { showToast('Err: ' + e.message); }
+};
+window.rejectNewProduct = async function (id, col) {
+  if (!confirm('Отклонить и удалить товар?')) return;
+  try { await db.collection(col).doc(id).delete(); showToast('OK'); renderAdminNewProducts(); }
+  catch (e) { showToast('Err: ' + e.message); }
+};
+document.getElementById('addPartnerBtn')?.addEventListener('click', async () => {
+  const company = document.getElementById('adminPartnerCompany').value.trim();
+  const contact = document.getElementById('adminPartnerContact').value.trim();
+  const phone = document.getElementById('adminPartnerPhone').value.trim();
+  const login = document.getElementById('adminPartnerLogin').value.trim();
+  const password = document.getElementById('adminPartnerPassword').value;
+  if (!company || !login || !password) { showToast('!'); return; }
+  const btn = document.getElementById('addPartnerBtn'); const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    await db.collection('partners').add({ login, password, name: contact || company, company, phone, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    showToast('OK');
+    ['adminPartnerCompany','adminPartnerContact','adminPartnerPhone','adminPartnerLogin','adminPartnerPassword'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    renderAdminPartnersList(); renderAdminDashboard();
+  } catch (e) { showToast('Err: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = orig; }
+});
+function loadGlobalSettings() {
+  db.collection('settings').doc('global').onSnapshot(doc => {
+    if (doc.exists) { const d = doc.data(); State.percentageDiscount = d.percentageDiscount || 0; State.fixedDiscountRub = d.fixedDiscountRub || 0; State.rating = d.defaultRating || 4.2; }
+    renderCatalog();
+  });
+}
+
+/* ============ REVIEWS ============ */
+async function loadPurchasedProductsForReview() {
+  const select = document.getElementById('reviewProductSelect'); if (!select) return;
+  select.innerHTML = '<option value="">—</option>';
+  if (!currentUser) { select.innerHTML = `<option value="">${t('rev_login_link')}</option>`; return; }
+  try {
+    const ordersSnap = await db.collection('orders').where('userId', '==', currentUser.uid).get();
+    const purchased = new Set();
+    ordersSnap.forEach(doc => (doc.data().items || []).forEach(i => { if (i.productId) purchased.add(i.productId); }));
+    const reviewsSnap = await db.collection('reviews').where('userId', '==', currentUser.uid).get();
+    const reviewed = new Set(); reviewsSnap.forEach(doc => reviewed.add(doc.data().productId));
+    const available = [...purchased].filter(id => !reviewed.has(id)).map(getProductById).filter(Boolean);
+    select.innerHTML = available.length ? `<option value="">${t('rev_choose_product')}</option>` + available.map(p => `<option value="${p.id}">${p.name}</option>`).join('') : `<option value="">—</option>`;
+  } catch (e) { select.innerHTML = '<option value="">Error</option>'; }
+}
+function updateReviewPreview() {
+  const container = document.getElementById('reviewAttachmentsPreview'); if (!container) return;
+  container.innerHTML = reviewPhotoFiles.map((item, idx) => `<div class="review-attach-preview" style="background-image:url('${item.preview}')"><div class="remove-attach" onclick="removeReviewAttachment(${idx})">&times;</div></div>`).join('');
+}
+window.removeReviewAttachment = function (idx) { if (reviewPhotoFiles[idx]?.preview) URL.revokeObjectURL(reviewPhotoFiles[idx].preview); reviewPhotoFiles.splice(idx, 1); updateReviewPreview(); };
+async function handleReviewFiles(input) {
+  const files = Array.from(input.files || []);
+  const slots = Math.max(0, 5 - reviewPhotoFiles.length);
+  const toProcess = files.slice(0, slots);
+  const valid = ['image/jpeg','image/jpg','image/png','image/webp']; const maxSize = 5 * 1024 * 1024;
+  for (const file of toProcess) {
+    if (!valid.includes(file.type)) { showToast('!'); continue; }
+    if (file.size > maxSize) { showToast('!'); continue; }
+    reviewPhotoFiles.push({ file, preview: URL.createObjectURL(file), name: file.name });
+  }
+  updateReviewPreview(); input.value = '';
+}
+async function toggleReviewLike(reviewId) {
+  if (!currentUser) { openAuthModal(); return; }
+  if (likeInProgress.has(reviewId)) return; likeInProgress.add(reviewId);
+  try {
+    const ref = db.collection('reviews').doc(reviewId); const snap = await ref.get(); if (!snap.exists) return;
+    const data = snap.data(); let likes = Array.isArray(data.likes) ? data.likes : [];
+    const idx = likes.indexOf(currentUser.uid); if (idx >= 0) likes.splice(idx, 1); else likes.push(currentUser.uid);
+    await ref.update({ likes });
+    const r = allReviews.find(x => x.id === reviewId); if (r) { r.likes = likes; renderReviews(); }
+  } catch (e) { showToast('Err: ' + e.message); } finally { likeInProgress.delete(reviewId); }
+}
+async function loadReviewsFromFirestore() {
+  try {
+    const snap = await db.collection('reviews').orderBy('date','desc').get();
+    allReviews = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      allReviews.push({ id: doc.id, name: d.name, rating: d.rating, comment: d.comment, date: d.date ? d.date.toDate().getTime() : Date.now(), productId: d.productId, userId: d.userId, media: Array.isArray(d.media) ? d.media : [], likes: Array.isArray(d.likes) ? d.likes : [] });
+    });
+    renderReviews();
+  } catch (e) { allReviews = []; renderReviews(); }
+}
+function renderReviews() {
+  const container = document.getElementById('reviewsContainer'); const toggleBtn = document.getElementById('toggleAllReviewsBtn'); if (!container) return;
+  if (!allReviews.length) { container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="far fa-comment-dots"></i>—</div>'; toggleBtn.style.display = 'none'; return; }
+  const list = showAllReviews ? allReviews : allReviews.slice(0, 4);
+  container.innerHTML = list.map(r => {
+    let stars = ''; for (let i = 0; i < Math.floor(r.rating); i++) stars += '<i class="fas fa-star"></i>';
+    if (r.rating % 1 >= 0.5) stars += '<i class="fas fa-star-half-alt"></i>';
+    const likes = r.likes || []; const userLiked = currentUser && likes.includes(currentUser.uid);
+    let media = '';
+    if (r.media?.length) media = `<div class="review-media-grid">${r.media.map(m => m.type === 'image' ? `<div class="review-media-item" onclick="window.open('${m.url || m.data}')"><img src="${m.url || m.data}" alt="" loading="lazy"></div>` : '').join('')}</div>`;
+    return `<article class="review-item"><div class="review-author">${r.name}</div><div class="review-rating">${stars}<span>${r.rating.toFixed(1)}</span></div><p class="review-comment">${r.comment}</p>${media}<div class="review-actions"><button class="review-like-btn ${userLiked ? 'active' : ''}" onclick="toggleReviewLike('${r.id}')"><i class="${userLiked ? 'fas' : 'far'} fa-heart"></i> <span>${likes.length}</span></button><span>${new Date(r.date).toLocaleDateString()}</span></div></article>`;
+  }).join('');
+  toggleBtn.style.display = allReviews.length > 4 ? 'inline-flex' : 'none';
+  toggleBtn.textContent = t('rev_show_all');
+}
+document.getElementById('toggleAllReviewsBtn').addEventListener('click', () => { showAllReviews = !showAllReviews; renderReviews(); });
+const starEls = document.querySelectorAll('#starRating i');
+starEls.forEach(star => {
+  star.addEventListener('click', function () { selectedRating = parseInt(this.dataset.value); starEls.forEach(s => s.classList.remove('active')); for (let i = 0; i < selectedRating; i++) starEls[i].classList.add('active'); });
+  star.addEventListener('mouseenter', function () { const v = parseInt(this.dataset.value); starEls.forEach(s => s.classList.remove('active')); for (let i = 0; i < v; i++) starEls[i].classList.add('active'); });
+});
+document.getElementById('starRating').addEventListener('mouseleave', () => { starEls.forEach(s => s.classList.remove('active')); for (let i = 0; i < selectedRating; i++) starEls[i].classList.add('active'); });
+document.getElementById('submitReview').addEventListener('click', async () => {
+  const productId = document.getElementById('reviewProductSelect').value;
+  const text = document.getElementById('reviewText').value.trim();
+  const errEl = document.getElementById('reviewError'); errEl.textContent = '';
+  if (!currentUser) { errEl.textContent = '!'; return; }
+  if (!productId) { errEl.textContent = '!'; return; }
+  if (selectedRating === 0) { errEl.textContent = '!'; return; }
+  if (!text) { errEl.textContent = '!'; return; }
+  const btn = document.getElementById('submitReview'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  try {
+    const media = [];
+    for (let i = 0; i < reviewPhotoFiles.length; i++) {
+      const item = reviewPhotoFiles[i];
+      const ref = storage.ref(`reviews/${currentUser.uid}/${Date.now()}_${i}_${item.name}`);
+      await ref.put(item.file); media.push({ type: 'image', url: await ref.getDownloadURL(), name: item.name });
+    }
+    await db.collection('reviews').add({ name: currentUser.name || currentUser.email, rating: selectedRating, comment: text, productId, userId: currentUser.uid, date: firebase.firestore.FieldValue.serverTimestamp(), likes: [], media });
+    showToast('OK');
+    document.getElementById('reviewText').value = ''; selectedRating = 0; starEls.forEach(s => s.classList.remove('active'));
+    reviewPhotoFiles.forEach(f => f.preview && URL.revokeObjectURL(f.preview)); reviewPhotoFiles = []; updateReviewPreview();
+    loadPurchasedProductsForReview(); loadReviewsFromFirestore();
+  } catch (e) { errEl.textContent = 'Err: ' + e.message; }
+  finally { btn.disabled = false; btn.innerHTML = t('rev_submit'); }
+});
+
+/* ============ AUTH ============ */
+function updateAuthUI() {
+  const statusDiv = document.getElementById('userStatus');
+  const reviewForm = document.getElementById('reviewFormWrapper');
+  const loginPrompt = document.getElementById('loginPrompt');
+  if (currentUser) {
+    const avatar = currentUser.avatarUrl ? `<img src="${currentUser.avatarUrl}" alt="">` : `<i class="fas fa-user-circle"></i>`;
+    statusDiv.innerHTML = `<div class="user-dropdown" id="userDropdown"><button class="user-dropdown-btn" id="userDropdownBtn">${avatar} <span style="overflow:hidden;text-overflow:ellipsis;">${currentUser.name || currentUser.email}</span></button><div class="user-dropdown-menu" id="userDropdownMenu"><a href="#" id="profileLink"><i class="fas fa-id-card"></i> ${t('profile_title')}</a><a href="#" id="logoutLink"><i class="fas fa-right-from-bracket"></i> Logout</a></div></div>`;
+    document.getElementById('profileLink').addEventListener('click', (e) => { e.preventDefault(); showPage('profile'); });
+    document.getElementById('logoutLink').addEventListener('click', (e) => { e.preventDefault(); logout(); });
+    document.getElementById('userDropdownBtn').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('userDropdownMenu').classList.toggle('active'); });
+    reviewForm.style.display = 'block'; loginPrompt.style.display = 'none'; loadPurchasedProductsForReview();
+  } else {
+    statusDiv.innerHTML = `<button class="login-btn" id="loginBtn"><i class="fas fa-user"></i> <span data-i18n="btn_login">${t('btn_login')}</span></button>`;
+    document.getElementById('loginBtn').addEventListener('click', openAuthModal);
+    reviewForm.style.display = 'none'; loginPrompt.style.display = 'block';
+  }
+  updateAdminUI();
+}
+function logout() { auth.signOut(); currentUser = null; updateAuthUI(); logAnalyticsEvent('logout'); }
+function openAuthModal() {
+  document.getElementById('emailForms').style.display = 'block'; document.getElementById('phoneForms').style.display = 'none';
+  document.querySelector('.auth-tab[data-tab="email"]').classList.add('active');
+  document.querySelector('.auth-tab[data-tab="phone"]').classList.remove('active');
+  document.getElementById('loginForm').style.display = 'block'; document.getElementById('registerFormEmail').style.display = 'none';
+  document.getElementById('loginError').textContent = ''; document.getElementById('registerError').textContent = '';
+  openModal('authModal');
+}
+function openProfilePage() {
+  if (!currentUser) return;
+  document.getElementById('profileName').value = currentUser.name || '';
+  document.getElementById('profilePhone').value = currentUser.phone || '';
+  document.getElementById('profileBirthdate').value = currentUser.birthdate || '';
+  document.getElementById('profileEmail').value = currentUser.email || '';
+  document.querySelectorAll('.profile-tab').forEach(t2 => t2.classList.remove('active'));
+  document.querySelector('.profile-tab[data-tab="info"]').classList.add('active');
+  document.getElementById('profileInfoTab').style.display = 'block';
+  document.getElementById('profileOrdersTab').style.display = 'none';
+  loadProfileAvatar(); updateLangSwitchers();
+}
+
+/* ============ MOBILE MENU ============ */
+const burgerBtn = document.getElementById('burgerBtn');
+const menuOverlay = document.getElementById('menuOverlay');
+const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+const closeMobileMenuBtn = document.getElementById('closeMobileMenu');
+function openMobileMenu() { menuOverlay.classList.add('active'); mobileMenuPanel.classList.add('active'); document.body.classList.add('no-scroll'); }
+function closeMobileMenu() { menuOverlay.classList.remove('active'); mobileMenuPanel.classList.remove('active'); document.body.classList.remove('no-scroll'); }
+burgerBtn.addEventListener('click', (e) => { e.stopPropagation(); mobileMenuPanel.classList.contains('active') ? closeMobileMenu() : openMobileMenu(); });
+closeMobileMenuBtn.addEventListener('click', closeMobileMenu);
+menuOverlay.addEventListener('click', closeMobileMenu);
+mobileMenuPanel.querySelectorAll('.mobile-menu-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault(); const href = link.getAttribute('href'); const id = link.id;
+    if (id === 'mobileAdminLink') { showPage('admin'); closeMobileMenu(); return; }
+    if (id === 'mobilePartnerLink') { showPage('partner'); closeMobileMenu(); return; }
+    if (href && href.startsWith('#')) {
+      const section = href.substring(1);
+      if (['catalog','wholesale','reviews','contact'].includes(section)) {
+        if (SECTION_PAGE[section]) { location.href = SECTION_PAGE[section]; return; }
+        if (CURRENT_FILE !== 'index.html') { location.href = 'index.html#' + section; return; }
+        showPage('home'); setTimeout(() => { const el = document.getElementById(section); if (el) el.scrollIntoView({ behavior:'smooth' }); }, 120);
+        history.pushState({ page:'home', section }, '', '#' + section);
+      }
+    }
+    closeMobileMenu();
+  });
+});
+
+/* ============ MISC BUTTONS ============ */
+document.querySelectorAll('#mainNav a[href^="#"], .footer-column a[href^="#"]').forEach(link => {
+  link.addEventListener('click', function (e) {
+    const href = this.getAttribute('href'); if (!href || !href.startsWith('#')) return;
+    e.preventDefault(); const section = href.substring(1);
+    if (['catalog','wholesale','reviews','contact'].includes(section)) {
+      if (SECTION_PAGE[section]) { location.href = SECTION_PAGE[section]; return; }
+      if (CURRENT_FILE !== 'index.html') { location.href = 'index.html#' + section; return; }
+      showPage('home');
+      setTimeout(() => { const el = document.getElementById(section); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 120);
+      history.pushState({ page:'home', section }, '', '#' + section);
+    }
+  });
+});
+window.addEventListener('popstate', (e) => {
+  if (e.state && e.state.page) {
+    if (e.state.page === 'admin' && isAdmin()) showPage('admin');
+    else { showPage('home'); if (e.state.section) { setTimeout(() => { const el = document.getElementById(e.state.section); if (el) el.scrollIntoView(); }, 150); } }
+  } else showPage('home');
+});
+
+document.getElementById('checkoutBtn').addEventListener('click', () => { if (!currentUser) { openAuthModal(); return; } if (!cart.length) return; openOrderModal(); });
+document.getElementById('sendWhatsApp').addEventListener('click', () => sendOrderTo('whatsapp'));
+document.getElementById('sendTelegram').addEventListener('click', () => sendOrderTo('telegram'));
+document.getElementById('closeOrderModal').addEventListener('click', () => closeModal('orderModal'));
+document.getElementById('closeAuthModal').addEventListener('click', () => closeModal('authModal'));
+document.getElementById('loginToReview').addEventListener('click', openAuthModal);
+document.getElementById('reviewPhotos').addEventListener('change', function () { handleReviewFiles(this); });
+
+document.getElementById('saveProfileBtn').addEventListener('click', () => {
+  const name = document.getElementById('profileName').value.trim();
+  const phone = document.getElementById('profilePhone').value.trim();
+  const bdate = document.getElementById('profileBirthdate').value;
+  localStorage.setItem('fullseller_profile_' + currentUser.uid, JSON.stringify({ name, phone, birthdate: bdate }));
+  currentUser.name = name; currentUser.phone = phone; currentUser.birthdate = bdate;
+  try { db.collection('users').doc(currentUser.uid).set({ name, phone, birthdate: bdate, language: currentLang }, { merge: true }); } catch (e) {}
+  updateAuthUI(); showToast('OK');
+});
+window.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal')) closeModal(e.target.id);
+  const menu = document.getElementById('userDropdownMenu'); if (menu && !e.target.closest('.user-dropdown')) menu.classList.remove('active');
+  const langMenu = document.getElementById('headerLangMenu');
+  if (langMenu && !e.target.closest('#headerLangSwitch')) langMenu.classList.remove('active');
+});
+document.querySelectorAll('.auth-tab').forEach(tab => {
+  tab.addEventListener('click', function () {
+    document.querySelectorAll('.auth-tab').forEach(t => { t.classList.remove('active'); t.style.background = 'var(--bg-primary)'; t.style.color = 'var(--text-primary)'; });
+    this.classList.add('active'); this.style.background = 'var(--accent)'; this.style.color = '#fff';
+    if (this.dataset.tab === 'email') { document.getElementById('emailForms').style.display = 'block'; document.getElementById('phoneForms').style.display = 'none'; }
+    else { document.getElementById('emailForms').style.display = 'none'; document.getElementById('phoneForms').style.display = 'block'; }
+  });
+});
+document.querySelectorAll('.profile-tab').forEach(tab => {
+  tab.addEventListener('click', function () {
+    document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active')); this.classList.add('active');
+    const name = this.dataset.tab;
+    document.getElementById('profileInfoTab').style.display = name === 'info' ? 'block' : 'none';
+    document.getElementById('profileOrdersTab').style.display = name === 'orders' ? 'block' : 'none';
+    if (name === 'orders') loadUserOrders();
+  });
+});
+document.querySelectorAll('#categoryFilter .category-filter-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('#categoryFilter .category-filter-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');
+    currentCategory = this.dataset.category; currentBrandFilter = 'all';
+    updateBrandFilterVisibility();
+    document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.brand === 'all'));
+    renderCatalog();
+  });
+});
+document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('#brandFilter .brand-filter-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');
+    currentBrandFilter = this.dataset.brand; renderCatalog();
+  });
+});
+document.querySelectorAll('#audienceFilter .audience-filter-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('#audienceFilter .audience-filter-btn').forEach(b => b.classList.remove('active')); this.classList.add('active');
+    currentAudienceFilter = this.dataset.audience; renderCatalog();
+  });
+});
+const bottomNav = document.getElementById('bottomNav');
+if (bottomNav) {
+  bottomNav.addEventListener('click', (e) => {
+    const btn = e.target.closest('.bottom-nav__item'); if (!btn) return;
+    switch (btn.dataset.action) {
+      case 'home': showPage('home'); break;
+      case 'favorites': showPage('favorites'); break;
+      case 'cart': showPage('cart'); break;
+      case 'profile': currentUser ? showPage('profile') : openAuthModal(); break;
+    }
+  });
+}
+function simulateGetCode(inputId, codeInputId) {
+  const phone = document.getElementById(inputId).value.trim();
+  if (!phone.startsWith('+7') || phone.length < 10) { alert('+7XXXXXXXXXX'); return; }
+  alert('1234'); document.getElementById(codeInputId).value = '1234';
+}
+document.getElementById('getCodeBtn').addEventListener('click', () => simulateGetCode('loginPhone','loginCode'));
+document.getElementById('getCodeRegisterBtn').addEventListener('click', () => simulateGetCode('regPhonePhone','regCodePhone'));
+document.getElementById('loginPhoneSubmit').addEventListener('click', () => {
+  const phone = document.getElementById('loginPhone').value.trim();
+  const code = document.getElementById('loginCode').value.trim();
+  if (!phone || !code) return alert('!');
+  if (code !== '1234') return alert('!');
+  const users = JSON.parse(localStorage.getItem('fullseller_phone_users') || '[]');
+  const user = users.find(u => u.phone === phone); if (!user) return alert('!');
+  currentUser = { uid: 'phone_' + phone, email: '', name: user.name, phone: user.phone, birthdate: user.birthdate || '' };
+  updateAuthUI(); closeModal('authModal'); showToast('OK');
+});
+document.getElementById('registerSubmitPhone').addEventListener('click', () => {
+  const name = document.getElementById('regNamePhone').value.trim();
+  const phone = document.getElementById('regPhonePhone').value.trim();
+  const code = document.getElementById('regCodePhone').value.trim();
+  const birthdate = document.getElementById('regBirthdatePhone').value;
+  if (!name || !phone || !code) return alert('!');
+  if (code !== '1234') return alert('!');
+  const users = JSON.parse(localStorage.getItem('fullseller_phone_users') || '[]');
+  if (users.find(u => u.phone === phone)) return alert('!');
+  users.push({ name, phone, birthdate }); localStorage.setItem('fullseller_phone_users', JSON.stringify(users));
+  currentUser = { uid: 'phone_' + phone, email: '', name, phone, birthdate }; updateAuthUI(); closeModal('authModal');
+});
+document.getElementById('switchToRegisterPhone').addEventListener('click', () => { document.getElementById('loginPhoneForm').style.display = 'none'; document.getElementById('registerPhoneForm').style.display = 'block'; });
+document.getElementById('switchToLoginPhone').addEventListener('click', () => { document.getElementById('registerPhoneForm').style.display = 'none'; document.getElementById('loginPhoneForm').style.display = 'block'; });
+document.getElementById('switchToRegisterEmail').addEventListener('click', () => { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerFormEmail').style.display = 'block'; });
+document.getElementById('switchToLoginEmail').addEventListener('click', () => { document.getElementById('registerFormEmail').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; });
+function friendlyAuthError(e) {
+  const code = (e && e.code) ? String(e.code) : '';
+  const map = {
+    'auth/invalid-credential': 'Неверный email или пароль',
+    'auth/invalid-login-credentials': 'Неверный email или пароль',
+    'auth/wrong-password': 'Неверный email или пароль',
+    'auth/user-not-found': 'Аккаунт с таким email не найден',
+    'auth/invalid-email': 'Некорректный email',
+    'auth/email-already-in-use': 'Этот email уже зарегистрирован',
+    'auth/weak-password': 'Пароль слишком простой (минимум 6 символов)',
+    'auth/too-many-requests': 'Слишком много попыток, попробуйте позже',
+    'auth/network-request-failed': 'Нет соединения с сервером, проверьте интернет'
+  };
+  if (map[code]) return map[code];
+  const msg = (e && e.message) ? String(e.message) : '';
+  if (/INVALID_LOGIN_CREDENTIALS|invalid.*password|wrong.*password/i.test(msg)) return 'Неверный email или пароль';
+  if (/EMAIL_NOT_FOUND/i.test(msg)) return 'Аккаунт с таким email не найден';
+  if (/EMAIL_EXISTS/i.test(msg)) return 'Этот email уже зарегистрирован';
+  if (/WEAK_PASSWORD/i.test(msg)) return 'Пароль слишком простой (минимум 6 символов)';
+  return 'Ошибка входа. Проверьте данные и попробуйте снова';
+}
+document.getElementById('loginSubmit').addEventListener('click', async () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError'); errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = '!'; return; }
+  try { await auth.signInWithEmailAndPassword(email, password); closeModal('authModal'); }
+  catch (e) { errEl.textContent = friendlyAuthError(e); }
+});
+document.getElementById('registerSubmitEmail').addEventListener('click', async () => {
+  const name = document.getElementById('regNameEmail').value.trim();
+  const email = document.getElementById('regEmailEmail').value.trim();
+  const password = document.getElementById('regPasswordEmail').value;
+  const birthdate = document.getElementById('regBirthdateEmail').value;
+  const errEl = document.getElementById('registerError'); errEl.textContent = '';
+  if (!name || !email || !password) { errEl.textContent = '!'; return; }
+  if (password.length < 6) { errEl.textContent = '!'; return; }
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    localStorage.setItem('fullseller_profile_' + cred.user.uid, JSON.stringify({ name, phone:'', birthdate }));
+    try { await db.collection('users').doc(cred.user.uid).set({ name, email, phone:'', birthdate, createdAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); } catch (e2) {}
+    closeModal('authModal');
+  }
+  catch (e) { errEl.textContent = friendlyAuthError(e); }
+});
+auth.onAuthStateChanged(user => {
+  if (user && user.isAnonymous) { updateAuthUI(); return; }
+  if (user) {
+    const profile = JSON.parse(localStorage.getItem('fullseller_profile_' + user.uid) || '{}');
+    currentUser = { uid: user.uid, email: user.email, name: profile.name || '', phone: profile.phone || '', birthdate: profile.birthdate || '' };
+    if (analytics) analytics.setUserId(user.uid);
+    db.collection('users').doc(user.uid).get().then(doc => {
+      if (doc.exists && doc.data().language && !localStorage.getItem(LANG_KEY)) {
+        setLanguage(doc.data().language, false);
+      }
+    }).catch(() => {});
+  } else { currentUser = null; if (analytics) analytics.setUserId(null); }
+  updateAuthUI();
+  if (CURRENT_FILE === 'admin.html') {
+    if (!isAdmin()) { location.href = 'index.html'; }
+    else {
+      document.getElementById('adminDiscountPercent').value = State.percentageDiscount;
+      document.getElementById('adminDiscountRub').value = State.fixedDiscountRub;
+      document.getElementById('adminRating').value = State.rating;
+      if (typeof switchAdminSection === 'function') switchAdminSection('dashboard');
+      renderAdminProducts(); renderAdminOrders();
+    }
+  }
+  if (CURRENT_FILE === 'profile.html') {
+    if (!currentUser) { location.href = 'index.html'; } else { openProfilePage(); }
+  }
+});
+
+/* ============ THEME & CURRENCY ============ */
+const lightBtn = document.getElementById('lightThemeBtn'); const darkBtn = document.getElementById('darkThemeBtn');
+function setTheme(t2) {
+  if (t2 === 'light') { document.body.classList.remove('dark'); lightBtn.classList.add('active'); darkBtn.classList.remove('active'); localStorage.setItem('fullseller_theme', 'light'); }
+  else { document.body.classList.add('dark'); darkBtn.classList.add('active'); lightBtn.classList.remove('active'); localStorage.setItem('fullseller_theme', 'dark'); }
+}
+lightBtn.addEventListener('click', () => setTheme('light'));
+darkBtn.addEventListener('click', () => setTheme('dark'));
+setTheme(localStorage.getItem('fullseller_theme') || 'light');
+document.getElementById('currencyBtn').addEventListener('click', toggleCurrency);
+document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
+
+/* ============ SCROLL HEADER ============ */
+(function () {
+  const header = document.getElementById('siteHeader');
+  let lastY = window.scrollY, ticking = false;
+  function update() {
+    const y = window.scrollY; const delta = y - lastY;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    header.classList.toggle('is-scrolled', y > 8);
+    if (isMobile) {
+      const catalogEl = document.getElementById('catalog');
+      const catalogTop = catalogEl ? catalogEl.getBoundingClientRect().top : Infinity;
+      if (catalogTop < 100) { if (delta > 3) header.classList.add('header--hidden'); else if (delta < -3) header.classList.remove('header--hidden'); }
+      else header.classList.remove('header--hidden');
+    } else {
+      if (y <= 10) header.classList.remove('header--hidden');
+      else if (delta > 6 && y > 120) header.classList.add('header--hidden');
+      else if (delta < -6) header.classList.remove('header--hidden');
+    }
+    lastY = y; ticking = false;
+  }
+  window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
+})();
+
+document.getElementById('heroCalcBtn').addEventListener('click', (e) => { e.preventDefault(); if (CURRENT_FILE !== 'calculator.html') { location.href = 'calculator.html'; return; } const el = document.getElementById('cargoCalculator'); if (el) el.scrollIntoView({ behavior:'smooth', block:'center' }); });
+document.getElementById('cargoCalcScrollBtn').addEventListener('click', () => { if (CURRENT_FILE !== 'calculator.html') { location.href = 'calculator.html'; return; } const el = document.getElementById('cargoCalculator'); if (el) el.scrollIntoView({ behavior:'smooth', block:'center' }); });
+
+/* ============ BANNER SLIDER ============ */
+(function () {
+  const slidesContainer = document.getElementById('bannerSlides');
+  const dotsContainer = document.getElementById('bannerDots');
+  const slides = document.querySelectorAll('.banner-slider .slide');
+  if (!slidesContainer || !slides.length) return;
+  let currentIndex = 0, timer;
+  slides.forEach((_, i) => { const dot = document.createElement('span'); dot.className = 'dot' + (i === 0 ? ' active' : ''); dot.addEventListener('click', () => goTo(i)); dotsContainer.appendChild(dot); });
+  function updateSlide(i) { slidesContainer.style.transform = `translateX(-${i * 100}%)`; dotsContainer.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx === i)); }
+  function goTo(i) { currentIndex = i; updateSlide(i); reset(); }
+  function next() { goTo((currentIndex + 1) % slides.length); }
+  function reset() { clearInterval(timer); timer = setInterval(next, 10000); }
+  const slider = document.getElementById('mainBannerSlider');
+  slider.addEventListener('mouseenter', () => clearInterval(timer));
+  slider.addEventListener('mouseleave', reset);
+  let touchX = 0;
+  slider.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; clearInterval(timer); }, { passive: true });
+  slider.addEventListener('touchend', (e) => { const diff = touchX - e.changedTouches[0].clientX; if (Math.abs(diff) > 40) diff > 0 ? goTo((currentIndex + 1) % slides.length) : goTo((currentIndex - 1 + slides.length) % slides.length); reset(); });
+  slider.addEventListener('click', (e) => { if (e.target.closest('.dot')) return; document.getElementById('catalog').scrollIntoView({ behavior:'smooth' }); });
+  reset();
+})();
+
+/* ============ ADMIN IMAGE UPLOAD ============ */
+const adminImageUploadBox = document.getElementById('adminImageUploadBox');
+const adminImageFile = document.getElementById('adminImageFile');
+const adminImagePreview = document.getElementById('adminImagePreview');
+const adminUploadProgress = document.getElementById('adminUploadProgress');
+const adminUploadActions = document.getElementById('adminUploadActions');
+const adminUploadPrompt = document.getElementById('adminUploadPrompt');
+const adminImageUrl = document.getElementById('adminImageUrl');
+if (adminImageUploadBox) adminImageUploadBox.addEventListener('click', (e) => { if (e.target.closest('.admin-upload-actions') || e.target.closest('button')) return; adminImageFile.click(); });
+adminImageFile.addEventListener('change', async function () {
+  const file = this.files[0]; if (!file) return;
+  const valid = ['image/jpeg','image/jpg','image/png','image/webp'];
+  if (!valid.includes(file.type)) { showToast('!'); return; }
+  if (file.size > 8 * 1024 * 1024) { showToast('!'); return; }
+  adminImagePreview.src = URL.createObjectURL(file); adminImagePreview.style.display = 'block'; adminUploadPrompt.style.display = 'none'; adminUploadProgress.textContent = '0%';
+  try {
+    const ref = storage.ref(`products/${Date.now()}_${file.name}`); const task = ref.put(file);
+    task.on('state_changed', snap => { adminUploadProgress.textContent = Math.round((snap.bytesTransferred / snap.totalBytes) * 100) + '%'; },
+      err => { adminUploadProgress.textContent = '!'; },
+      async () => { adminImageUrl.value = await ref.getDownloadURL(); adminUploadProgress.textContent = 'OK'; adminUploadActions.style.display = 'flex'; });
+  } catch (e) { adminUploadProgress.textContent = '!'; }
+});
+document.getElementById('adminRemoveImageBtn').addEventListener('click', (e) => { e.stopPropagation(); adminImagePreview.style.display = 'none'; adminImagePreview.src = ''; adminUploadPrompt.style.display = 'block'; adminUploadProgress.textContent = ''; adminUploadActions.style.display = 'none'; adminImageUrl.value = ''; adminImageFile.value = ''; });
+document.getElementById('adminReplaceImageBtn').addEventListener('click', (e) => { e.stopPropagation(); adminImageFile.click(); });
+
+/* ============ PROFILE AVATAR ============ */
+const profileAvatarInput = document.getElementById('profileAvatarInput');
+const profileAvatarImg = document.getElementById('profileAvatarImg');
+const profileAvatarPlaceholder = document.getElementById('profileAvatarPlaceholder');
+const profileAvatarProgress = document.getElementById('profileAvatarProgress');
+const profileRemoveAvatarBtn = document.getElementById('profileRemoveAvatarBtn');
+const profileAvatarLabel = document.getElementById('profileAvatarLabel');
+async function loadProfileAvatar() {
+  if (!currentUser) return;
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    if (doc.exists && doc.data().avatarUrl) {
+      currentUser.avatarUrl = doc.data().avatarUrl;
+      profileAvatarImg.src = currentUser.avatarUrl; profileAvatarImg.style.display = 'block'; profileAvatarPlaceholder.style.display = 'none';
+      profileAvatarLabel.innerHTML = '<i class="fas fa-camera"></i> ' + t('profile_add_photo'); profileRemoveAvatarBtn.style.display = 'inline-block';
+    } else {
+      profileAvatarImg.style.display = 'none'; profileAvatarPlaceholder.style.display = 'flex';
+      profileAvatarLabel.innerHTML = '<i class="fas fa-camera"></i> ' + t('profile_add_photo'); profileRemoveAvatarBtn.style.display = 'none';
+    }
+  } catch (e) {}
+}
+profileAvatarInput.addEventListener('change', async function () {
+  const file = this.files[0]; if (!file || !currentUser) return;
+  const valid = ['image/jpeg','image/jpg','image/png','image/webp'];
+  if (!valid.includes(file.type)) { showToast('!'); return; }
+  if (file.size > 5 * 1024 * 1024) { showToast('!'); return; }
+  profileAvatarProgress.textContent = '0%';
+  try {
+    const ref = storage.ref(`avatars/${currentUser.uid}`); const task = ref.put(file);
+    task.on('state_changed', snap => { profileAvatarProgress.textContent = Math.round((snap.bytesTransferred / snap.totalBytes) * 100) + '%'; },
+      err => { profileAvatarProgress.textContent = '!'; },
+      async () => {
+        const url = await ref.getDownloadURL();
+        await db.collection('users').doc(currentUser.uid).set({ avatarUrl: url }, { merge: true });
+        currentUser.avatarUrl = url; profileAvatarImg.src = url; profileAvatarImg.style.display = 'block';
+        profileAvatarPlaceholder.style.display = 'none'; profileAvatarLabel.innerHTML = '<i class="fas fa-camera"></i> ' + t('profile_add_photo');
+        profileRemoveAvatarBtn.style.display = 'inline-block'; profileAvatarProgress.textContent = '';
+        updateAuthUI();
+      });
+  } catch (e) { profileAvatarProgress.textContent = '!'; }
+});
+profileRemoveAvatarBtn.addEventListener('click', async () => {
+  if (!currentUser) return;
+  try {
+    await storage.ref(`avatars/${currentUser.uid}`).delete().catch(() => {});
+    await db.collection('users').doc(currentUser.uid).update({ avatarUrl: firebase.firestore.FieldValue.delete() });
+    currentUser.avatarUrl = null; profileAvatarImg.style.display = 'none'; profileAvatarPlaceholder.style.display = 'flex';
+    profileAvatarLabel.innerHTML = '<i class="fas fa-camera"></i> ' + t('profile_add_photo'); profileRemoveAvatarBtn.style.display = 'none';
+    updateAuthUI();
+  } catch (e) { showToast('Err: ' + e.message); }
+});
+
+/* ============ CARGO CALCULATOR ============ */
+(function () {
+  const EXCHANGE_RATE = 73.75; const SOMONI_TO_RUB = 8;
+  const defaultUnitWeights = { socks: 24, underwear: 80, tshirts: 150 };
+  const categoryPrices = { socks: 13, underwear: 80, tshirts: 145 };
+  const qtyInput = document.getElementById('cargo-calc-qty');
+  const categorySelect = document.getElementById('cargo-calc-category');
+  const unitWeightInput = document.getElementById('cargo-calc-unit-weight');
+  const tabsContainer = document.getElementById('cargo-calc-tabs');
+  const warningEl = document.getElementById('cargo-calc-warning');
+  const resultsBlock = document.getElementById('cargo-calc-results');
+  const btnCalc = document.getElementById('cargo-calc-btn');
+  const totalContainer = document.getElementById('cargo-calc-total-container');
+  let selectedCountry = 'russia';
+  tabsContainer.addEventListener('click', (e) => { const tab = e.target.closest('.cargo-calc-tab'); if (!tab) return; document.querySelectorAll('.cargo-calc-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); selectedCountry = tab.dataset.country; resultsBlock.style.display = 'none'; });
+  categorySelect.addEventListener('change', () => { const cat = categorySelect.value; if (defaultUnitWeights[cat] !== undefined) unitWeightInput.value = defaultUnitWeights[cat]; resultsBlock.style.display = 'none'; });
+  qtyInput.addEventListener('input', () => { const qty = parseInt(qtyInput.value) || 0; warningEl.textContent = (qty > 0 && qty < 5000) ? '≥ 5000' : ''; resultsBlock.style.display = 'none'; });
+  unitWeightInput.addEventListener('input', () => { resultsBlock.style.display = 'none'; });
+  btnCalc.addEventListener('click', (e) => { e.preventDefault(); calculate(); });
+  function calculate() {
+    const qty = parseInt(qtyInput.value) || 0; const category = categorySelect.value; const unitWeightGrams = parseFloat(unitWeightInput.value) || 0;
+    if (qty < 5000) { resultsBlock.style.display = 'none'; warningEl.textContent = qty > 0 ? '≥ 5000' : ''; return; }
+    warningEl.textContent = '';
+    const totalWeight = qty * (unitWeightGrams / 1000); const unitPrice = categoryPrices[category] || 0;
+    document.getElementById('cargo-calc-weight').textContent = totalWeight.toFixed(2) + ' kg';
+    const priceEl = document.getElementById('cargo-calc-product-price');
+    const shippingEl = document.getElementById('cargo-calc-shipping');
+    if (selectedCountry === 'russia') {
+      const productTotal = qty * unitPrice; const shippingCostRub = totalWeight * 1.30 * EXCHANGE_RATE; const totalRub = productTotal + shippingCostRub;
+      priceEl.textContent = productTotal.toFixed(2) + ' ₽'; shippingEl.textContent = shippingCostRub.toFixed(2) + ' ₽';
+      totalContainer.innerHTML = `<span>Total</span><span style="font-family:var(--font-display); font-size:1.5rem; font-weight:800; color:var(--accent);">${totalRub.toFixed(2)} ₽</span>`;
+    } else {
+      const productSomoni = (qty * unitPrice) / SOMONI_TO_RUB; const shippingSomoni = totalWeight * 7; const totalSomoni = productSomoni + shippingSomoni;
+      priceEl.textContent = productSomoni.toFixed(2) + ' somoni'; shippingEl.textContent = shippingSomoni.toFixed(2) + ' somoni';
+      totalContainer.innerHTML = `<span>Total</span><span style="font-family:var(--font-display); font-size:1.5rem; font-weight:800; color:var(--accent);">${totalSomoni.toFixed(2)} somoni</span>`;
+    }
+    resultsBlock.style.display = 'block';
+  }
+  resultsBlock.style.display = 'none';
+  const activeTab = document.querySelector('.cargo-calc-tab.active'); if (activeTab) selectedCountry = activeTab.dataset.country;
+  const initCat = categorySelect.value; if (defaultUnitWeights[initCat] !== undefined) unitWeightInput.value = defaultUnitWeights[initCat];
+})();
+
+/* ============ SEARCH ============ */
+(function () {
+  const input = document.getElementById('headerSearch'); if (!input) return;
+  input.addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('#catalogGrid .product-card').forEach(card => {
+      const name = (card.querySelector('.product-card__name')?.textContent || '').toLowerCase();
+      card.style.display = (!q || name.includes(q)) ? '' : 'none';
+    });
+  });
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { const el = document.getElementById('catalog'); if (el) el.scrollIntoView({ behavior:'smooth' }); } });
+})();
+
+/* ============ HERO SEARCH (mirrors header search) ============ */
+(function () {
+  const input = document.getElementById('heroSearch'); if (!input) return;
+  input.addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('#catalogGrid .product-card').forEach(card => {
+      const name = (card.querySelector('.product-card__name')?.textContent || '').toLowerCase();
+      card.style.display = (!q || name.includes(q)) ? '' : 'none';
+    });
+    const headerInput = document.getElementById('headerSearch');
+    if (headerInput && headerInput.value !== this.value) headerInput.value = this.value;
+  });
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { if (CURRENT_FILE !== 'catalog.html' && CURRENT_FILE !== 'index.html') { location.href = 'catalog.html'; return; } const el = document.getElementById('catalog'); if (el) el.scrollIntoView({ behavior:'smooth' }); } });
+})();
+
+/* ============================================================
+   PARTNER PANEL
+   ============================================================ */
+function escapeHtml(str) { return String(str == null ? '' : str).replace(/[&<>"']/g, s => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
+
+function renderPartnerPage() {
+  const loginWrap = document.getElementById('partnerLoginWrap');
+  const panel = document.getElementById('partnerPanel');
+  if (!loginWrap || !panel) return;
+  const session = getPartnerSession();
+  if (session) {
+    loginWrap.style.display = 'none'; panel.style.display = 'block';
+    const greet = document.getElementById('partnerGreeting');
+    if (greet) greet.textContent = (session.name || session.login || '') + ' — ' + t('partner_greeting');
+    const badge = document.getElementById('partnerIdBadge');
+    if (badge) badge.innerHTML = `<span class="partner-badge"><i class="fas fa-id-badge"></i> ID: ${escapeHtml(session.partnerId)}</span>`;
+    updatePartnerSupportLink();
+    loadPartnerProducts();
+  } else {
+    loginWrap.style.display = 'block'; panel.style.display = 'none';
+    const l = document.getElementById('partnerLoginInput'); const p = document.getElementById('partnerPasswordInput'); const e = document.getElementById('partnerLoginError');
+    if (l) l.value = ''; if (p) p.value = ''; if (e) e.textContent = '';
+  }
+  updateLangSwitchers();
+}
+async function partnerLogin() {
+  const login = document.getElementById('partnerLoginInput').value.trim();
+  const pass = document.getElementById('partnerPasswordInput').value.trim();
+  const errEl = document.getElementById('partnerLoginError'); errEl.textContent = '';
+  if (!login || !pass) { errEl.textContent = '!'; return; }
+  const btn = document.getElementById('partnerLoginBtn'); const orig = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  try {
+    const res = await fetch(PARTNER_API_BASE + '/partner/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ login, password: pass })
+    });
+    if (!res.ok) { errEl.textContent = '!'; return; }
+    const data = await res.json();
+    let partnerId = null, name = login;
+    try {
+      const meRes = await fetch(PARTNER_API_BASE + '/partner/me', { headers: { 'Authorization': 'Bearer ' + data.accessToken } });
+      if (meRes.ok) { const me = await meRes.json(); partnerId = me.id; name = me.companyName || me.contactName || login; }
+    } catch (e) {}
+    // Старый Firebase-идентификатор партнёра (если логин совпадает с одним из исходных 10) — нужен,
+    // чтобы найти его товары, добавленные ещё до перехода на свой бекенд (см. loadPartnerProducts).
+    const legacy = PARTNERS.find(p => p.login === login);
+    setPartnerSession({
+      partnerId, legacyPartnerId: legacy ? legacy.partnerId : null, login, name,
+      accessToken: data.accessToken, refreshToken: data.refreshToken, accessTokenExpiresAt: data.accessTokenExpiresAt
+    });
+    renderPartnerPage();
+  } catch (e) {
+    errEl.textContent = '!';
+  } finally { btn.disabled = false; btn.innerHTML = orig; }
+}
+function partnerLogout() {
+  if (auth.currentUser && auth.currentUser.isAnonymous) auth.signOut().catch(() => {});
+  setPartnerSession(null);
+  showPage('home');
+}
+function updatePartnerImagesCounter() {
+  const counter = document.getElementById('partnerImagesCounter');
+  const counterText = document.getElementById('partnerImagesCounterText');
+  const uploadBox = document.getElementById('partnerImageUploadBox');
+  if (!counter || !counterText) return;
+  const count = partnerProductImages.length; const max = PARTNER_MAX_IMAGES;
+  if (count === 0) counter.style.display = 'none';
+  else { counter.style.display = 'inline-flex'; counterText.textContent = 'Загружено ' + count + ' из ' + max; counter.classList.toggle('is-max', count >= max); }
+  if (uploadBox) uploadBox.classList.toggle('is-disabled', count >= max);
+}
+function renderPartnerImagesGrid() {
+  const grid = document.getElementById('partnerImagesGrid'); if (!grid) return;
+  if (!partnerProductImages.length) { grid.innerHTML = ''; updatePartnerImagesCounter(); return; }
+  grid.innerHTML = partnerProductImages.map((url, idx) => `
+    <div class="partner-image-item ${idx === 0 ? 'is-primary' : ''}">
+      <div class="partner-image-wrap"><img src="${escapeHtml(url)}" alt="Фото ${idx + 1}" loading="lazy"></div>
+      ${idx === 0 ? '<span class="img-badge">Main</span>' : `<span class="img-badge">${idx + 1}</span>`}
+      <div class="remove-img" title="X" onclick="removePartnerImage(${idx})">&times;</div>
+    </div>`).join('');
+  updatePartnerImagesCounter();
+}
+window.removePartnerImage = function (idx) {
+  if (idx < 0 || idx >= partnerProductImages.length) return;
+  partnerProductImages.splice(idx, 1); renderPartnerImagesGrid();
+  const progress = document.getElementById('partnerUploadProgress');
+  if (progress) progress.textContent = partnerProductImages.length ? ('Изображений: ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES) : '';
+};
+/* ------------------------------------------------------------------
+   Загрузка товаров производителя.
+   Спиннер показывается максимум 3.5 секунды — потом гарантированно
+   снимается, панель работает. Если Firestore ответит позже — контент
+   отрендерится повторно.
+   ------------------------------------------------------------------ */
+async function loadPartnerProducts() {
+  const session = getPartnerSession(); if (!session) return;
+  const container = document.getElementById('partnerProductsContainer'); if (!container) return;
+
+  container.innerHTML = '<div class="loading-spinner" style="grid-column:1/-1;"><i class="fas fa-spinner"></i></div>';
+  partnerProductsCache = [];
+
+  // Новый бекенд — основной источник товаров партнёра.
+  try {
+    const result = await partnerApiFetch('/partner/products?page=1&pageSize=200');
+    const items = (result && result.items) || [];
+    items.forEach(p => partnerProductsCache.push({
+      id: p.id, collection: 'api', baseSku: p.baseSku,
+      name: p.name, desc: p.description || '',
+      category: PARTNER_ID_TO_CATEGORY[p.categoryId] || 'socks',
+      brand: '', price: p.minPrice || 0, size: '', sizes: [],
+      weight: p.weightGrams, color: '', audience: p.audienceTag || '',
+      images: p.imageUrls || [], imageUrl: (p.imageUrls && p.imageUrls[0]) || '',
+      material: p.composition || '', hidden: !p.isActive,
+      createdAt: p.createdAt ? { seconds: Math.floor(new Date(p.createdAt).getTime() / 1000) } : null
+    }));
+  } catch (e) {
+    console.warn('partner API load error', e);
+  }
+
+  // Товары, добавленные ещё через Firebase до перехода на свой бекенд — остаются видимыми и
+  // редактируемыми, если у партнёра такие были (см. legacyPartnerId в partnerLogin).
+  if (session.legacyPartnerId) {
+    const collections = ['products','tshirts','underwear'];
+    try {
+      for (const col of collections) {
+        const snap = await db.collection(col).where('partnerId','==',session.legacyPartnerId).get();
+        snap.forEach(doc => { partnerProductsCache.push({ id: doc.id, collection: col, ...doc.data() }); });
+      }
+    } catch (e) {
+      console.warn('partner legacy load error', e);
+    }
+  }
+
+  if (!partnerProductsCache.length) {
+    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-box-open"></i></div>';
+    return;
+  }
+  partnerProductsCache.sort((a, b) => {
+    const ta = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : 0;
+    const tb = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : 0;
+    return tb - ta;
+  });
+  renderPartnerProductCardsLocale();
+}
+
+function clearPartnerForm() {
+  const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setV('partnerProductName',''); setV('partnerProductDesc','');
+  setV('partnerProductCategory','socks'); setV('partnerProductAudience','');
+  setV('partnerProductBrand',''); setV('partnerProductWeight','');
+  setV('partnerProductMaterial',''); setV('partnerProductColor',''); setV('partnerProductPrice','');
+  document.querySelectorAll('#partnerSizeGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
+  partnerEditingId = null; partnerEditingColl = null; partnerProductImages = [];
+  const progress = document.getElementById('partnerUploadProgress'); const fileInput = document.getElementById('partnerImageFile');
+  if (progress) progress.textContent = ''; if (fileInput) fileInput.value = '';
+  renderPartnerImagesGrid();
+  const btn = document.getElementById('partnerAddBtn');
+  if (btn) btn.innerHTML = '<i class="fas fa-plus"></i> <span>' + t('partner_add_btn') + '</span>';
+  const titleEl = document.querySelector('#partnerAddTab h3'); if (titleEl) titleEl.textContent = t('partner_new_product');
+}
+function switchPartnerTab(tabName) {
+  document.querySelectorAll('.partner-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+  const listTab = document.getElementById('partnerListTab'); const addTab = document.getElementById('partnerAddTab');
+  if (listTab) listTab.style.display = tabName === 'list' ? 'block' : 'none';
+  if (addTab) addTab.style.display = tabName === 'add' ? 'block' : 'none';
+}
+window.editPartnerProduct = async function (id, collection) {
+  if (!getPartnerSession()) return;
+  const p = partnerProductsCache.find(x => x.id === id); if (!p) return;
+  partnerEditingId = id; partnerEditingColl = collection;
+  const setV = (i, v) => { const el = document.getElementById(i); if (el) el.value = v; };
+  setV('partnerProductName', p.name || ''); setV('partnerProductDesc', p.desc || '');
+  setV('partnerProductCategory', p.category || 'socks'); setV('partnerProductAudience', p.audience || '');
+  setV('partnerProductBrand', p.brand || ''); setV('partnerProductWeight', (p.weight != null && p.weight !== '') ? p.weight : '');
+  setV('partnerProductMaterial', p.material || '');
+  setV('partnerProductPrice', p.price != null ? p.price : '');
+
+  // Размеры/цвет у товаров нового бекенда хранятся в отдельных вариантах, а не в самой карточке товара —
+  // подтягиваем их отдельным запросом. У легаси-товаров (Firestore) они уже лежат прямо в p.sizes/p.color.
+  let sizes = [], color = '';
+  if (collection === 'api') {
+    try {
+      const variants = await partnerApiFetch('/partner/products/' + id + '/variants');
+      sizes = Array.from(new Set((variants || []).map(v => v.size).filter(Boolean)));
+      const withColor = (variants || []).find(v => v.color);
+      color = withColor ? withColor.color : '';
+    } catch (e) { console.warn('partner variants load error', e); }
+  } else {
+    sizes = Array.isArray(p.sizes) ? p.sizes : [];
+    color = p.color || '';
+  }
+  setV('partnerProductColor', PRODUCT_COLORS.includes(color) ? color : '');
+  document.querySelectorAll('#partnerSizeGrid input[type="checkbox"]').forEach(cb => {
+    cb.checked = sizes.includes(cb.value);
+  });
+
+  const imgs = (Array.isArray(p.images) && p.images.length) ? p.images.filter(Boolean).slice(0, PARTNER_MAX_IMAGES) : (p.imageUrl ? [p.imageUrl] : []);
+  partnerProductImages = imgs; renderPartnerImagesGrid();
+  const btn = document.getElementById('partnerAddBtn'); if (btn) btn.innerHTML = '<i class="fas fa-check"></i> <span>' + t('partner_save_changes') + '</span>';
+  const titleEl = document.querySelector('#partnerAddTab h3'); if (titleEl) titleEl.textContent = t('partner_save_changes');
+  switchPartnerTab('add');
+};
+window.deletePartnerProduct = async function (id, collection) {
+  const session = getPartnerSession(); if (!session) return;
+  if (!confirm('?')) return;
+  try {
+    if (collection === 'api') {
+      await partnerApiFetch('/partner/products/' + id, { method: 'DELETE' });
+    } else {
+      const ref = db.collection(collection).doc(id);
+      const doc = await ref.get();
+      if (!doc.exists) return;
+      const data = doc.data();
+      if (data.partnerId && data.partnerId !== session.legacyPartnerId) { showToast('!'); return; }
+      await writeFirestoreWithAuth(() => ref.delete());
+    }
+    loadPartnerProducts();
+  } catch (e) { showToast('Err: ' + e.message); }
+};
+async function addPartnerProduct() {
+  const session = getPartnerSession(); if (!session) return;
+  const name = document.getElementById('partnerProductName').value.trim();
+  const desc = document.getElementById('partnerProductDesc').value.trim();
+  const category = document.getElementById('partnerProductCategory').value;
+  const audience = document.getElementById('partnerProductAudience').value;
+  const brand = document.getElementById('partnerProductBrand').value.trim();
+  const weightRaw = document.getElementById('partnerProductWeight').value;
+  const weight = weightRaw === '' ? 0 : (parseFloat(weightRaw) || 0);
+  const material = document.getElementById('partnerProductMaterial').value.trim();
+  const color = document.getElementById('partnerProductColor').value;
+  const priceRaw = document.getElementById('partnerProductPrice').value;
+  const price = priceRaw === '' ? 0 : (parseFloat(priceRaw) || 0);
+  const sizes = Array.from(document.querySelectorAll('#partnerSizeGrid input[type="checkbox"]:checked')).map(cb => cb.value);
+
+  if (!name) { showToast('!'); return; }
+  if (!audience) { showToast('!'); return; }
+  if (price < 0) { showToast('!'); return; }
+  if (color && !PRODUCT_COLORS.includes(color)) { showToast('!'); return; }
+
+  const images = partnerProductImages.slice(0, PARTNER_MAX_IMAGES);
+  const isLegacyEdit = !!(partnerEditingId && partnerEditingColl && partnerEditingColl !== 'api');
+  const isApiEdit = !!(partnerEditingId && partnerEditingColl === 'api');
+
+  const btn = document.getElementById('partnerAddBtn'); const originalHtml = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  try {
+    if (isLegacyEdit) {
+      // Товар ещё из Firebase (добавлен до перехода на свой бекенд) — сохраняем по-старому.
+      await ensurePartnerFirebaseAuth();
+      const ref = db.collection(partnerEditingColl).doc(partnerEditingId);
+      const doc = await ref.get(); if (!doc.exists) return;
+      const existing = doc.data();
+      if (existing.partnerId && existing.partnerId !== session.legacyPartnerId) { showToast('!'); return; }
+      const sizeText = sizes.join(', ');
+      await writeFirestoreWithAuth(() => ref.set({ name, desc, category, brand, price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '', material }, { merge: true }));
+    } else {
+      // Новый бекенд: категория — GUID (см. PARTNER_CATEGORY_TO_ID), размеры/цвет — отдельные варианты товара,
+      // бренд у нового каталога — это отдельная нормализованная сущность (не текстовое поле на товаре),
+      // поэтому пока просто дописываем его в описание, чтобы не терять то, что ввёл партнёр.
+      const categoryId = PARTNER_CATEGORY_TO_ID[category];
+      if (!categoryId) { showToast('!'); return; }
+      const fullDesc = brand ? (desc ? (desc + '\n\nБренд: ' + brand) : ('Бренд: ' + brand)) : (desc || null);
+      const variantSizes = sizes.length ? sizes : [null];
+      const variants = variantSizes.map(sz => ({ size: sz, color: color || null, sku: '', stockQuantity: 0 }));
+
+      if (isApiEdit) {
+        const existing = partnerProductsCache.find(x => x.id === partnerEditingId);
+        const baseSku = (existing && existing.baseSku) || ('P-' + Date.now().toString(36).toUpperCase());
+        await partnerApiFetch('/partner/products/' + partnerEditingId, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name, categoryId, brandId: null, description: fullDesc, composition: material || null,
+            baseSku, weightGrams: Math.round(weight), imageUrls: images,
+            oldPrice: null, isNew: false, isHit: false,
+            price: price > 0 ? price : null, variants, audienceTag: audience
+          })
+        });
+      } else {
+        const baseSku = 'P-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+        await partnerApiFetch('/partner/products', {
+          method: 'POST',
+          body: JSON.stringify({
+            name, categoryId, brandId: null, description: fullDesc, composition: material || null,
+            baseSku, weightGrams: Math.round(weight), imageUrls: images,
+            oldPrice: null, isNew: false, isHit: false,
+            price: price > 0 ? price : null, variants, audienceTag: audience
+          })
+        });
+      }
+    }
+    clearPartnerForm(); switchPartnerTab('list'); loadPartnerProducts();
+  } catch (e) {
+    let msg = e && e.message ? e.message : 'Error';
+    if (/permission|insufficient/i.test(msg)) msg = 'Firestore permission denied';
+    showToast('Err: ' + msg);
+  } finally {
+    btn.disabled = false;
+    if (partnerEditingId) btn.innerHTML = '<i class="fas fa-check"></i> <span>' + t('partner_save_changes') + '</span>';
+    else btn.innerHTML = originalHtml;
+  }
+}
+const partnerImageUploadBox = document.getElementById('partnerImageUploadBox');
+const partnerImageFile = document.getElementById('partnerImageFile');
+if (partnerImageUploadBox) partnerImageUploadBox.addEventListener('click', (e) => { if (e.target.closest('button')) return; partnerImageFile.click(); });
+if (partnerImageFile) {
+  partnerImageFile.addEventListener('change', async function () {
+    if (partnerUploadInProgress) { this.value = ''; return; }
+    const session = getPartnerSession(); if (!session) { this.value = ''; return; }
+    const files = Array.from(this.files || []); this.value = '';
+    if (!files.length) return;
+    const remaining = PARTNER_MAX_IMAGES - partnerProductImages.length;
+    if (remaining <= 0) return;
+    const valid = ['image/jpeg','image/jpg','image/png','image/webp'];
+    const maxBytes = PARTNER_MAX_FILE_MB * 1024 * 1024;
+    const accepted = []; let skippedBadFormat = 0, skippedTooBig = 0;
+    for (const f of files) { if (!valid.includes(f.type)) { skippedBadFormat++; continue; } if (f.size > maxBytes) { skippedTooBig++; continue; } accepted.push(f); if (accepted.length >= remaining) break; }
+    if (!accepted.length) return;
+    partnerUploadInProgress = true;
+    const progressEl = document.getElementById('partnerUploadProgress');
+    let successCount = 0, failCount = 0;
+    for (let i = 0; i < accepted.length; i++) {
+      const file = accepted[i]; const fileLabel = (file.name && file.name.length > 22) ? (file.name.slice(0, 20) + '…') : (file.name || ('file ' + (i + 1)));
+      try {
+        if (progressEl) progressEl.textContent = `${i + 1}/${accepted.length}: ${fileLabel} — 0%`;
+        const url = await uploadImageToImgBB(file, (percent) => { if (progressEl) progressEl.textContent = `${i + 1}/${accepted.length}: ${fileLabel} — ${percent}%`; });
+        partnerProductImages.push(url); renderPartnerImagesGrid(); successCount++;
+      } catch (e) { failCount++; }
+    }
+    partnerUploadInProgress = false;
+    if (progressEl) progressEl.textContent = partnerProductImages.length ? ('OK · ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES) : '';
+  });
+}
+(function () {
+  const loginBtn = document.getElementById('partnerLoginBtn');
+  const backBtn = document.getElementById('partnerBackBtn');
+  const logoutBtn = document.getElementById('partnerLogoutBtn');
+  const addBtn = document.getElementById('partnerAddBtn');
+  const clearBtn = document.getElementById('partnerClearBtn');
+  const passInput = document.getElementById('partnerPasswordInput');
+  if (loginBtn) loginBtn.addEventListener('click', partnerLogin);
+  if (backBtn) backBtn.addEventListener('click', () => showPage('home'));
+  if (logoutBtn) logoutBtn.addEventListener('click', partnerLogout);
+  if (addBtn) addBtn.addEventListener('click', addPartnerProduct);
+  if (clearBtn) clearBtn.addEventListener('click', clearPartnerForm);
+  if (passInput) passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') partnerLogin(); });
+  document.querySelectorAll('.partner-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (!getPartnerSession()) return;
+      const name = tab.dataset.tab;
+      if (name === 'add') { if (!partnerEditingId) clearPartnerForm(); }
+      switchPartnerTab(name);
+    });
+  });
+  const footerLink = document.getElementById('footerPartnerLink');
+  if (footerLink) footerLink.addEventListener('click', (e) => { e.preventDefault(); showPage('partner'); });
+  renderPartnerImagesGrid();
+})();
+
+/* ============================================================
+   ПЕРЕКЛЮЧАТЕЛИ ЯЗЫКА (обработчики)
+   ============================================================ */
+const headerLangBtn = document.getElementById('headerLangBtn');
+const headerLangMenu = document.getElementById('headerLangMenu');
+if (headerLangBtn) headerLangBtn.addEventListener('click', (e) => { e.stopPropagation(); headerLangMenu.classList.toggle('active'); });
+document.querySelectorAll('#headerLangMenu .lang-option').forEach(btn => {
+  btn.addEventListener('click', () => { setLanguage(btn.dataset.lang, true); headerLangMenu.classList.remove('active'); });
+});
+document.querySelectorAll('#profileLangSwitch button').forEach(btn => {
+  btn.addEventListener('click', () => setLanguage(btn.dataset.lang, true));
+});
+document.querySelectorAll('#partnerLangSwitch button').forEach(btn => {
+  btn.addEventListener('click', () => setLanguage(btn.dataset.lang, true));
+});
+document.querySelectorAll('#mobileLangSwitch button').forEach(btn => {
+  btn.addEventListener('click', () => setLanguage(btn.dataset.lang, true));
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+updateCartUI();
+subscribeToAllProducts();
+
+function initStandalonePage() {
+  if (CURRENT_FILE === 'cart.html') renderCartModal();
+  if (CURRENT_FILE === 'favorites.html') renderFavoritesModal();
+  if (CURRENT_FILE === 'partner.html') renderPartnerPage();
+  if (CURRENT_FILE === 'product.html') {
+    const _pid = new URLSearchParams(location.search).get('id');
+    if (_pid) {
+      openProductPage(_pid);
+      setTimeout(() => { const c = document.getElementById('productPageContent'); if (c && !c.innerHTML.trim()) openProductPage(_pid); }, 900);
+    } else { location.href = 'index.html'; }
+  }
+}
+initStandalonePage();
+loadGlobalSettings();
+loadReviewsFromFirestore();
+updateBrandFilterVisibility();
+const CURRENT_PAGE_NAME = (() => {
+  const map = { 'favorites.html':'favorites', 'cart.html':'cart', 'profile.html':'profile', 'product.html':'productDetail', 'admin.html':'admin', 'partner.html':'partner' };
+  return map[CURRENT_FILE] || 'home';
+})();
+setBodyPageClass(CURRENT_PAGE_NAME);
+trackPageView(CURRENT_PAGE_NAME);
+
+applyTranslations();
+updateLangSwitchers();
+updatePartnerSupportLink();
+
+// GeoIP: запустим после первой отрисовки
+initGeoIP();
+
+// Contact page form -> forwards the message to WhatsApp (no backend needed)
+document.addEventListener('submit', function (e) {
+  if (!e.target || e.target.id !== 'contactForm') return;
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const name = (fd.get('name') || '').toString().trim();
+  const phone = (fd.get('phone') || '').toString().trim();
+  const email = (fd.get('email') || '').toString().trim();
+  const message = (fd.get('message') || '').toString().trim();
+  let text = 'Здравствуйте! Меня зовут ' + (name || '—') + '.';
+  text += '\nТелефон: ' + (phone || '—');
+  if (email) text += '\nEmail: ' + email;
+  text += '\nСообщение: ' + (message || '—');
+  window.open('https://wa.me/998958239490?text=' + encodeURIComponent(text), '_blank');
+  e.target.reset();
+});
+
+// Scroll-reveal animations for static sections (.reveal)
+(function () {
+  const els = document.querySelectorAll('.reveal');
+  if (!els.length) return;
+  if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('is-visible')); return; }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) { entry.target.classList.add('is-visible'); io.unobserve(entry.target); }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+  els.forEach((el) => io.observe(el));
+})();
