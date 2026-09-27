@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>FULL SELLER — оптовые носки, футболки, бельё напрямую от фабрик</title>
-<meta name="description" content="Оптовый поставщик носков, футболок и белья из Узбекистана. От 13 ₽/шт, минимальный заказ 2000 шт, доставка карго в Россию и Таджикистан.">
+<meta name="description" content="Оптовый поставщик носков, футболок и белья из Узбекистана. От 13 ₽/шт, минимальный заказ 1 мешок = 700 пар, доставка карго в Россию и Таджикистан.">
 <link rel="icon" href="/иконнка.png" type="image/png" sizes="48x48 96x96 144x144">
 <link rel="apple-touch-icon" href="/иконнка.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -415,6 +415,28 @@ body.page-favorites #favoritesPage,body.page-cart #cartPage,body.page-profile #p
 .product-page__actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .product-page__actions .qty-input{width:96px;height:56px;font-size:1.0625rem}
 .product-page__add{flex:1;min-width:200px;min-height:56px;font-size:1rem;border-radius:16px}
+/* ===== NEW: BAGS ===== */
+.product-page__bags{margin-bottom:24px;}
+.product-page__bags-label{display:flex;align-items:center;gap:8px;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.product-page__bags-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+@media(max-width:560px){.product-page__bags-grid{grid-template-columns:1fr;}}
+.bag-option{position:relative;display:flex;flex-direction:column;gap:4px;padding:14px 12px;border-radius:14px;border:2px solid var(--border);background:var(--card);cursor:pointer;transition:.2s var(--ease);text-align:left;}
+.bag-option:hover{border-color:var(--accent);background:var(--accent-soft);}
+.bag-option.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-ring);}
+.bag-option__name{font-weight:700;font-size:.875rem;color:var(--text);}
+.bag-option__size{font-size:.75rem;color:var(--text-2);}
+.bag-option__price{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--accent);margin-top:4px;letter-spacing:-.02em;}
+.bag-option__price.is-zero{color:var(--muted);}
+.bag-option input{position:absolute;opacity:0;pointer-events:none;}
+/* Admin bag inputs grid */
+.admin-bag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;grid-column:1/-1;}
+@media(max-width:640px){.admin-bag-grid{grid-template-columns:1fr;}}
+.admin-bag-grid label{display:block;font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-2);margin-bottom:6px;}
+/* Description row with generate button */
+.desc-row{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;}
+.desc-row textarea{flex:1;min-width:0;}
+.desc-row .gen-desc-btn{flex-shrink:0;min-height:auto;height:auto;padding:12px 14px;font-size:.75rem;white-space:nowrap;}
+@media(max-width:560px){.desc-row{flex-direction:column;}.desc-row .gen-desc-btn{width:100%;}}
 /* gallery modal */
 .gallery-slider-wrapper{position:relative;aspect-ratio:1;background:var(--bg-sunken);border-radius:var(--r-lg);overflow:hidden;display:flex;align-items:center;justify-content:center}
 .gallery-slider{width:100%;height:100%;position:relative}
@@ -496,6 +518,8 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 .partner-field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2378716C' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:44px;}
 .partner-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:560px){.partner-row-2{grid-template-columns:1fr}}
+.partner-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:560px){.partner-row-3{grid-template-columns:1fr}}
 .partner-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:24px}
 .partner-header h2{font-size:1.5rem;margin:0;letter-spacing:-.02em}
 .partner-header p{color:var(--muted);font-size:.8125rem;margin:4px 0 0}
@@ -674,7 +698,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
       <button class="icon-btn theme-btn" id="lightThemeBtn" title="Light"><i class="fas fa-sun"></i></button>
       <button class="icon-btn theme-btn" id="darkThemeBtn" title="Dark"><i class="fas fa-moon"></i></button>
 
-      <!-- Language switcher (header) -->
       <div class="lang-switch" id="headerLangSwitch">
         <button class="lang-switch-btn" id="headerLangBtn" type="button" aria-label="Change language">
           <i class="fas fa-globe"></i>
@@ -701,7 +724,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
         <span class="hero__eyebrow"><i class="fas fa-industry"></i> <span data-i18n="hero_eyebrow">Прямые поставки с фабрик Узбекистана</span></span>
         <h1 class="hero__title"><span data-i18n="hero_title_1">Оптовые носки, футболки и бельё</span> <span class="hero__title-accent" data-i18n="hero_title_2">напрямую от фабрик</span></h1>
         <p class="hero__subtitle">
-          <strong data-i18n="hero_from">От 13 ₽/шт</strong> · <span data-i18n="hero_min">Минимальный заказ</span> <strong>2000 шт</strong> ·
+          <strong data-i18n="hero_from">От 13 ₽/шт</strong> · <span data-i18n="hero_min">Минимальный заказ</span> <strong data-i18n="hero_min_val">1 мешок = 700 пар</strong> ·
           <span data-i18n="hero_delivery">Доставка карго в</span> <strong data-i18n="hero_countries">Россию и Таджикистан</strong>
         </p>
         <div class="hero__actions">
@@ -728,7 +751,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   <div class="trust-strip">
     <div class="container trust-strip__inner">
       <div class="trust-item"><i class="fas fa-industry"></i><div><b data-i18n="trust_direct_t">Прямые поставки</b><span data-i18n="trust_direct_s">без посредников и наценок</span></div></div>
-      <div class="trust-item"><i class="fas fa-boxes-stacked"></i><div><b data-i18n="trust_min_t">От 2000 шт</b><span data-i18n="trust_min_s">минимальный заказ</span></div></div>
+      <div class="trust-item"><i class="fas fa-boxes-stacked"></i><div><b data-i18n="trust_min_t">1 мешок = 700 пар</b><span data-i18n="trust_min_s">минимальный заказ</span></div></div>
       <div class="trust-item"><i class="fas fa-earth-asia"></i><div><b data-i18n="trust_countries_t">РФ и Таджикистан</b><span data-i18n="trust_countries_s">проверенное карго</span></div></div>
       <div class="trust-item"><i class="fas fa-certificate"></i><div><b data-i18n="trust_quality_t">Проверенное качество</b><span data-i18n="trust_quality_s">контроль на фабрике</span></div></div>
     </div>
@@ -762,7 +785,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
       <button class="brand-filter-btn" data-brand="обычные" data-i18n="brand_regular">Обычные</button>
     </div>
 
-    <!-- 3-й уровень фильтра: аудитория -->
     <div class="audience-filter" id="audienceFilter">
       <button class="audience-filter-btn active" data-audience="all" data-i18n="aud_all">Все аудитории</button>
       <button class="audience-filter-btn" data-audience="male" data-i18n="aud_male">Мужские</button>
@@ -791,7 +813,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
           <h3><span class="info-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16v10H4z" stroke="currentColor" stroke-width="1.8"/><path d="M8 7V5h8v2" stroke="currentColor" stroke-width="1.8"/><path d="M8 11h8" stroke="currentColor" stroke-width="1.8"/></svg></span><span data-i18n="wh_card1_title">Цена и условия</span></h3>
           <ul>
             <li><i class="fas fa-coins"></i><span><strong data-i18n="wh_card1_li1">Оптовая цена:</strong> <span data-i18n="hero_from">от 13 ₽/шт</span></span></li>
-            <li><i class="fas fa-boxes-stacked"></i><span><strong data-i18n="wh_card1_li2">Минимальный заказ:</strong> <span data-i18n="wh_card1_li2b">от 2 000 шт</span></span></li>
+            <li><i class="fas fa-boxes-stacked"></i><span><strong data-i18n="wh_card1_li2">Минимальный заказ:</strong> <span data-i18n="wh_card1_li2b">1 мешок = 700 пар</span></span></li>
             <li><i class="fas fa-truck-fast"></i><span><strong data-i18n="wh_card1_li3">Доставка по РФ</strong> — 7–10 дней</span></li>
             <li><i class="fas fa-truck-fast"></i><span><strong data-i18n="wh_card1_li4">Доставка в Таджикистан</strong> — 3–4 дня</span></li>
           </ul>
@@ -823,7 +845,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
         <div class="cargo-calc-form">
           <div class="cargo-calc-field">
             <label for="cargo-calc-qty" data-i18n="calc_qty">Количество (шт.)</label>
-            <input type="number" id="cargo-calc-qty" class="cargo-calc-input" placeholder="Мин. 5 000" min="0" value="5000">
+            <input type="number" id="cargo-calc-qty" class="cargo-calc-input" placeholder="Мин. 700 (1 мешок)" min="0" value="700">
             <div class="cargo-calc-warning" id="cargo-calc-warning"></div>
           </div>
           <div class="cargo-calc-field">
@@ -927,7 +949,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
           <h4 data-i18n="footer_buyers">Покупателям</h4>
           <ul>
             <li><i class="fas fa-truck-fast"></i><span data-i18n="footer_b1">Доставка по РФ и Таджикистану</span></li>
-            <li><i class="fas fa-boxes-stacked"></i><span data-i18n="footer_b2">Минимальный заказ от 2 000 шт</span></li>
+            <li><i class="fas fa-boxes-stacked"></i><span data-i18n="footer_b2">Минимальный заказ: 1 мешок = 700 пар</span></li>
             <li><i class="fas fa-coins"></i><span data-i18n="footer_b3">Оптовые цены от 13 ₽/шт</span></li>
             <li><i class="fas fa-shield-halved"></i><span data-i18n="footer_b4">Проверенное качество</span></li>
           </ul>
@@ -982,7 +1004,6 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
       <label style="font-size:.8125rem; font-weight:600; color:var(--text-2);" data-i18n="profile_email">Email (нельзя изменить)</label>
       <input type="email" id="profileEmail" disabled style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-secondary); color:var(--text-secondary);">
 
-      <!-- Язык приложения -->
       <label style="font-size:.8125rem; font-weight:600; color:var(--text-2); margin-top:6px;" data-i18n="profile_lang">Язык приложения</label>
       <div class="lang-inline" id="profileLangSwitch" style="margin-bottom:8px;">
         <button type="button" data-lang="ru">RU</button>
@@ -1057,7 +1078,28 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
         </div>
         <input type="hidden" id="adminImageUrl" value="">
       </div>
-      <textarea id="adminDesc" placeholder="Описание" rows="2" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); grid-column:1/-1; font-family:inherit;"></textarea>
+
+      <!-- ====== НОВОЕ: Три мешка (цены) ====== -->
+      <div class="admin-bag-grid">
+        <div>
+          <label for="adminBag1Price" data-i18n="bag_1">Мешок 1 (700 пар) — ₽</label>
+          <input type="number" id="adminBag1Price" placeholder="0" min="0" step="0.01" value="0" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        </div>
+        <div>
+          <label for="adminBag2Price" data-i18n="bag_2">Мешок 2 (1200 пар) — ₽</label>
+          <input type="number" id="adminBag2Price" placeholder="0" min="0" step="0.01" value="0" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        </div>
+        <div>
+          <label for="adminBag3Price" data-i18n="bag_3">Мешок 3 (2000 пар) — ₽</label>
+          <input type="number" id="adminBag3Price" placeholder="0" min="0" step="0.01" value="0" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        </div>
+      </div>
+
+      <!-- ====== НОВОЕ: Описание + кнопка генерации ====== -->
+      <div class="desc-row">
+        <textarea id="adminDesc" placeholder="Описание" rows="3" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); font-family:inherit;"></textarea>
+        <button type="button" class="btn-outline gen-desc-btn" id="adminGenDescBtn"><i class="fas fa-wand-magic-sparkles"></i> <span data-i18n="gen_desc">Сгенерировать описание</span></button>
+      </div>
     </div>
     <button class="btn" id="addProductBtn" data-i18n="admin_add_btn">Добавить товар</button>
   </div>
@@ -1090,14 +1132,12 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
         <div id="partnerIdBadge"></div>
       </div>
       <div class="partner-header-actions">
-        <!-- Переключатель языка в панели производителя -->
         <div class="lang-inline" id="partnerLangSwitch">
           <button type="button" data-lang="ru">RU</button>
           <button type="button" data-lang="en">EN</button>
           <button type="button" data-lang="uz">UZ</button>
         </div>
 
-        <!-- Кнопка "Связаться с разработчиком" -->
         <a href="https://wa.me/79385401876?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%AF%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%2C%20%D0%BD%D1%83%D0%B6%D0%BD%D0%B0%20%D0%BF%D0%BE%D0%B4%D0%B4%D0%B5%D1%80%D0%B6%D0%BA%D0%B0."
            class="partner-support-btn" id="partnerSupportBtn" target="_blank" rel="noopener">
           <i class="fab fa-whatsapp"></i> <span data-i18n="partner_support">Связаться с разработчиком</span>
@@ -1125,6 +1165,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
         <div class="partner-field">
           <label for="partnerProductDesc" data-i18n="partner_field_desc">Описание</label>
           <textarea id="partnerProductDesc" rows="3" data-i18n-placeholder="partner_ph_desc" placeholder="Опишите товар, материал, особенности..."></textarea>
+          <button type="button" class="btn-outline" id="partnerGenDescBtn" style="margin-top:8px;align-self:flex-start;padding:8px 14px;font-size:.75rem;min-height:auto;"><i class="fas fa-wand-magic-sparkles"></i> <span data-i18n="gen_desc">Сгенерировать описание</span></button>
         </div>
 
         <div class="partner-row-2">
@@ -1170,12 +1211,10 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
           </div>
         </div>
 
-        <!-- ===== НОВОЕ ПОЛЕ: МАТЕРИАЛ ===== -->
         <div class="partner-field">
           <label for="partnerProductMaterial" data-i18n="partner_field_material">Материал</label>
           <input type="text" id="partnerProductMaterial" maxlength="120" data-i18n-placeholder="partner_ph_material" placeholder="Например: Хлопок 80%, эластан 20%">
         </div>
-        <!-- ===== /НОВОЕ ПОЛЕ: МАТЕРИАЛ ===== -->
 
         <div class="partner-field">
           <label for="partnerProductColor" data-i18n="partner_field_color">Цвет</label>
@@ -1190,10 +1229,22 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
           </select>
         </div>
 
-        <div class="partner-row-2">
+        <div class="partner-row-3">
           <div class="partner-field">
-            <label for="partnerProductPrice" data-i18n="partner_field_price">Цена (₽)</label>
+            <label for="partnerProductPrice" data-i18n="partner_field_price">Базовая цена (₽)</label>
             <input type="number" id="partnerProductPrice" placeholder="0" min="0" step="0.01">
+          </div>
+          <div class="partner-field">
+            <label for="partnerBag1Price">Мешок 1 (700 пар) — ₽</label>
+            <input type="number" id="partnerBag1Price" placeholder="0" min="0" step="0.01" value="0">
+          </div>
+          <div class="partner-field">
+            <label for="partnerBag2Price">Мешок 2 (1200 пар) — ₽</label>
+            <input type="number" id="partnerBag2Price" placeholder="0" min="0" step="0.01" value="0">
+          </div>
+          <div class="partner-field">
+            <label for="partnerBag3Price">Мешок 3 (2000 пар) — ₽</label>
+            <input type="number" id="partnerBag3Price" placeholder="0" min="0" step="0.01" value="0">
           </div>
         </div>
 
@@ -1361,11 +1412,12 @@ const I18N = {
     btn_login: 'Войти', btn_view_catalog: 'Смотреть каталог', btn_calc_delivery: 'Рассчитать доставку', btn_cart: 'В корзину',
     hero_eyebrow: 'Прямые поставки с фабрик Узбекистана',
     hero_title_1: 'Оптовые носки, футболки и бельё', hero_title_2: 'напрямую от фабрик',
-    hero_from: 'от 13 ₽ / шт', hero_min: 'Минимальный заказ', hero_delivery: 'Доставка карго в', hero_countries: 'Россию и Таджикистан',
+    hero_from: 'от 13 ₽ / шт', hero_min: 'Минимальный заказ', hero_min_val: '1 мешок = 700 пар',
+    hero_delivery: 'Доставка карго в', hero_countries: 'Россию и Таджикистан',
     hero_price_sub: 'оптовая цена от фабрики', hero_days: '7–10 дней', hero_days_sub: 'доставка карго в РФ',
     badge_direct: 'Прямые поставки', badge_quality: 'Проверенное качество', badge_marketplaces: 'Работаем с маркетплейсами',
     trust_direct_t: 'Прямые поставки', trust_direct_s: 'без посредников и наценок',
-    trust_min_t: 'От 2000 шт', trust_min_s: 'минимальный заказ',
+    trust_min_t: '1 мешок = 700 пар', trust_min_s: 'минимальный заказ',
     trust_countries_t: 'РФ и Таджикистан', trust_countries_s: 'проверенное карго',
     trust_quality_t: 'Проверенное качество', trust_quality_s: 'контроль на фабрике',
     cat_all: 'Все товары', cat_socks: 'Носки', cat_tshirts: 'Футболки', cat_underwear: 'Шорты / Штаны / Трусы',
@@ -1374,7 +1426,7 @@ const I18N = {
     catalog_title: 'Популярные товары',
     wh_eyebrow: 'Оптовые условия', wh_title: 'Оптовые условия и доставка',
     wh_copy: 'Надёжный партнёр для регулярных оптовых закупок: прозрачные условия, стабильные поставки и цены напрямую от фабрики.',
-    wh_card1_title: 'Цена и условия', wh_card1_li1: 'Оптовая цена:', wh_card1_li2: 'Минимальный заказ:', wh_card1_li2b: 'от 2 000 шт',
+    wh_card1_title: 'Цена и условия', wh_card1_li1: 'Оптовая цена:', wh_card1_li2: 'Минимальный заказ:', wh_card1_li2b: '1 мешок = 700 пар',
     wh_card1_li3: 'Доставка по РФ', wh_card1_li4: 'Доставка в Таджикистан',
     wh_card1_note: 'Работаем напрямую с производителями. Качество проверено.',
     wh_card2_title: 'О товаре', wh_card2_li1: 'Носки, футболки, трусы, шорты и штаны оптом', wh_card2_li2: 'Средний и премиум сегмент',
@@ -1395,7 +1447,7 @@ const I18N = {
     rev_login_prompt: 'Чтобы оставить отзыв,', rev_login_link: 'авторизуйтесь',
     footer_about: 'Ваш надёжный поставщик трикотажа напрямую от фабрик Узбекистана. Оптом: носки, футболки, трусы, шорты и штаны — от популярных брендов до базовых моделей. Доставка в Россию и Таджикистан.',
     footer_contacts: 'Контакты', footer_address: 'Узбекистан, г. Коканд', footer_nav: 'Навигация', footer_buyers: 'Покупателям',
-    footer_b1: 'Доставка по РФ и Таджикистану', footer_b2: 'Минимальный заказ от 2 000 шт',
+    footer_b1: 'Доставка по РФ и Таджикистану', footer_b2: 'Минимальный заказ: 1 мешок = 700 пар',
     footer_b3: 'Оптовые цены от 13 ₽/шт', footer_b4: 'Проверенное качество',
     footer_rights: 'Все права защищены.', footer_tagline: 'Оптовые поставки трикотажа из Узбекистана', footer_partner: 'Для производителей',
     fav_title: 'Избранное', fav_empty: 'Вы пока ничего не добавили в избранное',
@@ -1411,7 +1463,8 @@ const I18N = {
     admin_manage: 'Управление товарами', admin_add_new: 'Добавить товар', admin_add_btn: 'Добавить товар', admin_orders: 'Заказы',
     order_title: 'Ваш заказ', order_details: 'Детали заказа',
     bn_home: 'Главная', bn_fav: 'Избранное', bn_cart: 'Корзина', bn_profile: 'Профиль', float_write: 'Написать',
-    /* Partner panel */
+    gen_desc: 'Сгенерировать описание', bag_1: 'Мешок 1 (700 пар)', bag_2: 'Мешок 2 (1200 пар)', bag_3: 'Мешок 3 (2000 пар)',
+    bags_label: 'Выберите мешок', partner_markup_note: 'На сайте цена +15%',
     partner_title: 'Панель производителя', partner_login_sub: 'Вход для партнёров FULL SELLER',
     partner_login: 'Логин', partner_password: 'Пароль', partner_enter: 'Войти', partner_back_home: 'На главную',
     partner_greeting: 'Управление вашими товарами', partner_logout: 'Выйти',
@@ -1420,7 +1473,7 @@ const I18N = {
     partner_new_product: 'Новый товар',
     partner_field_name: 'Название *', partner_field_desc: 'Описание', partner_field_cat: 'Категория *',
     partner_field_aud: 'Аудитория *', partner_field_sizes: 'Выбор размера (можно выбрать несколько)',
-    partner_field_brand: 'Бренд', partner_field_weight: 'Вес (грамм)', partner_field_color: 'Цвет', partner_field_price: 'Цена (₽)',
+    partner_field_brand: 'Бренд', partner_field_weight: 'Вес (грамм)', partner_field_color: 'Цвет', partner_field_price: 'Базовая цена (₽)',
     partner_field_material: 'Материал',
     partner_field_images: 'Изображения товара (до 10, до 8 МБ каждое)',
     partner_ph_name: 'Например: Носки Nike белые', partner_ph_desc: 'Опишите товар, материал, особенности...',
@@ -1441,11 +1494,12 @@ const I18N = {
     btn_login: 'Sign in', btn_view_catalog: 'View catalog', btn_calc_delivery: 'Calculate delivery', btn_cart: 'Add to cart',
     hero_eyebrow: 'Direct supplies from factories in Uzbekistan',
     hero_title_1: 'Wholesale socks, t-shirts and underwear', hero_title_2: 'directly from factories',
-    hero_from: 'from 13 ₽/pc', hero_min: 'Minimum order', hero_delivery: 'Cargo delivery to', hero_countries: 'Russia and Tajikistan',
+    hero_from: 'from 13 ₽/pc', hero_min: 'Minimum order', hero_min_val: '1 bag = 700 pairs',
+    hero_delivery: 'Cargo delivery to', hero_countries: 'Russia and Tajikistan',
     hero_price_sub: 'wholesale price from factory', hero_days: '7–10 days', hero_days_sub: 'cargo delivery to RU',
     badge_direct: 'Direct supplies', badge_quality: 'Verified quality', badge_marketplaces: 'We work with marketplaces',
     trust_direct_t: 'Direct supplies', trust_direct_s: 'no intermediaries or markups',
-    trust_min_t: 'From 2000 pcs', trust_min_s: 'minimum order',
+    trust_min_t: '1 bag = 700 pairs', trust_min_s: 'minimum order',
     trust_countries_t: 'Russia & Tajikistan', trust_countries_s: 'verified cargo',
     trust_quality_t: 'Verified quality', trust_quality_s: 'factory control',
     cat_all: 'All products', cat_socks: 'Socks', cat_tshirts: 'T-shirts', cat_underwear: 'Shorts / Pants / Underwear',
@@ -1454,7 +1508,7 @@ const I18N = {
     catalog_title: 'Popular products',
     wh_eyebrow: 'Wholesale terms', wh_title: 'Wholesale terms and delivery',
     wh_copy: 'Reliable partner for regular wholesale purchases: transparent terms, stable supplies and prices directly from the factory.',
-    wh_card1_title: 'Price & terms', wh_card1_li1: 'Wholesale price:', wh_card1_li2: 'Minimum order:', wh_card1_li2b: 'from 2,000 pcs',
+    wh_card1_title: 'Price & terms', wh_card1_li1: 'Wholesale price:', wh_card1_li2: 'Minimum order:', wh_card1_li2b: '1 bag = 700 pairs',
     wh_card1_li3: 'Delivery to RU', wh_card1_li4: 'Delivery to Tajikistan',
     wh_card1_note: 'We work directly with manufacturers. Quality verified.',
     wh_card2_title: 'About the product', wh_card2_li1: 'Socks, t-shirts, underwear, shorts and pants wholesale',
@@ -1476,7 +1530,7 @@ const I18N = {
     rev_login_prompt: 'To leave a review,', rev_login_link: 'sign in',
     footer_about: 'Your reliable knitwear supplier directly from factories in Uzbekistan. Wholesale: socks, t-shirts, underwear, shorts and pants — from popular brands to basic models. Delivery to Russia and Tajikistan.',
     footer_contacts: 'Contacts', footer_address: 'Uzbekistan, Kokand', footer_nav: 'Navigation', footer_buyers: 'For buyers',
-    footer_b1: 'Delivery to RU and Tajikistan', footer_b2: 'Minimum order from 2,000 pcs',
+    footer_b1: 'Delivery to RU and Tajikistan', footer_b2: 'Minimum order: 1 bag = 700 pairs',
     footer_b3: 'Wholesale prices from 13 ₽/pc', footer_b4: 'Verified quality',
     footer_rights: 'All rights reserved.', footer_tagline: 'Wholesale knitwear from Uzbekistan', footer_partner: 'For manufacturers',
     fav_title: 'Favorites', fav_empty: "You haven't added anything to favorites yet",
@@ -1492,6 +1546,8 @@ const I18N = {
     admin_manage: 'Manage products', admin_add_new: 'Add product', admin_add_btn: 'Add product', admin_orders: 'Orders',
     order_title: 'Your order', order_details: 'Order details',
     bn_home: 'Home', bn_fav: 'Favorites', bn_cart: 'Cart', bn_profile: 'Profile', float_write: 'Message',
+    gen_desc: 'Generate description', bag_1: 'Bag 1 (700 pairs)', bag_2: 'Bag 2 (1200 pairs)', bag_3: 'Bag 3 (2000 pairs)',
+    bags_label: 'Choose a bag', partner_markup_note: 'Site price +15%',
     partner_title: 'Manufacturer panel', partner_login_sub: 'Login for FULL SELLER partners',
     partner_login: 'Login', partner_password: 'Password', partner_enter: 'Sign in', partner_back_home: 'Home',
     partner_greeting: 'Manage your products', partner_logout: 'Log out',
@@ -1500,7 +1556,7 @@ const I18N = {
     partner_new_product: 'New product',
     partner_field_name: 'Name *', partner_field_desc: 'Description', partner_field_cat: 'Category *',
     partner_field_aud: 'Audience *', partner_field_sizes: 'Size selection (multiple allowed)',
-    partner_field_brand: 'Brand', partner_field_weight: 'Weight (grams)', partner_field_color: 'Color', partner_field_price: 'Price (₽)',
+    partner_field_brand: 'Brand', partner_field_weight: 'Weight (grams)', partner_field_color: 'Color', partner_field_price: 'Base price (₽)',
     partner_field_material: 'Material',
     partner_field_images: 'Product images (up to 10, up to 8 MB each)',
     partner_ph_name: 'e.g. Nike socks white', partner_ph_desc: 'Describe product, material, features...',
@@ -1521,11 +1577,12 @@ const I18N = {
     btn_login: 'Kirish', btn_view_catalog: 'Katalogni ko‘rish', btn_calc_delivery: 'Yetkazib berishni hisoblash', btn_cart: 'Savatga',
     hero_eyebrow: 'O‘zbekiston fabrikalaridan to‘g‘ridan-to‘g‘ri yetkazib berish',
     hero_title_1: 'Ulgurji paypoq, futbolka va ichki kiyim', hero_title_2: 'to‘g‘ridan-to‘g‘ri fabrikalardan',
-    hero_from: '13 ₽/dona dan', hero_min: 'Minimal buyurtma', hero_delivery: 'Kargo yetkazib berish', hero_countries: 'Rossiya va Tojikiston',
+    hero_from: '13 ₽/dona dan', hero_min: 'Minimal buyurtma', hero_min_val: '1 qop = 700 juft',
+    hero_delivery: 'Kargo yetkazib berish', hero_countries: 'Rossiya va Tojikiston',
     hero_price_sub: 'fabrikadan ulgurji narx', hero_days: '7–10 kun', hero_days_sub: 'Rossiyaga kargo yetkazib berish',
     badge_direct: 'To‘g‘ridan-to‘g‘ri yetkazib berish', badge_quality: 'Tekshirilgan sifat', badge_marketplaces: 'Marketpleyslar bilan ishlaymiz',
     trust_direct_t: 'To‘g‘ridan-to‘g‘ri', trust_direct_s: 'vositachilarsiz va ustamasiz',
-    trust_min_t: '2000 donadan', trust_min_s: 'minimal buyurtma',
+    trust_min_t: '1 qop = 700 juft', trust_min_s: 'minimal buyurtma',
     trust_countries_t: 'Rossiya va Tojikiston', trust_countries_s: 'tekshirilgan kargo',
     trust_quality_t: 'Tekshirilgan sifat', trust_quality_s: 'fabrikada nazorat',
     cat_all: 'Barcha mahsulotlar', cat_socks: 'Paypoqlar', cat_tshirts: 'Futbolkalar', cat_underwear: 'Shortik / Shim / Ichki kiyim',
@@ -1534,7 +1591,7 @@ const I18N = {
     catalog_title: 'Mashhur mahsulotlar',
     wh_eyebrow: 'Ulgurji shartlar', wh_title: 'Ulgurji shartlar va yetkazib berish',
     wh_copy: 'Muntazam ulgurji xaridlar uchun ishonchli hamkor: shaffof shartlar, barqaror yetkazib berish va fabrikadan to‘g‘ridan-to‘g‘ri narxlar.',
-    wh_card1_title: 'Narx va shartlar', wh_card1_li1: 'Ulgurji narx:', wh_card1_li2: 'Minimal buyurtma:', wh_card1_li2b: '2000 donadan',
+    wh_card1_title: 'Narx va shartlar', wh_card1_li1: 'Ulgurji narx:', wh_card1_li2: 'Minimal buyurtma:', wh_card1_li2b: '1 qop = 700 juft',
     wh_card1_li3: 'Rossiyaga yetkazib berish', wh_card1_li4: 'Tojikistonga yetkazib berish',
     wh_card1_note: 'Ishlab chiqaruvchilar bilan to‘g‘ridan-to‘g‘ri ishlaymiz. Sifat tekshirilgan.',
     wh_card2_title: 'Mahsulot haqida', wh_card2_li1: 'Paypoq, futbolka, ichki kiyim, shortik va shimlar ulgurji',
@@ -1556,7 +1613,7 @@ const I18N = {
     rev_login_prompt: 'Sharh qoldirish uchun,', rev_login_link: 'tizimga kiring',
     footer_about: 'O‘zbekiston fabrikalaridan to‘g‘ridan-to‘g‘ri trikotaj yetkazib beruvchingiz. Ulgurji: paypoq, futbolka, ichki kiyim, shortik va shimlar — mashhur brendlardan oddiy modellargacha. Rossiya va Tojikistonga yetkazib berish.',
     footer_contacts: 'Kontaktlar', footer_address: 'O‘zbekiston, Qo‘qon sh.', footer_nav: 'Navigatsiya', footer_buyers: 'Xaridorlarga',
-    footer_b1: 'Rossiya va Tojikistonga yetkazib berish', footer_b2: '2000 donadan minimal buyurtma',
+    footer_b1: 'Rossiya va Tojikistonga yetkazib berish', footer_b2: 'Minimal buyurtma: 1 qop = 700 juft',
     footer_b3: '13 ₽/dona dan ulgurji narxlar', footer_b4: 'Tekshirilgan sifat',
     footer_rights: 'Barcha huquqlar himoyalangan.', footer_tagline: 'O‘zbekistondan ulgurji trikotaj', footer_partner: 'Ishlab chiqaruvchilar uchun',
     fav_title: 'Sevimlilar', fav_empty: 'Siz hali sevimlilarga hech narsa qo‘shmadingiz',
@@ -1572,6 +1629,8 @@ const I18N = {
     admin_manage: 'Mahsulotlarni boshqarish', admin_add_new: 'Mahsulot qo‘shish', admin_add_btn: 'Mahsulot qo‘shish', admin_orders: 'Buyurtmalar',
     order_title: 'Sizning buyurtmangiz', order_details: 'Buyurtma tafsilotlari',
     bn_home: 'Asosiy', bn_fav: 'Sevimlilar', bn_cart: 'Savat', bn_profile: 'Profil', float_write: 'Yozish',
+    gen_desc: 'Tavsif yaratish', bag_1: 'Qop 1 (700 juft)', bag_2: 'Qop 2 (1200 juft)', bag_3: 'Qop 3 (2000 juft)',
+    bags_label: 'Qopni tanlang', partner_markup_note: 'Sayt narxi +15%',
     partner_title: 'Ishlab chiqaruvchi paneli', partner_login_sub: 'FULL SELLER hamkorlari uchun kirish',
     partner_login: 'Login', partner_password: 'Parol', partner_enter: 'Kirish', partner_back_home: 'Asosiy sahifa',
     partner_greeting: 'Mahsulotlaringizni boshqaring', partner_logout: 'Chiqish',
@@ -1580,7 +1639,7 @@ const I18N = {
     partner_new_product: 'Yangi mahsulot',
     partner_field_name: 'Nomi *', partner_field_desc: 'Tavsif', partner_field_cat: 'Kategoriya *',
     partner_field_aud: 'Auditoriya *', partner_field_sizes: 'O‘lchamni tanlash (bir nechta)',
-    partner_field_brand: 'Brend', partner_field_weight: 'Og‘irligi (gramm)', partner_field_color: 'Rang', partner_field_price: 'Narx (₽)',
+    partner_field_brand: 'Brend', partner_field_weight: 'Og‘irligi (gramm)', partner_field_color: 'Rang', partner_field_price: 'Bazaviy narx (₽)',
     partner_field_material: 'Material',
     partner_field_images: 'Mahsulot rasmlari (10 tagacha, har biri 8 MB gacha)',
     partner_ph_name: 'Masalan: Nike oq paypoq', partner_ph_desc: 'Mahsulot, material, xususiyatlar...',
@@ -1651,13 +1710,11 @@ async function setLanguage(lang, fromUser) {
   currentLang = lang;
   localStorage.setItem(LANG_KEY, lang);
 
-  // Для авторизованного пользователя — пишем в Firebase
   if (fromUser && currentUser && currentUser.uid) {
     try {
       await db.collection('users').doc(currentUser.uid).set({ language: lang }, { merge: true });
     } catch (e) { console.warn('lang save failed', e); }
   }
-  // Для авторизованного партнёра — пишем в документ партнёра
   if (fromUser) {
     const session = getPartnerSession ? getPartnerSession() : null;
     if (session && session.partnerId) {
@@ -1669,7 +1726,6 @@ async function setLanguage(lang, fromUser) {
 
   applyTranslations();
   updateLangSwitchers();
-  // Перерисовываем динамические элементы
   try { renderCatalog(); } catch (e) {}
   try { renderReviews(); } catch (e) {}
   try { updateSubtitle(); } catch (e) {}
@@ -1678,7 +1734,6 @@ async function setLanguage(lang, fromUser) {
   }
 }
 
-/* Перерисовка карточек товаров производителя (для обновления языка) */
 function renderPartnerProductCardsLocale() {
   if (typeof partnerProductsCache !== 'undefined' && typeof loadPartnerProducts === 'function') {
     const container = document.getElementById('partnerProductsContainer');
@@ -1706,6 +1761,9 @@ function renderPartnerProductCardsLocale() {
           <div class="pc-meta">
             <span><strong>${t('pd_brand')}:</strong> ${escapeHtml(p.brand || '—')}</span>
             <span><strong>${t('partner_field_price').replace(' *','')}:</strong> ${(p.price != null ? p.price : 0)} ₽</span>
+            <span><strong>${t('bag_1')}:</strong> ${(p.bag1Price != null ? p.bag1Price : 0)} ₽</span>
+            <span><strong>${t('bag_2')}:</strong> ${(p.bag2Price != null ? p.bag2Price : 0)} ₽</span>
+            <span><strong>${t('bag_3')}:</strong> ${(p.bag3Price != null ? p.bag3Price : 0)} ₽</span>
             <span><strong>${t('pd_size')}:</strong> ${escapeHtml(sizesLine)}</span>
             <span><strong>${t('partner_field_weight').replace(' (грамм)','')}:</strong> ${weightLine}</span>
             <span><strong>${t('pd_material')}:</strong> ${materialLine}</span>
@@ -1721,16 +1779,8 @@ function renderPartnerProductCardsLocale() {
   }
 }
 
-/* ============================================================
-   GeoIP — один раз при первом визите
-   Определяет язык по стране:
-   - UZ → uz
-   - СНГ (RU, KZ, KG, TJ, BY, AM, AZ, MD) → ru
-   - остальные → en
-   Использует 3 резервных API с таймаутом, чтобы не подвешивать загрузку.
-   ============================================================ */
 async function initGeoIP() {
-  if (localStorage.getItem(LANG_KEY)) return; // пользователь уже выбирал / GeoIP сработал
+  if (localStorage.getItem(LANG_KEY)) return;
 
   const CIS = new Set(['RU','KZ','KG','TJ','BY','AM','AZ','MD']);
   const mapCC = (cc) => {
@@ -1752,7 +1802,7 @@ async function initGeoIP() {
     }
   };
 
-  let lang = 'ru'; // безопасный фолбэк
+  let lang = 'ru';
   try {
     lang = mapCC(await fetchJson('https://ipapi.co/json/', d => d && d.country_code));
   } catch (e1) {
@@ -1792,6 +1842,7 @@ const ADMIN_EMAIL = "fullselleradmin@gmail.com";
 const PARTNER_PASSWORD = '9100965080';
 const PARTNER_SESSION_KEY = 'fullseller_partner_session';
 const PARTNER_SESSION_TTL = 7 * 24 * 60 * 60 * 1000;
+const PARTNER_MARKUP = 1.15; // +15% для покупателя
 const PARTNERS = [
   { partnerId: 'fs-partner-1', login:'fs.partner.ru', password:PARTNER_PASSWORD, name:'Производитель #1' },
   { partnerId: 'fs-partner-2', login:'fs.partner2.ru', password:PARTNER_PASSWORD, name:'Производитель #2' },
@@ -1808,6 +1859,13 @@ const PRODUCT_COLORS = ['Белый','Чёрный','Шоколадный','Се
 const PARTNER_MAX_IMAGES = 10;
 const PARTNER_MAX_FILE_MB = 8;
 const IMGBB_KEYS = ['044c84fb33e068293052ead694715174','ae79450043550a3062e2c2d40308a877'];
+
+/* --- BAGS (3 мешка) --- */
+const BAG_OPTIONS = [
+  { key: 'bag1', labelKey: 'bag_1', size: 700,  priceField: 'bag1Price' },
+  { key: 'bag2', labelKey: 'bag_2', size: 1200, priceField: 'bag2Price' },
+  { key: 'bag3', labelKey: 'bag_3', size: 2000, priceField: 'bag3Price' }
+];
 
 /* --- Size helpers --- */
 const SIZE_OPTIONS = [
@@ -1944,8 +2002,27 @@ let partnerProductImages = [];
 let partnerUploadInProgress = false;
 let partnerLoadingTimer = null;
 
+/* Текущий выбранный мешок в карточке товара */
+let selectedBagIndex = 0;
+
 function logAnalyticsEvent(name, params = {}) { if (!analytics) return; try { analytics.logEvent(name, params); } catch (e) {} }
 function trackPageView(name) { if (!analytics) return; try { analytics.logEvent('page_view', { page_title: name, page_location: window.location.href, page_path: '/' + name }); analytics.setCurrentScreen(name); } catch (e) {} }
+
+/* ============ Генерация описания ============ */
+function generateProductDescription(name, category) {
+  const n = (name || '').trim();
+  if (!n) return '';
+  const cat = category || '';
+  const kind = cat === 'socks' ? 'Носки' : cat === 'tshirts' ? 'Футболка' : cat === 'underwear' ? 'Трусы' : 'Товар';
+  return `${n} — ${kind.toLowerCase()} от проверенного производителя из Узбекистана. Модель сочетает практичный дизайн и комфортную посадку на каждый день. Материал приятный к телу, дышащий и износостойкий, сохраняет форму и цвет после множества стирок. Подходит для оптовых закупок и розничной продажи, доступны разные размеры и цвета.`;
+}
+
+/* ============ MARKUP для товаров производителя ============ */
+function applyPartnerMarkup(value, product) {
+  if (value == null || isNaN(value)) return 0;
+  if (!product || !product.partnerId) return value;
+  return Math.round(value * PARTNER_MARKUP * 100) / 100;
+}
 
 /* === STATIC PRODUCTS === */
 const STATIC_SOCKS = [
@@ -2006,9 +2083,10 @@ function showToast(msg) {
 }
 function getProductById(id) { for (const cat in allProducts) { const p = allProducts[cat].find(x => x.id === id); if (p) return p; } return null; }
 function shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-function getFinalPrice(p) { if (!p) return 0; const base = p.price || 0; let dp = State.percentageDiscount; if (dp >= 100) dp = 0; const final = (base * (1 - dp / 100)) - State.fixedDiscountRub; return Math.max(0.01, Math.round(final * 100) / 100); }
+function getFinalPrice(p) { if (!p) return 0; let base = p.price || 0; base = applyPartnerMarkup(base, p); let dp = State.percentageDiscount; if (dp >= 100) dp = 0; const final = (base * (1 - dp / 100)) - State.fixedDiscountRub; return Math.max(0.01, Math.round(final * 100) / 100); }
 function finalPriceStr(v) { if (State.currency === 'USD') return '$' + (v / State.exchangeRate).toFixed(2); const r = Math.round(v * 100) / 100; return Number.isInteger(r) ? r + ' ₽' : r.toFixed(2) + ' ₽'; }
 function formatPrice(rub) { if (rub == null || isNaN(rub)) return State.currency === 'USD' ? '$0.00' : '0 ₽'; if (State.currency === 'USD') return '$' + (rub / State.exchangeRate).toFixed(2); const r = Math.round(rub * 100) / 100; return Number.isInteger(r) ? r + ' ₽' : r.toFixed(2) + ' ₽'; }
+function getBagDisplayPrice(p, bag) { if (!p || !bag) return 0; const raw = p[bag.priceField]; if (raw == null || raw === '') return 0; return applyPartnerMarkup(Number(raw) || 0, p); }
 
 function setBodyPageClass(pageName) {
   [...document.body.classList].forEach(c => { if (c.startsWith('page-')) document.body.classList.remove(c); });
@@ -2108,7 +2186,7 @@ function renderCatalog() {
   }
   grid.innerHTML = products.map(p => {
     const finalPrice = getFinalPrice(p);
-    const basePrice = p.price || 0;
+    const basePrice = applyPartnerMarkup(p.price || 0, p);
     const discount = basePrice > 0 ? Math.round((1 - finalPrice / basePrice) * 100) : 0;
     const showDiscount = finalPrice < basePrice && discount > 0;
     const rating = (p.rating || State.rating).toFixed(1);
@@ -2186,10 +2264,34 @@ function updateProductDetailGallery() {
   if (prevBtn) prevBtn.disabled = currentDetailImageIndex === 0;
   if (nextBtn) nextBtn.disabled = currentDetailImageIndex === slides.length - 1;
 }
+
+/* ===== НОВОЕ: рендер выбора мешка ===== */
+function renderBagOptions(product) {
+  return `
+    <div class="product-page__bags">
+      <div class="product-page__bags-label"><i class="fas fa-boxes-stacked"></i> ${t('bags_label')}</div>
+      <div class="product-page__bags-grid" id="bagOptionsGrid">
+        ${BAG_OPTIONS.map((b, i) => {
+          const price = getBagDisplayPrice(product, b);
+          const isZero = !price || price <= 0;
+          return `
+            <label class="bag-option ${i === selectedBagIndex ? 'active' : ''}" data-bag-index="${i}">
+              <input type="radio" name="bagOption" value="${b.key}" ${i === selectedBagIndex ? 'checked' : ''}>
+              <span class="bag-option__name">${t(b.labelKey)}</span>
+              <span class="bag-option__size">${b.size} пар</span>
+              <span class="bag-option__price ${isZero ? 'is-zero' : ''}">${formatPrice(price)}</span>
+            </label>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
 function openProductPage(productId) {
   const p = getProductById(productId); if (!p) return;
   document.getElementById('productDetailPage').dataset.currentId = productId;
-  const finalPrice = getFinalPrice(p); const basePrice = p.price || 0;
+  selectedBagIndex = 0;
+  const finalPrice = getFinalPrice(p);
+  const basePrice = applyPartnerMarkup(p.price || 0, p);
   renderProductDetailGallery(p);
   const content = document.getElementById('productPageContent');
   const sizeLine = getSizeDisplayForProduct(p);
@@ -2202,14 +2304,46 @@ function openProductPage(productId) {
   if (p.weight) attrRows.push(`<div><strong>Weight</strong><span>${p.weight} g</span></div>`);
   content.innerHTML = `
     <h1 class="product-page__name">${p.name}</h1>
-    <div class="product-page__price">${formatPrice(finalPrice)}${finalPrice < basePrice ? `<span class="old">${formatPrice(basePrice)}</span>` : ''}</div>
+    <div class="product-page__price" id="productPagePrice">${formatPrice(finalPrice)}${finalPrice < basePrice ? `<span class="old">${formatPrice(basePrice)}</span>` : ''}</div>
     <p class="product-page__desc">${p.desc || '—'}</p>
+    ${renderBagOptions(p)}
     <div class="product-page__attributes">${attrRows.join('')}</div>
     <div class="product-page__actions">
       <input type="number" class="qty-input" id="detailQty" value="1" min="1" max="999">
       <button class="btn product-page__add" id="detailAddToCart"><i class="fas fa-cart-plus"></i> ${t('btn_cart')}</button>
     </div>`;
-  document.getElementById('detailAddToCart').onclick = () => { if (!currentUser) { openAuthModal(); return; } const qty = parseInt(document.getElementById('detailQty').value) || 1; addToCart(productId, qty); showToast(`+${qty}`); };
+
+  // Обработчик выбора мешка
+  const bagGrid = document.getElementById('bagOptionsGrid');
+  if (bagGrid) {
+    bagGrid.querySelectorAll('.bag-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        selectedBagIndex = parseInt(opt.dataset.bagIndex, 10) || 0;
+        bagGrid.querySelectorAll('.bag-option').forEach(o => o.classList.toggle('active', o === opt));
+        const bag = BAG_OPTIONS[selectedBagIndex];
+        const bagPrice = getBagDisplayPrice(p, bag);
+        // Обновляем цену сверху: показываем цену выбранного мешка (если 0 — оставляем базовую)
+        const priceEl = document.getElementById('productPagePrice');
+        if (priceEl) {
+          if (bagPrice > 0) {
+            priceEl.innerHTML = formatPrice(bagPrice);
+          } else {
+            priceEl.innerHTML = formatPrice(finalPrice);
+          }
+        }
+        // Обновляем qty на количество пар в мешке
+        const qty = document.getElementById('detailQty');
+        if (qty) qty.value = bag.size;
+      });
+    });
+  }
+
+  document.getElementById('detailAddToCart').onclick = () => {
+    if (!currentUser) { openAuthModal(); return; }
+    const qty = parseInt(document.getElementById('detailQty').value) || 1;
+    addToCart(productId, qty);
+    showToast(`+${qty}`);
+  };
   showPage('productDetail');
   logAnalyticsEvent('view_item', { currency:'RUB', value: finalPrice, items:[{ item_id:p.id, item_name:p.name, item_category:p.category, price:finalPrice }] });
 }
@@ -2308,6 +2442,10 @@ function mergeFirestore(collectionName, key) {
         if (data.color) p.color = data.color;
         if (data.audience) p.audience = data.audience;
         if (Array.isArray(data.sizes)) p.sizes = data.sizes;
+        if (data.partnerId) p.partnerId = data.partnerId;
+        if (data.bag1Price != null) p.bag1Price = data.bag1Price;
+        if (data.bag2Price != null) p.bag2Price = data.bag2Price;
+        if (data.bag3Price != null) p.bag3Price = data.bag3Price;
       } else {
         const imgs = Array.isArray(data.images) ? data.images.filter(Boolean) : [];
         allProducts[key].push({
@@ -2318,7 +2456,10 @@ function mergeFirestore(collectionName, key) {
           color: data.color || '', brand: data.brand || '', rating: data.rating || State.rating,
           stock: data.stock || 0, hidden: data.hidden || false,
           partnerId: data.partnerId || null, category: key,
-          audience: data.audience || '', sizes: Array.isArray(data.sizes) ? data.sizes : []
+          audience: data.audience || '', sizes: Array.isArray(data.sizes) ? data.sizes : [],
+          bag1Price: data.bag1Price != null ? data.bag1Price : 0,
+          bag2Price: data.bag2Price != null ? data.bag2Price : 0,
+          bag3Price: data.bag3Price != null ? data.bag3Price : 0
         });
       }
     });
@@ -2439,9 +2580,9 @@ function renderAdminProducts() {
   const container = document.getElementById('adminProductsList');
   let allP = []; for (const cat in allProducts) allP = allP.concat(allProducts[cat].map(p => ({ ...p, category: cat })));
   if (!allP.length) { container.innerHTML = '<p>—</p>'; return; }
-  container.innerHTML = `<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Rating</th><th>Brand</th><th>Material</th><th>Size</th><th>Desc</th><th>Hide</th><th>Act</th></tr></thead><tbody>${allP.map(p => {
+  container.innerHTML = `<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Base ₽</th><th>${t('bag_1')}</th><th>${t('bag_2')}</th><th>${t('bag_3')}</th><th>Rating</th><th>Brand</th><th>Material</th><th>Size</th><th>Desc</th><th>Hide</th><th>Act</th></tr></thead><tbody>${allP.map(p => {
     const col = p.category === 'socks' ? 'products' : p.category;
-    return `<tr data-id="${p.id}" data-col="${col}"><td><input type="text" class="admin-name" value="${(p.name || '').replace(/"/g,'&quot;')}" style="min-width:130px;"></td><td><select class="admin-category"><option value="socks" ${p.category === 'socks' ? 'selected' : ''}>Socks</option><option value="tshirts" ${p.category === 'tshirts' ? 'selected' : ''}>T-shirts</option><option value="underwear" ${p.category === 'underwear' ? 'selected' : ''}>Underwear</option></select></td><td><input type="number" class="admin-price" value="${p.price}" style="width:80px;"></td><td><input type="number" step="0.1" min="0" max="5" class="admin-rating" value="${(p.rating || State.rating).toFixed(1)}" style="width:70px;"></td><td><input type="text" class="admin-brand" value="${(p.brand || '').replace(/"/g,'&quot;')}" style="width:100px;"></td><td><input type="text" class="admin-material" value="${(p.material || '').replace(/"/g,'&quot;')}" style="width:120px;"></td><td><input type="text" class="admin-size" value="${(p.size || '').replace(/"/g,'&quot;')}" style="width:80px;"></td><td><textarea class="admin-desc" style="width:160px; height:56px;">${p.desc || ''}</textarea></td><td style="text-align:center;"><input type="checkbox" class="admin-hidden" ${p.hidden ? 'checked' : ''}></td><td style="white-space:nowrap;"><button class="btn" onclick="saveProductRow(this)">Save</button><button class="btn btn-danger" onclick="deleteProduct('${p.id}','${col}')">Del</button></td></tr>`;
+    return `<tr data-id="${p.id}" data-col="${col}"><td><input type="text" class="admin-name" value="${(p.name || '').replace(/"/g,'&quot;')}" style="min-width:130px;"></td><td><select class="admin-category"><option value="socks" ${p.category === 'socks' ? 'selected' : ''}>Socks</option><option value="tshirts" ${p.category === 'tshirts' ? 'selected' : ''}>T-shirts</option><option value="underwear" ${p.category === 'underwear' ? 'selected' : ''}>Underwear</option></select></td><td><input type="number" class="admin-price" value="${p.price}" style="width:70px;"></td><td><input type="number" class="admin-bag1" value="${p.bag1Price != null ? p.bag1Price : 0}" style="width:70px;"></td><td><input type="number" class="admin-bag2" value="${p.bag2Price != null ? p.bag2Price : 0}" style="width:70px;"></td><td><input type="number" class="admin-bag3" value="${p.bag3Price != null ? p.bag3Price : 0}" style="width:70px;"></td><td><input type="number" step="0.1" min="0" max="5" class="admin-rating" value="${(p.rating || State.rating).toFixed(1)}" style="width:60px;"></td><td><input type="text" class="admin-brand" value="${(p.brand || '').replace(/"/g,'&quot;')}" style="width:100px;"></td><td><input type="text" class="admin-material" value="${(p.material || '').replace(/"/g,'&quot;')}" style="width:120px;"></td><td><input type="text" class="admin-size" value="${(p.size || '').replace(/"/g,'&quot;')}" style="width:80px;"></td><td><textarea class="admin-desc" style="width:160px; height:56px;">${p.desc || ''}</textarea></td><td style="text-align:center;"><input type="checkbox" class="admin-hidden" ${p.hidden ? 'checked' : ''}></td><td style="white-space:nowrap;"><button class="btn" onclick="saveProductRow(this)">Save</button><button class="btn btn-danger" onclick="deleteProduct('${p.id}','${col}')">Del</button></td></tr>`;
   }).join('')}</tbody></table>`;
 }
 window.saveProductRow = async function (btn) {
@@ -2449,6 +2590,9 @@ window.saveProductRow = async function (btn) {
   const name = row.querySelector('.admin-name').value.trim();
   const category = row.querySelector('.admin-category').value;
   const price = parseFloat(row.querySelector('.admin-price').value);
+  const bag1Price = parseFloat(row.querySelector('.admin-bag1').value) || 0;
+  const bag2Price = parseFloat(row.querySelector('.admin-bag2').value) || 0;
+  const bag3Price = parseFloat(row.querySelector('.admin-bag3').value) || 0;
   const rating = parseFloat(row.querySelector('.admin-rating').value);
   const brand = row.querySelector('.admin-brand')?.value.trim() || '';
   const material = row.querySelector('.admin-material')?.value.trim() || '';
@@ -2457,8 +2601,8 @@ window.saveProductRow = async function (btn) {
   const hidden = row.querySelector('.admin-hidden').checked;
   if (!name || isNaN(price) || isNaN(rating)) { showToast('!'); return; }
   try {
-    await db.collection(collectionName).doc(productId).set({ name, category, price, rating, brand, material, size, desc, hidden }, { merge: true });
-    showToast('OK'); const p = getProductById(productId); if (p) Object.assign(p, { name, category, price, rating, brand, material, size, desc, hidden });
+    await db.collection(collectionName).doc(productId).set({ name, category, price, bag1Price, bag2Price, bag3Price, rating, brand, material, size, desc, hidden }, { merge: true });
+    showToast('OK'); const p = getProductById(productId); if (p) Object.assign(p, { name, category, price, bag1Price, bag2Price, bag3Price, rating, brand, material, size, desc, hidden });
     renderAdminProducts(); renderCatalog();
   } catch (e) { showToast('Err: ' + e.message); }
 };
@@ -2472,11 +2616,23 @@ document.getElementById('addProductBtn').addEventListener('click', async () => {
   const price = parseFloat(document.getElementById('adminPrice').value);
   const category = document.getElementById('adminCategory').value;
   if (!name || isNaN(price)) { showToast('!'); return; }
+  const bag1Price = parseFloat(document.getElementById('adminBag1Price').value) || 0;
+  const bag2Price = parseFloat(document.getElementById('adminBag2Price').value) || 0;
+  const bag3Price = parseFloat(document.getElementById('adminBag3Price').value) || 0;
   const collectionName = category === 'socks' ? 'products' : category;
-  const data = { name, price, brand: document.getElementById('adminBrand').value.trim(), material: document.getElementById('adminMaterial').value.trim(), size: document.getElementById('adminSize').value.trim(), imageUrl: document.getElementById('adminImageUrl').value.trim(), desc: document.getElementById('adminDesc').value.trim(), hidden: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
-  try { await db.collection(collectionName).add(data); showToast('OK'); ['adminName','adminPrice','adminBrand','adminMaterial','adminSize','adminImageUrl','adminDesc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); }
+  const data = { name, price, bag1Price, bag2Price, bag3Price, brand: document.getElementById('adminBrand').value.trim(), material: document.getElementById('adminMaterial').value.trim(), size: document.getElementById('adminSize').value.trim(), imageUrl: document.getElementById('adminImageUrl').value.trim(), desc: document.getElementById('adminDesc').value.trim(), hidden: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+  try { await db.collection(collectionName).add(data); showToast('OK'); ['adminName','adminPrice','adminBag1Price','adminBag2Price','adminBag3Price','adminBrand','adminMaterial','adminSize','adminImageUrl','adminDesc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); }
   catch (e) { showToast('Err: ' + e.message); }
 });
+/* Генерация описания в админке */
+document.getElementById('adminGenDescBtn').addEventListener('click', () => {
+  const name = document.getElementById('adminName').value.trim();
+  const category = document.getElementById('adminCategory').value;
+  const gen = generateProductDescription(name, category);
+  if (!gen) { showToast('!'); return; }
+  document.getElementById('adminDesc').value = gen;
+});
+
 async function renderAdminOrders() {
   const container = document.getElementById('adminOrdersList');
   container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
@@ -3000,12 +3156,12 @@ profileRemoveAvatarBtn.addEventListener('click', async () => {
   let selectedCountry = 'russia';
   tabsContainer.addEventListener('click', (e) => { const tab = e.target.closest('.cargo-calc-tab'); if (!tab) return; document.querySelectorAll('.cargo-calc-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); selectedCountry = tab.dataset.country; resultsBlock.style.display = 'none'; });
   categorySelect.addEventListener('change', () => { const cat = categorySelect.value; if (defaultUnitWeights[cat] !== undefined) unitWeightInput.value = defaultUnitWeights[cat]; resultsBlock.style.display = 'none'; });
-  qtyInput.addEventListener('input', () => { const qty = parseInt(qtyInput.value) || 0; warningEl.textContent = (qty > 0 && qty < 5000) ? '≥ 5000' : ''; resultsBlock.style.display = 'none'; });
+  qtyInput.addEventListener('input', () => { const qty = parseInt(qtyInput.value) || 0; warningEl.textContent = (qty > 0 && qty < 700) ? '≥ 700 (1 мешок)' : ''; resultsBlock.style.display = 'none'; });
   unitWeightInput.addEventListener('input', () => { resultsBlock.style.display = 'none'; });
   btnCalc.addEventListener('click', (e) => { e.preventDefault(); calculate(); });
   function calculate() {
     const qty = parseInt(qtyInput.value) || 0; const category = categorySelect.value; const unitWeightGrams = parseFloat(unitWeightInput.value) || 0;
-    if (qty < 5000) { resultsBlock.style.display = 'none'; warningEl.textContent = qty > 0 ? '≥ 5000' : ''; return; }
+    if (qty < 700) { resultsBlock.style.display = 'none'; warningEl.textContent = qty > 0 ? '≥ 700 (1 мешок)' : ''; return; }
     warningEl.textContent = '';
     const totalWeight = qty * (unitWeightGrams / 1000); const unitPrice = categoryPrices[category] || 0;
     document.getElementById('cargo-calc-weight').textContent = totalWeight.toFixed(2) + ' kg';
@@ -3119,12 +3275,6 @@ window.removePartnerImage = function (idx) {
   const progress = document.getElementById('partnerUploadProgress');
   if (progress) progress.textContent = partnerProductImages.length ? ('Изображений: ' + partnerProductImages.length + ' / ' + PARTNER_MAX_IMAGES) : '';
 };
-/* ------------------------------------------------------------------
-   Загрузка товаров производителя.
-   Спиннер показывается максимум 3.5 секунды — потом гарантированно
-   снимается, панель работает. Если Firestore ответит позже — контент
-   отрендерится повторно.
-   ------------------------------------------------------------------ */
 async function loadPartnerProducts() {
   const session = getPartnerSession(); if (!session) return;
   const container = document.getElementById('partnerProductsContainer'); if (!container) return;
@@ -3139,7 +3289,6 @@ async function loadPartnerProducts() {
   partnerLoadingTimer = setTimeout(() => {
     if (spinnerCleared) return;
     spinnerCleared = true;
-    // Снимаем спиннер: показываем то, что успело загрузиться (или пустое состояние)
     if (!partnerProductsCache.length) {
       container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-box-open"></i></div>';
     } else {
@@ -3177,6 +3326,7 @@ function clearPartnerForm() {
   setV('partnerProductCategory','socks'); setV('partnerProductAudience','');
   setV('partnerProductBrand',''); setV('partnerProductWeight','');
   setV('partnerProductMaterial',''); setV('partnerProductColor',''); setV('partnerProductPrice','');
+  setV('partnerBag1Price','0'); setV('partnerBag2Price','0'); setV('partnerBag3Price','0');
   document.querySelectorAll('#partnerSizeGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
   partnerEditingId = null; partnerEditingColl = null; partnerProductImages = [];
   const progress = document.getElementById('partnerUploadProgress'); const fileInput = document.getElementById('partnerImageFile');
@@ -3202,6 +3352,9 @@ window.editPartnerProduct = function (id, collection) {
   setV('partnerProductBrand', p.brand || ''); setV('partnerProductWeight', (p.weight != null && p.weight !== '') ? p.weight : '');
   setV('partnerProductMaterial', p.material || '');
   setV('partnerProductColor', PRODUCT_COLORS.includes(p.color) ? p.color : ''); setV('partnerProductPrice', p.price != null ? p.price : '');
+  setV('partnerBag1Price', p.bag1Price != null ? p.bag1Price : 0);
+  setV('partnerBag2Price', p.bag2Price != null ? p.bag2Price : 0);
+  setV('partnerBag3Price', p.bag3Price != null ? p.bag3Price : 0);
   document.querySelectorAll('#partnerSizeGrid input[type="checkbox"]').forEach(cb => {
     cb.checked = Array.isArray(p.sizes) && p.sizes.includes(cb.value);
   });
@@ -3237,6 +3390,9 @@ async function addPartnerProduct() {
   const color = document.getElementById('partnerProductColor').value;
   const priceRaw = document.getElementById('partnerProductPrice').value;
   const price = priceRaw === '' ? 0 : (parseFloat(priceRaw) || 0);
+  const bag1Price = parseFloat(document.getElementById('partnerBag1Price').value) || 0;
+  const bag2Price = parseFloat(document.getElementById('partnerBag2Price').value) || 0;
+  const bag3Price = parseFloat(document.getElementById('partnerBag3Price').value) || 0;
   const sizes = Array.from(document.querySelectorAll('#partnerSizeGrid input[type="checkbox"]:checked')).map(cb => cb.value);
 
   if (!name) { showToast('!'); return; }
@@ -3257,9 +3413,9 @@ async function addPartnerProduct() {
       const doc = await ref.get(); if (!doc.exists) return;
       const existing = doc.data();
       if (existing.partnerId && existing.partnerId !== session.partnerId) { showToast('!'); return; }
-      await writeFirestoreWithAuth(() => ref.set({ name, desc, category, brand, price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '', material }, { merge: true }));
+      await writeFirestoreWithAuth(() => ref.set({ name, desc, category, brand, price, bag1Price, bag2Price, bag3Price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '', material }, { merge: true }));
     } else {
-      await writeFirestoreWithAuth(() => db.collection(collectionName).add({ name, desc, category, brand, price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '', partnerId: session.partnerId, material, rating: State.rating || 4.2, stock: 0, hidden: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }));
+      await writeFirestoreWithAuth(() => db.collection(collectionName).add({ name, desc, category, brand, price, bag1Price, bag2Price, bag3Price, size: sizeText, sizes, weight, color, audience, images, imageUrl: images[0] || '', partnerId: session.partnerId, material, rating: State.rating || 4.2, stock: 0, hidden: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }));
     }
     clearPartnerForm(); switchPartnerTab('list'); loadPartnerProducts();
   } catch (e) {
@@ -3272,6 +3428,18 @@ async function addPartnerProduct() {
     else btn.innerHTML = originalHtml;
   }
 }
+/* Кнопка генерации описания в панели производителя */
+(function(){
+  const btn = document.getElementById('partnerGenDescBtn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const name = document.getElementById('partnerProductName').value.trim();
+    const category = document.getElementById('partnerProductCategory').value;
+    const gen = generateProductDescription(name, category);
+    if (!gen) { showToast('!'); return; }
+    document.getElementById('partnerProductDesc').value = gen;
+  });
+})();
 const partnerImageUploadBox = document.getElementById('partnerImageUploadBox');
 const partnerImageFile = document.getElementById('partnerImageFile');
 if (partnerImageUploadBox) partnerImageUploadBox.addEventListener('click', (e) => { if (e.target.closest('button')) return; partnerImageFile.click(); });
@@ -3363,7 +3531,6 @@ applyTranslations();
 updateLangSwitchers();
 updatePartnerSupportLink();
 
-// GeoIP: запустим после первой отрисовки
 initGeoIP();
 
 </script>
