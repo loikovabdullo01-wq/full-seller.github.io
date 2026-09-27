@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FULL SELLER — оптовые носки, футболки, бельё напрямую от фабрик</title>
+<meta name="description" content="Оптовый поставщик носков, футболок и белья из Узбекистана. От 13 ₽/шт, минимальный заказ 2000 шт, доставка карго в Россию и Таджикистан.">
+<link rel="icon" href="assets/images/иконнка.png" type="image/png" sizes="48x48 96x96 144x144">
+<link rel="apple-touch-icon" href="assets/images/иконнка.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css?v=1790464774">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+</head>
+<body class="page-productDetail" data-page-file="product.html">
+<header id="siteHeader">
+  <div class="container header__inner">
+    <button class="icon-btn burger-btn" id="burgerBtn" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+    <a href="#catalog" class="logo" aria-label="FULL SELLER — catalog">FULL<span>SELLER</span></a>
+
+    <nav class="nav-links" id="mainNav">
+      <a href="#catalog" data-i18n="nav_catalog">Каталог</a>
+      <a href="#wholesale" data-i18n="nav_wholesale">Условия</a>
+      <a href="#reviews" data-i18n="nav_reviews">Отзывы</a>
+      <a href="#contact" data-i18n="nav_contacts">Контакты</a>
+      <a href="#" id="adminNavLink" style="display:none;" data-i18n="nav_admin">Админ</a>
+    </nav>
+
+    <div class="header-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="headerSearch" data-i18n-placeholder="search_placeholder" placeholder="Поиск: носки Nike, футболки…" autocomplete="off">
+    </div>
+
+    <div class="header__cta-group">
+      <a href="#catalog" class="btn btn--sm header__cta"><i class="fas fa-bars"></i> <span data-i18n="btn_view_catalog">Смотреть каталог</span></a>
+      <a href="calculator.html" class="btn btn--ghost btn--sm header__cta"><i class="fas fa-calculator"></i> <span data-i18n="btn_calc_delivery">Рассчитать доставку</span></a>
+    </div>
+
+    <div class="header__actions">
+      <div class="header__contact">
+        <a href="tel:+998958239490" class="header__phone-icon" aria-label="Позвонить"><i class="fas fa-phone"></i></a>
+        <a href="tel:+998958239490" class="header__phone">+998 95 823 94 90</a>
+      </div>
+      <span class="header__divider" aria-hidden="true"></span>
+      <div class="header__utility">
+        <button class="icon-btn cargo-calc-scroll-btn" id="cargoCalcScrollBtn" title="Калькулятор доставки" aria-label="Calculator"><i class="fas fa-calculator"></i></button>
+        <button class="icon-btn" id="currencyBtn" title="Валюта" aria-label="Currency">₽</button>
+        <div class="theme-switch" aria-hidden="false">
+          <button class="icon-btn theme-btn" id="lightThemeBtn" title="Светлая тема"><i class="fas fa-sun"></i></button>
+          <button class="icon-btn theme-btn" id="darkThemeBtn" title="Тёмная тема"><i class="fas fa-moon"></i></button>
+        </div>
+      </div>
+
+      <!-- Language switcher (header) -->
+      <div class="lang-switch" id="headerLangSwitch">
+        <button class="lang-switch-btn" id="headerLangBtn" type="button" aria-label="Change language">
+          <i class="fas fa-globe"></i>
+          <span id="headerLangLabel">RU</span>
+        </button>
+        <div class="lang-switch-menu" id="headerLangMenu">
+          <button class="lang-option" data-lang="ru" type="button"><img class="lang-flag" src="https://flagcdn.com/24x18/ru.png" srcset="https://flagcdn.com/48x36/ru.png 2x" width="24" height="18" alt="" loading="lazy"> <span>Русский</span></button>
+          <button class="lang-option" data-lang="en" type="button"><img class="lang-flag" src="https://flagcdn.com/24x18/gb.png" srcset="https://flagcdn.com/48x36/gb.png 2x" width="24" height="18" alt="" loading="lazy"> <span>English</span></button>
+          <button class="lang-option" data-lang="uz" type="button"><img class="lang-flag" src="https://flagcdn.com/24x18/uz.png" srcset="https://flagcdn.com/48x36/uz.png 2x" width="24" height="18" alt="" loading="lazy"> <span>O'zbekcha</span></button>
+        </div>
+      </div>
+
+      <div id="userStatus">
+        <button class="login-btn" id="loginBtn"><i class="fas fa-user"></i> <span data-i18n="btn_login">Войти</span></button>
+      </div>
+    </div>
+  </div>
+</header>
+<div id="homePage" class="page">
+<div id="heroGroup">
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <span class="hero__eyebrow"><i class="fas fa-industry"></i> <span data-i18n="hero_eyebrow">Прямые поставки с фабрик Узбекистана</span></span>
+        <h1 class="hero__title"><span data-i18n="hero_title_1">Оптовые носки, футболки и бельё</span> <span class="hero__title-accent" data-i18n="hero_title_2">напрямую от фабрик</span></h1>
+        <p class="hero__subtitle">
+          <strong data-i18n="hero_from">От 13 ₽/шт</strong> · <span data-i18n="hero_min">Минимальный заказ</span> <strong>2000 шт</strong> ·
+          <span data-i18n="hero_delivery">Доставка карго в</span> <strong data-i18n="hero_countries">Россию и Таджикистан</strong>
+        </p>
+        <div class="hero__actions">
+          <div class="hero__search-combo">
+            <div class="header-search hero__search">
+              <i class="fas fa-search"></i>
+              <input type="text" id="heroSearch" data-i18n-placeholder="search_placeholder" placeholder="Поиск: носки Nike, футболки…" autocomplete="off">
+            </div>
+            <a href="#catalog" class="btn btn--lg hero__search-combo-btn"><span data-i18n="btn_view_catalog">Смотреть каталог</span> <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <a href="#cargoCalculator" class="btn btn--ghost btn--lg" id="heroCalcBtn"><i class="fas fa-calculator"></i> <span data-i18n="btn_calc_delivery">Рассчитать доставку</span></a>
+        </div>
+        <ul class="hero__badges">
+          <li><i class="fas fa-industry"></i> <span data-i18n="badge_direct">Прямые поставки</span></li>
+          <li><i class="fas fa-shield-halved"></i> <span data-i18n="badge_quality">Проверенное качество</span></li>
+          <li><i class="fas fa-store"></i> <span data-i18n="badge_marketplaces">Работаем с маркетплейсами</span></li>
+        </ul>
+      </div>
+      <div class="hero__media">
+        <div class="hero__photo hero__photo--a"><img src="assets/images/1 (2).webp" alt="Socks wholesale" loading="eager"></div>
+        <div class="hero__photo hero__photo--b"><img src="assets/images/0 (22).jpg" alt="T-shirts wholesale" loading="lazy"></div>
+        <div class="hero__stat">
+          <div class="hero__stat-row"><i class="fas fa-tags"></i><div><b data-i18n="hero_from">от 13 ₽ / шт</b><small data-i18n="hero_price_sub">оптовая цена от фабрики</small></div></div>
+          <div class="hero__stat-row"><i class="fas fa-truck-fast"></i><div><b data-i18n="hero_days">7–10 дней</b><small data-i18n="hero_days_sub">доставка карго в РФ</small></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip">
+    <div class="container trust-strip__inner">
+      <div class="trust-item reveal"><i class="fas fa-industry"></i><div><b data-i18n="trust_direct_t">Прямые поставки</b><span data-i18n="trust_direct_s">без посредников и наценок</span></div></div>
+      <div class="trust-item reveal"><i class="fas fa-boxes-stacked"></i><div><b data-i18n="trust_min_t">От 2000 шт</b><span data-i18n="trust_min_s">минимальный заказ</span></div></div>
+      <div class="trust-item reveal"><i class="fas fa-earth-asia"></i><div><b data-i18n="trust_countries_t">РФ и Таджикистан</b><span data-i18n="trust_countries_s">проверенное карго</span></div></div>
+      <div class="trust-item reveal"><i class="fas fa-certificate"></i><div><b data-i18n="trust_quality_t">Проверенное качество</b><span data-i18n="trust_quality_s">контроль на фабрике</span></div></div>
+    </div>
+  </div>
+</div>
+
+  <main class="container" style="flex:1;">
+<div id="catalogGroup">
+    <div class="banner-slider" id="mainBannerSlider">
+      <div class="slides" id="bannerSlides">
+        <div class="slide"><img src="assets/images/002.png" alt="FULL SELLER promo"></div>
+        <div class="slide"><img src="assets/images/003.png" alt="Wholesale"></div>
+        <div class="slide"><img src="assets/images/4455.png" alt="Cargo delivery"></div>
+      </div>
+      <div class="dots" id="bannerDots"></div>
+    </div>
+
+    <div id="catalog"></div>
+
+    <div class="category-filter" id="categoryFilter">
+      <button class="category-filter-btn active" data-category="all" data-i18n="cat_all">Все товары</button>
+      <button class="category-filter-btn" data-category="socks" data-i18n="cat_socks">Носки</button>
+      <button class="category-filter-btn" data-category="tshirts" data-i18n="cat_tshirts">Футболки</button>
+      <button class="category-filter-btn" data-category="underwear" data-i18n="cat_underwear">Шорты / Штаны / Трусы</button>
+    </div>
+
+    <div class="brand-filter" id="brandFilter">
+      <button class="brand-filter-btn active" data-brand="all">All</button>
+      <button class="brand-filter-btn" data-brand="nike">Nike</button>
+      <button class="brand-filter-btn" data-brand="adidas">Adidas</button>
+      <button class="brand-filter-btn" data-brand="puma">Puma</button>
+      <button class="brand-filter-btn" data-brand="fila">Fila</button>
+      <button class="brand-filter-btn" data-brand="обычные" data-i18n="brand_regular">Обычные</button>
+    </div>
+
+    <!-- 3-й уровень фильтра: аудитория -->
+    <div class="audience-filter" id="audienceFilter">
+      <button class="audience-filter-btn active" data-audience="all" data-i18n="aud_all">Все аудитории</button>
+      <button class="audience-filter-btn" data-audience="male" data-i18n="aud_male">Мужские</button>
+      <button class="audience-filter-btn" data-audience="female" data-i18n="aud_female">Женские</button>
+      <button class="audience-filter-btn" data-audience="kids" data-i18n="aud_kids">Детские</button>
+    </div>
+
+    <h2 class="catalog-title" id="catalogTitle" data-i18n="catalog_title">Популярные товары</h2>
+    <p class="subtitle" id="catalogSubtitle">ВСЕ ТОВАРЫ ОПТОМ ОТ ПРОИЗВОДИТЕЛЕЙ</p>
+
+    <div class="catalog-grid" id="catalogGrid">
+      <div class="skeleton-card"><div class="skeleton-card__img"></div><div class="skeleton-card__body"><div class="skeleton-line"></div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line skeleton-line--short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-card__img"></div><div class="skeleton-card__body"><div class="skeleton-line"></div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line skeleton-line--short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-card__img"></div><div class="skeleton-card__body"><div class="skeleton-line"></div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line skeleton-line--short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-card__img"></div><div class="skeleton-card__body"><div class="skeleton-line"></div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line skeleton-line--short"></div></div></div>
+    </div>
+</div>
+
+    <section id="wholesale" class="wholesale-section">
+<div id="wholesaleIntroGroup">
+      <div class="section-heading reveal">
+        <span class="section-eyebrow" data-i18n="wh_eyebrow">Оптовые условия</span>
+        <h2 class="section-title" data-i18n="wh_title">Оптовые условия и доставка</h2>
+        <p class="section-copy" data-i18n="wh_copy">Надёжный партнёр для регулярных оптовых закупок: прозрачные условия, стабильные поставки и цены напрямую от фабрики.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-card reveal">
+          <h3><span class="info-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16v10H4z" stroke="currentColor" stroke-width="1.8"/><path d="M8 7V5h8v2" stroke="currentColor" stroke-width="1.8"/><path d="M8 11h8" stroke="currentColor" stroke-width="1.8"/></svg></span><span data-i18n="wh_card1_title">Цена и условия</span></h3>
+          <ul>
+            <li><i class="fas fa-coins"></i><span><strong data-i18n="wh_card1_li1">Оптовая цена:</strong> <span data-i18n="hero_from">от 13 ₽/шт</span></span></li>
+            <li><i class="fas fa-boxes-stacked"></i><span><strong data-i18n="wh_card1_li2">Минимальный заказ:</strong> <span data-i18n="wh_card1_li2b">от 2 000 шт</span></span></li>
+            <li><i class="fas fa-truck-fast"></i><span><strong data-i18n="wh_card1_li3">Доставка по РФ</strong> — 7–10 дней</span></li>
+            <li><i class="fas fa-truck-fast"></i><span><strong data-i18n="wh_card1_li4">Доставка в Таджикистан</strong> — 3–4 дня</span></li>
+          </ul>
+          <div class="important"><i class="fas fa-fire"></i> <span data-i18n="wh_card1_note">Работаем напрямую с производителями. Качество проверено.</span></div>
+        </div>
+        <div class="info-card reveal">
+          <h3><span class="info-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14v10H5z" stroke="currentColor" stroke-width="1.8"/><path d="M8 7V4h8v3" stroke="currentColor" stroke-width="1.8"/><path d="M8 11h8" stroke="currentColor" stroke-width="1.8"/><path d="M8 15h5" stroke="currentColor" stroke-width="1.8"/></svg></span><span data-i18n="wh_card2_title">О товаре</span></h3>
+          <ul>
+            <li><i class="fas fa-check"></i><span data-i18n="wh_card2_li1">Носки, футболки, трусы, шорты и штаны оптом</span></li>
+            <li><i class="fas fa-layer-group"></i><span data-i18n="wh_card2_li2">Средний и премиум сегмент</span></li>
+            <li><i class="fas fa-flask"></i><span data-i18n="wh_card2_li3">Качественные материалы и плотный трикотаж</span></li>
+            <li><i class="fas fa-palette"></i><span data-i18n="wh_card2_li4">Разнообразные цвета и размерные сетки</span></li>
+          </ul>
+        </div>
+        <div class="info-card reveal">
+          <h3><span class="info-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7l8-3 8 3v10l-8 3-8-3z" stroke="currentColor" stroke-width="1.8"/><path d="M12 4v16" stroke="currentColor" stroke-width="1.8"/><path d="M7 8.5l5 2 5-2" stroke="currentColor" stroke-width="1.8"/></svg></span><span data-i18n="wh_card3_title">Доставка (карго)</span></h3>
+          <ul>
+            <li><i class="fas fa-box"></i><span data-i18n="wh_card3_li1">Отправляем через проверенные карго-службы</span></li>
+            <li><i class="fas fa-flag"></i><span><strong data-i18n="wh_card3_li2">Таджикистан:</strong> <span data-i18n="wh_card3_li2b">от 7 сомони/кг</span></span></li>
+            <li><i class="fas fa-flag"></i><span><strong data-i18n="wh_card3_li3">Россия:</strong> <span data-i18n="wh_card3_li3b">от 1.30 $/кг</span></span></li>
+            <li><i class="fas fa-clock"></i><span data-i18n="wh_card3_li4">Отправка в день оплаты</span></li>
+          </ul>
+          <div class="important"><i class="fas fa-circle-exclamation"></i> <span data-i18n="wh_card3_note">Цена доставки может меняться от курса $ и сезона.</span></div>
+        </div>
+      </div>
+
+</div>
+      <div class="cargo-calc-wrapper reveal" id="cargoCalculator">
+        <h3 class="cargo-calc-title"><i class="fas fa-calculator"></i> <span data-i18n="calc_title">Калькулятор доставки карго</span></h3>
+        <div class="cargo-calc-form">
+          <div class="cargo-calc-field">
+            <label for="cargo-calc-qty" data-i18n="calc_qty">Количество (шт.)</label>
+            <input type="number" id="cargo-calc-qty" class="cargo-calc-input" placeholder="Мин. 5 000" min="0" value="5000">
+            <div class="cargo-calc-warning" id="cargo-calc-warning"></div>
+          </div>
+          <div class="cargo-calc-field">
+            <label for="cargo-calc-category" data-i18n="calc_cat">Категория товара</label>
+            <select id="cargo-calc-category" class="cargo-calc-select">
+              <option value="socks" data-i18n="cat_socks">Носки</option>
+              <option value="underwear" data-i18n="cat_underwear">Трусы</option>
+              <option value="tshirts" data-i18n="cat_tshirts">Футболки</option>
+            </select>
+          </div>
+          <div class="cargo-calc-field">
+            <label for="cargo-calc-unit-weight" data-i18n="calc_unit_weight">Вес одной штуки (грамм)</label>
+            <input type="number" id="cargo-calc-unit-weight" class="cargo-calc-input" placeholder="0" min="0" step="0.1" value="24">
+          </div>
+          <div class="cargo-calc-field">
+            <label data-i18n="calc_country">Страна доставки</label>
+            <div class="cargo-calc-tabs" id="cargo-calc-tabs">
+              <button type="button" class="cargo-calc-tab active" data-country="russia" data-i18n="calc_country_ru">Россия</button>
+              <button type="button" class="cargo-calc-tab" data-country="tajikistan" data-i18n="calc_country_tj">Таджикистан</button>
+            </div>
+          </div>
+          <button class="cargo-calc-btn" id="cargo-calc-btn"><i class="fas fa-calculator"></i> <span data-i18n="calc_btn">Рассчитать</span></button>
+        </div>
+        <div class="cargo-calc-results" id="cargo-calc-results" style="display:none;">
+          <div class="cargo-calc-result-item"><span data-i18n="calc_res_weight">Общий вес</span><span id="cargo-calc-weight">0 кг</span></div>
+          <div class="cargo-calc-result-item"><span data-i18n="calc_res_price">Цена товара (опт)</span><span id="cargo-calc-product-price">0</span></div>
+          <div class="cargo-calc-result-item"><span data-i18n="calc_res_shipping">Стоимость доставки</span><span id="cargo-calc-shipping">0</span></div>
+          <div class="cargo-calc-result-item cargo-calc-total" id="cargo-calc-total-container"></div>
+        </div>
+        <div class="cargo-calc-disclaimer" data-i18n="calc_disclaimer">Цена доставки может меняться в зависимости от курса валют и сезона. Отправка в день оплаты.</div>
+      </div>
+    </section>
+
+    <section id="reviews">
+      <div class="section-heading reveal">
+        <span class="section-eyebrow" data-i18n="rev_eyebrow">Отзывы</span>
+        <h2 class="section-title" data-i18n="rev_title">Отзывы клиентов</h2>
+        <p class="section-copy" data-i18n="rev_copy">Более 200 оптовых покупателей из России и Таджикистана уже работают с нами.</p>
+      </div>
+      <div id="reviewsContainer"></div>
+      <div id="reviewsActions" style="text-align:center; margin-top:28px;">
+        <button class="btn-outline" id="toggleAllReviewsBtn" style="display:none;" data-i18n="rev_show_all">Показать все отзывы</button>
+      </div>
+      <div id="reviewFormWrapper" style="display:none;">
+        <h4 data-i18n="rev_form_title">Оставить отзыв</h4>
+        <select id="reviewProductSelect"><option value="" data-i18n="rev_choose_product">Выберите товар</option></select>
+        <div class="stars" id="starRating">
+          <i class="fas fa-star" data-value="1"></i><i class="fas fa-star" data-value="2"></i><i class="fas fa-star" data-value="3"></i><i class="fas fa-star" data-value="4"></i><i class="fas fa-star" data-value="5"></i>
+        </div>
+        <textarea id="reviewText" rows="3" data-i18n-placeholder="rev_placeholder" placeholder="Расскажите о качестве, сроках и упаковке..."></textarea>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+          <label class="review-file-label">
+            <i class="fas fa-camera"></i> <span data-i18n="rev_add_photo">Добавить фото</span>
+            <span class="review-attach-limit" data-i18n="rev_photo_limit">(макс 5, до 5 МБ)</span>
+            <input type="file" class="review-file-input" id="reviewPhotos" accept="image/jpeg,image/jpg,image/png,image/webp" multiple>
+          </label>
+        </div>
+        <div class="review-attachments" id="reviewAttachmentsPreview"></div>
+        <div style="font-size:.75rem; color:var(--muted); margin-bottom:18px;" data-i18n="rev_formats">Разрешённые форматы: JPG, JPEG, PNG, WEBP</div>
+        <button class="btn" id="submitReview" data-i18n="rev_submit">Отправить отзыв</button>
+        <div id="reviewError" style="color:var(--danger); margin-top:12px; font-size:.875rem;"></div>
+      </div>
+      <div id="loginPrompt" style="text-align:center; margin-top:32px; color:var(--text-2); font-size:.9375rem;">
+        <p><span data-i18n="rev_login_prompt">Чтобы оставить отзыв,</span> <span style="color:var(--accent); cursor:pointer; font-weight:600;" id="loginToReview" data-i18n="rev_login_link">авторизуйтесь</span></p>
+      </div>
+    </section>
+  </main>
+
+<div id="contactHeroGroup">
+    <section class="contact-hero">
+      <div class="container contact-hero__inner">
+        <div class="contact-hero__left">
+          <span class="section-eyebrow"><i class="fas fa-headset"></i> Контакты 24/7</span>
+          <h1 class="contact-hero__title">Свяжитесь с нами</h1>
+          <p class="contact-hero__copy">Звоните и пишите в WhatsApp или Telegram — мы на связи ежедневно и отвечаем быстро.</p>
+          <div class="contact-hero__media">
+            <div class="contact-hero__media-visual"><i class="fas fa-headset"></i></div>
+            <div class="contact-hero__media-badge"><i class="fas fa-bolt"></i><div><b>Быстрый ответ</b><span>Обычно в течение 15 минут</span></div></div>
+          </div>
+          <div class="contact-hero__actions">
+            <a class="btn btn--lg" href="https://wa.me/998958239490" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Написать в WhatsApp</a>
+            <a class="btn btn--ghost btn--lg" href="tel:+998958239490"><i class="fas fa-phone"></i> Позвонить сейчас</a>
+          </div>
+        </div>
+        <div class="contact-hero__right">
+          <div class="contact-hero__panel">
+            <h3>Выберите удобный способ</h3>
+            <p>Отвечаем быстро в любом канале</p>
+            <div class="contact-cards-grid">
+              <div class="contact-card reveal"><span class="contact-card__icon"><i class="fas fa-phone"></i></span><div><b>Телефон</b><a href="tel:+998958239490">+998 95 823 94 90</a></div></div>
+              <div class="contact-card reveal"><span class="contact-card__icon"><i class="fas fa-envelope"></i></span><div><b>Почта</b><a href="mailto:msh.fullseller@gmail.com">msh.fullseller@gmail.com</a></div></div>
+              <div class="contact-card reveal"><span class="contact-card__icon"><i class="fas fa-map-marker-alt"></i></span><div><b>Адрес</b><span>Узбекистан, г. Коканд</span></div></div>
+              <div class="contact-card reveal"><span class="contact-card__icon"><i class="fas fa-clock"></i></span><div><b>Режим работы</b><span>Ежедневно, без выходных</span></div></div>
+              <div class="contact-card contact-card--wide reveal"><span class="contact-card__icon"><i class="fab fa-telegram-plane"></i></span><div><b>Telegram</b><a href="https://t.me/fullsellertjmsh" target="_blank" rel="noopener">@fullsellertjmsh</a></div></div>
+            </div>
+            <div class="contact-hero__highlight">
+              <div class="contact-hero__highlight-stats">
+                <div><b>от 13 ₽/шт</b><span>оптовая цена</span></div>
+                <div><b>от 2000 шт</b><span>мин. заказ</span></div>
+                <div><b>3–10 дней</b><span>доставка карго</span></div>
+              </div>
+              <a class="btn" href="https://wa.me/998958239490" target="_blank" rel="noopener"><i class="fas fa-paper-plane"></i> Написать сейчас</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-form-section">
+      <div class="container contact-form-grid">
+        <div class="contact-form-card reveal">
+          <h3>Напишите нам</h3>
+          <p>Заполните форму, и мы ответим в ближайшее время</p>
+          <form class="contact-form" id="contactForm">
+            <label for="contactName">Ваше имя</label>
+            <input type="text" id="contactName" name="name" placeholder="Иван Иванов">
+            <label for="contactPhone">Телефон</label>
+            <input type="tel" id="contactPhone" name="phone" placeholder="+992 00 000 00 00">
+            <label for="contactEmail">Email (необязательно)</label>
+            <input type="email" id="contactEmail" name="email" placeholder="example@mail.com">
+            <label for="contactMessage">Ваше сообщение</label>
+            <textarea id="contactMessage" name="message" rows="4" placeholder="Опишите вашу задачу..."></textarea>
+            <button type="submit" class="btn" id="contactFormSubmit"><i class="fas fa-paper-plane"></i> Отправить сообщение</button>
+            <div class="contact-form-note">Отправляя форму, вы соглашаетесь с обработкой данных</div>
+          </form>
+        </div>
+        <div class="contact-map-card reveal">
+          <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=70.9025%2C40.5086%2C70.9825%2C40.5486&amp;layer=mapnik&amp;marker=40.5286%2C70.9425" title="FULL SELLER на карте" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-features">
+      <div class="container contact-features__inner">
+        <div class="contact-feature reveal"><i class="fas fa-bolt"></i><b>Быстрый ответ</b><span>Отвечаем в течение 15 минут</span></div>
+        <div class="contact-feature reveal"><i class="fas fa-user-tie"></i><b>Профессиональная помощь</b><span>Опытная команда</span></div>
+        <div class="contact-feature reveal"><i class="fas fa-shield-halved"></i><b>Гарантия качества</b><span>Проверено на фабрике</span></div>
+        <div class="contact-feature reveal"><i class="fas fa-hand-holding-dollar"></i><b>Честные цены</b><span>Фиксированная стоимость</span></div>
+        <div class="contact-feature reveal"><i class="fas fa-headset"></i><b>Поддержка 24/7</b><span>Всегда на связи</span></div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site-footer" id="contact">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-column footer-column--brand reveal">
+          <div class="footer-logo">FULL<span>SELLER</span></div>
+          <p data-i18n="footer_about">Ваш надёжный поставщик трикотажа напрямую от фабрик Узбекистана. Оптом: носки, футболки, трусы, шорты и штаны — от популярных брендов до базовых моделей. Доставка в Россию и Таджикистан.</p>
+          <div class="footer-socials">
+            <a href="https://t.me/fullsellertjmsh" target="_blank" rel="noopener" aria-label="Telegram"><i class="fab fa-telegram-plane"></i></a>
+            <a href="https://wa.me/998958239490" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+        <div class="footer-column reveal">
+          <h4 data-i18n="footer_contacts">Контакты</h4>
+          <ul>
+            <li><i class="fas fa-phone-alt"></i><a href="tel:+998958239490">+998 95 823 94 90</a></li>
+            <li><i class="fab fa-telegram-plane"></i><a href="https://t.me/fullsellertjmsh" target="_blank" rel="noopener">Telegram</a></li>
+            <li><i class="fab fa-whatsapp"></i><a href="https://wa.me/998958239490" target="_blank" rel="noopener">WhatsApp</a></li>
+            <li><i class="fas fa-envelope"></i><a href="mailto:msh.fullseller@gmail.com">msh.fullseller@gmail.com</a></li>
+            <li><i class="fas fa-map-marker-alt"></i><span data-i18n="footer_address">Узбекистан, г. Коканд</span></li>
+          </ul>
+        </div>
+        <div class="footer-column reveal">
+          <h4 data-i18n="footer_nav">Навигация</h4>
+          <ul>
+            <li><a href="#catalog" data-i18n="nav_catalog">Каталог</a></li>
+            <li><a href="#wholesale" data-i18n="nav_wholesale">Условия</a></li>
+            <li><a href="#reviews" data-i18n="nav_reviews">Отзывы</a></li>
+            <li><a href="#contact" data-i18n="nav_contacts">Контакты</a></li>
+          </ul>
+        </div>
+        <div class="footer-column reveal">
+          <h4 data-i18n="footer_buyers">Покупателям</h4>
+          <ul>
+            <li><i class="fas fa-truck-fast"></i><span data-i18n="footer_b1">Доставка по РФ и Таджикистану</span></li>
+            <li><i class="fas fa-boxes-stacked"></i><span data-i18n="footer_b2">Минимальный заказ от 2 000 шт</span></li>
+            <li><i class="fas fa-coins"></i><span data-i18n="footer_b3">Оптовые цены от 13 ₽/шт</span></li>
+            <li><i class="fas fa-shield-halved"></i><span data-i18n="footer_b4">Проверенное качество</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 FULL SELLER. <span data-i18n="footer_rights">Все права защищены.</span></span>
+        <span data-i18n="footer_tagline">Оптовые поставки трикотажа из Узбекистана</span>
+        <a href="#" class="partner-link" id="footerPartnerLink"><i class="fas fa-industry"></i> <span data-i18n="footer_partner">Для производителей</span></a>
+      </div>
+    </div>
+  </footer>
+</div>
+<div class="page" id="favoritesPage">
+  <h3 style="margin-bottom:20px;"><i class="fas fa-heart" style="color:var(--accent);"></i> <span data-i18n="fav_title">Избранное</span></h3>
+  <div id="favoritesContainer"></div>
+  <div id="favoritesEmpty" style="display:none;"><div class="empty-state"><i class="far fa-heart"></i><span data-i18n="fav_empty">Вы пока ничего не добавили в избранное</span></div></div>
+</div>
+<div class="page" id="cartPage">
+  <h3 style="margin-bottom:20px;" data-i18n="cart_title">Корзина</h3>
+  <div id="cartItemsContainer"></div>
+  <div class="cart-total" id="cartTotalBlock"></div>
+  <button class="btn" style="width:100%; margin-top:24px;" id="checkoutBtn"><i class="fas fa-check"></i> <span data-i18n="cart_checkout">Оформить заказ</span></button>
+</div>
+<div class="page" id="profilePage">
+  <h3 data-i18n="profile_title">Личный кабинет</h3>
+  <div style="display:flex; gap:10px; margin:20px 0; flex-wrap:wrap;">
+    <button class="btn-outline profile-tab active" data-tab="info" data-i18n="profile_tab_info">Профиль</button>
+    <button class="btn-outline profile-tab" data-tab="orders" data-i18n="profile_tab_orders">История заказов</button>
+  </div>
+  <div id="profileInfoTab">
+    <div style="display:flex; flex-direction:column; gap:12px; max-width:520px;">
+      <div class="profile-avatar-wrap">
+        <img id="profileAvatarImg" class="profile-avatar-img" style="display:none;" alt="Avatar">
+        <div id="profileAvatarPlaceholder" class="profile-avatar-placeholder"><i class="fas fa-user"></i></div>
+        <label style="cursor:pointer; color:var(--accent); font-weight:600; font-size:.875rem; display:flex; align-items:center; gap:6px;">
+          <i class="fas fa-camera"></i> <span id="profileAvatarLabel" data-i18n="profile_add_photo">Добавить фото</span>
+          <input type="file" id="profileAvatarInput" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;">
+        </label>
+        <div id="profileAvatarProgress" style="font-size:.75rem; color:var(--accent); font-weight:600; min-height:1.2em;"></div>
+        <button class="btn-danger" id="profileRemoveAvatarBtn" style="display:none; padding:6px 14px; font-size:.75rem; border-radius:10px; color:#fff; font-weight:600;" type="button" data-i18n="profile_remove_photo">Удалить фото</button>
+      </div>
+      <label style="font-size:.8125rem; font-weight:600; color:var(--text-2);" data-i18n="profile_name">Имя</label>
+      <input type="text" id="profileName" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+      <label style="font-size:.8125rem; font-weight:600; color:var(--text-2);" data-i18n="profile_phone">Телефон</label>
+      <input type="tel" id="profilePhone" placeholder="+7XXXXXXXXXX" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+      <label style="font-size:.8125rem; font-weight:600; color:var(--text-2);" data-i18n="profile_birth">Дата рождения</label>
+      <input type="date" id="profileBirthdate" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+      <label style="font-size:.8125rem; font-weight:600; color:var(--text-2);" data-i18n="profile_email">Email (нельзя изменить)</label>
+      <input type="email" id="profileEmail" disabled style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-secondary); color:var(--text-secondary);">
+
+      <!-- Язык приложения -->
+      <label style="font-size:.8125rem; font-weight:600; color:var(--text-2); margin-top:6px;" data-i18n="profile_lang">Язык приложения</label>
+      <div class="lang-inline" id="profileLangSwitch" style="margin-bottom:8px;">
+        <button type="button" data-lang="ru">RU</button>
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="uz">UZ</button>
+      </div>
+
+      <button class="btn" id="saveProfileBtn" style="margin-top:8px;" data-i18n="profile_save">Сохранить</button>
+    </div>
+  </div>
+  <div id="profileOrdersTab" style="display:none;"><div id="ordersHistoryContainer"></div><div class="pagination" id="ordersPagination"></div></div>
+</div>
+<div class="page active" id="productDetailPage">
+  <div class="product-detail">
+    <button class="product-detail__back" id="productBackBtn"><i class="fas fa-arrow-left"></i> <span data-i18n="product_back">Назад в каталог</span></button>
+    <div class="product-detail__grid">
+      <div class="product-detail__media">
+        <div class="product-detail__gallery">
+          <div class="product-page__slider" style="height:100%"><div class="product-page__slides" id="productPageSlides"></div></div>
+          <button class="product-page__slider-btn product-page__slider-btn--prev" id="productPagePrevBtn" type="button" aria-label="Prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="product-page__slider-btn product-page__slider-btn--next" id="productPageNextBtn" type="button" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="product-page__slider-dots" id="productPageDots"></div>
+      </div>
+      <div class="product-detail__info" id="productPageContent"></div>
+    </div>
+  </div>
+</div>
+<div class="page" id="adminPage">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__brand">FULL<span>SELLER</span><small>Admin</small></div>
+      <nav class="admin-nav" id="adminNav">
+        <button class="admin-nav__item is-active" type="button" data-admin-section="dashboard"><i class="fas fa-grip"></i> Дашборд</button>
+        <button class="admin-nav__item" type="button" data-admin-section="orders"><i class="fas fa-clipboard-list"></i> Заказы</button>
+        <button class="admin-nav__item" type="button" data-admin-section="partners"><i class="fas fa-industry"></i> Производители</button>
+        <button class="admin-nav__item" type="button" data-admin-section="newProducts"><i class="fas fa-box-open"></i> Новые товары <span class="admin-nav__badge" id="adminNewProductsBadge" style="display:none;">0</span></button>
+        <button class="admin-nav__item" type="button" data-admin-section="products"><i class="fas fa-boxes-stacked"></i> Товары</button>
+        <button class="admin-nav__item" type="button" data-admin-section="add"><i class="fas fa-circle-plus"></i> Добавить товар</button>
+        <button class="admin-nav__item" type="button" data-admin-section="clients"><i class="fas fa-users"></i> Клиенты</button>
+        <button class="admin-nav__item" type="button" data-admin-section="reviews"><i class="fas fa-star"></i> Отзывы</button>
+        <button class="admin-nav__item" type="button" data-admin-section="finance"><i class="fas fa-sack-dollar"></i> Финансы</button>
+        <button class="admin-nav__item" type="button" data-admin-section="settings"><i class="fas fa-gear"></i> Настройки</button>
+      </nav>
+    </aside>
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar__title">Admin Dashboard</h1>
+        <div class="admin-topbar__search"><i class="fas fa-search"></i><input type="text" placeholder="Поиск по заказам, товарам, производителям…"></div>
+        <div class="admin-topbar__actions">
+          <button class="admin-icon-btn" type="button" title="Обновить" onclick="if(window.renderAdminDashboard)renderAdminDashboard();"><i class="fas fa-rotate-right"></i></button>
+          <button class="admin-icon-btn" type="button" title="Выйти" onclick="logout()"><i class="fas fa-right-from-bracket"></i></button>
+          <div class="admin-topbar__profile"><span class="admin-topbar__avatar">A</span><div><b>Admin</b><small>Администратор</small></div></div>
+        </div>
+      </header>
+
+      <div class="admin-panel is-active" id="adminDashboardTab">
+        <div class="admin-stats-row">
+          <div class="admin-stat-card"><span class="admin-stat-card__icon admin-stat-card__icon--orange"><i class="fas fa-boxes-stacked"></i></span><div><b id="adminStatProducts">—</b><span>Товаров в каталоге</span></div></div>
+          <div class="admin-stat-card"><span class="admin-stat-card__icon admin-stat-card__icon--blue"><i class="fas fa-clipboard-check"></i></span><div><b id="adminStatOrders">—</b><span>Заказов (последние 20)</span></div></div>
+          <div class="admin-stat-card"><span class="admin-stat-card__icon admin-stat-card__icon--green"><i class="fas fa-industry"></i></span><div><b id="adminStatPartners">—</b><span>Производителей</span></div></div>
+          <div class="admin-stat-card"><span class="admin-stat-card__icon admin-stat-card__icon--purple"><i class="fas fa-star"></i></span><div><b id="adminStatRating">—</b><span>Рейтинг по умолчанию</span></div></div>
+        </div>
+        <div class="admin-dash-grid">
+          <div class="admin-card">
+            <div class="admin-card__head"><h3>Последние заказы</h3><button class="admin-card__link" type="button" data-admin-section="orders">Все →</button></div>
+            <div id="adminDashboardOrders"><div class="admin-empty">Загрузка…</div></div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card__head"><h3>Производители</h3><button class="admin-card__link" type="button" data-admin-section="partners">Все →</button></div>
+            <div id="adminDashboardPartners"><div class="admin-empty">Загрузка…</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminOrdersTab" style="display:none;">
+        <div class="admin-card">
+          <div class="admin-card__head"><h3 data-i18n="admin_orders">Заказы</h3><button class="btn btn-danger" id="deleteAllOrdersBtn" type="button">Удалить все заказы</button></div>
+          <div id="adminOrdersList"></div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminPartnersTab" style="display:none;">
+        <div class="admin-dash-grid">
+          <div class="admin-card">
+            <div class="admin-card__head"><h3>Список производителей</h3></div>
+            <div id="adminPartnersList"><div class="admin-empty">Загрузка…</div></div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card__head"><h3>Добавить производителя</h3></div>
+            <div class="admin-form-grid">
+              <input type="text" id="adminPartnerCompany" placeholder="Название компании / бренда">
+              <input type="text" id="adminPartnerContact" placeholder="Контактное лицо">
+              <input type="text" id="adminPartnerPhone" placeholder="Телефон">
+              <input type="text" id="adminPartnerLogin" placeholder="Логин для входа">
+              <input type="text" id="adminPartnerPassword" placeholder="Пароль">
+            </div>
+            <button class="btn" id="addPartnerBtn" type="button">Создать производителя</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminNewProductsTab" style="display:none;">
+        <div class="admin-card">
+          <div class="admin-card__head"><h3>Новые товары от производителей</h3></div>
+          <div id="adminNewProductsList"><div class="admin-empty">Загрузка…</div></div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminProductsTab" style="display:none;">
+        <div class="admin-card">
+          <div class="admin-card__head"><h3 data-i18n="admin_manage">Управление товарами</h3></div>
+          <div id="adminProductsList" style="overflow-x:auto;"></div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminAddTab" style="display:none;">
+        <div class="admin-card">
+          <div class="admin-card__head"><h3 data-i18n="admin_add_new">Добавить товар</h3></div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:20px;">
+            <input type="text" id="adminName" placeholder="Название" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+            <input type="number" id="adminPrice" placeholder="Цена (₽)" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+            <select id="adminCategory" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+              <option value="socks">Носки</option><option value="tshirts">Футболки</option><option value="underwear">Трусы</option>
+            </select>
+            <input type="text" id="adminBrand" placeholder="Бренд" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+            <input type="text" id="adminMaterial" placeholder="Материал" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+            <input type="text" id="adminSize" placeholder="Размеры" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+            <input type="number" id="adminStock" placeholder="Остаток" value="100" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+            <div class="admin-image-upload" id="adminImageUploadBox" style="grid-column:1/-1;">
+              <input type="file" id="adminImageFile" accept="image/jpeg,image/jpg,image/png,image/webp" style="display:none;">
+              <div id="adminUploadPrompt"><i class="fas fa-cloud-arrow-up" style="font-size:1.75rem; color:var(--accent); margin-bottom:10px; display:block;"></i><span style="font-weight:600;">Нажмите для загрузки изображения</span><div style="font-size:.75rem; color:var(--text-secondary); margin-top:4px;">JPG, PNG, WEBP до 8 МБ</div></div>
+              <img id="adminImagePreview" class="admin-image-preview" alt="Preview">
+              <div class="admin-upload-progress" id="adminUploadProgress"></div>
+              <div class="admin-upload-actions" id="adminUploadActions" style="display:none;">
+                <button class="btn-danger" id="adminRemoveImageBtn" type="button" style="color:#fff; border-radius:8px; font-weight:600;">Удалить</button>
+                <button class="btn-outline" id="adminReplaceImageBtn" type="button">Заменить</button>
+              </div>
+              <input type="hidden" id="adminImageUrl" value="">
+            </div>
+            <textarea id="adminDesc" placeholder="Описание" rows="2" style="padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); grid-column:1/-1; font-family:inherit;"></textarea>
+          </div>
+          <button class="btn" id="addProductBtn" data-i18n="admin_add_btn">Добавить товар</button>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminClientsTab" style="display:none;">
+        <div class="admin-card"><div class="admin-card__head"><h3>Клиенты</h3></div>
+          <div id="adminClientsList"><div class="admin-empty">Загрузка…</div></div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminReviewsTab" style="display:none;">
+        <div class="admin-card"><div class="admin-card__head"><h3>Отзывы</h3></div>
+          <div class="admin-empty admin-empty--soon"><i class="fas fa-star"></i><p>Модерация отзывов появится здесь</p></div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminFinanceTab" style="display:none;">
+        <div class="admin-card"><div class="admin-card__head"><h3>Финансы</h3></div>
+          <div class="admin-empty admin-empty--soon"><i class="fas fa-sack-dollar"></i><p>Раздел в разработке</p></div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="adminGlobalTab" style="display:none;">
+        <div class="admin-card">
+          <div class="admin-card__head"><h3 data-i18n="admin_global_title">Глобальные параметры</h3></div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:20px; max-width:720px;">
+            <div><label style="font-size:.8125rem; font-weight:600; color:var(--text-2);" data-i18n="admin_discount_pct">Скидка %</label>
+              <input type="number" id="adminDiscountPercent" value="0" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); margin-top:6px;"></div>
+            <div><label style="font-size:.8125rem; font-weight:600; color:var(--text-2);" data-i18n="admin_discount_rub">Скидка ₽</label>
+              <input type="number" id="adminDiscountRub" value="0" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); margin-top:6px;"></div>
+            <div><label style="font-size:.8125rem; font-weight:600; color:var(--text-2);" data-i18n="admin_rating">Рейтинг по умолчанию</label>
+              <input type="number" id="adminRating" value="4.2" step="0.1" min="0" max="5" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); margin-top:6px;"></div>
+          </div>
+          <button class="btn" id="saveGlobalParamsBtn" data-i18n="admin_apply">Применить параметры</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page" id="partnerPage">
+  <div class="partner-login-wrap" id="partnerLoginWrap">
+    <h2><i class="fas fa-industry" style="color:var(--accent);"></i> <span data-i18n="partner_title">Панель производителя</span></h2>
+    <p data-i18n="partner_login_sub">Вход для партнёров FULL SELLER</p>
+    <div class="partner-field">
+      <label for="partnerLoginInput" data-i18n="partner_login">Логин</label>
+      <input type="text" id="partnerLoginInput" placeholder="Введите логин" autocomplete="username">
+    </div>
+    <div class="partner-field">
+      <label for="partnerPasswordInput" data-i18n="partner_password">Пароль</label>
+      <input type="password" id="partnerPasswordInput" placeholder="Введите пароль" autocomplete="current-password">
+    </div>
+    <div id="partnerLoginError" style="color:var(--danger); font-size:.8125rem; min-height:1.2em; margin-bottom:8px;"></div>
+    <button class="btn" style="width:100%;" id="partnerLoginBtn"><i class="fas fa-right-to-bracket"></i> <span data-i18n="partner_enter">Войти</span></button>
+    <button class="btn-outline" style="width:100%; margin-top:10px;" id="partnerBackBtn"><i class="fas fa-arrow-left"></i> <span data-i18n="partner_back_home">На главную</span></button>
+  </div>
+
+  <div id="partnerPanel" style="display:none;">
+    <div class="partner-header">
+      <div>
+        <h2 data-i18n="partner_title">Панель производителя</h2>
+        <p id="partnerGreeting" data-i18n="partner_greeting">Управление вашими товарами</p>
+        <div id="partnerIdBadge"></div>
+      </div>
+      <div class="partner-header-actions">
+        <!-- Переключатель языка в панели производителя -->
+        <div class="lang-inline" id="partnerLangSwitch">
+          <button type="button" data-lang="ru">RU</button>
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="uz">UZ</button>
+        </div>
+
+        <!-- Кнопка "Связаться с разработчиком" -->
+        <a href="https://wa.me/79385401876?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%AF%20%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%2C%20%D0%BD%D1%83%D0%B6%D0%BD%D0%B0%20%D0%BF%D0%BE%D0%B4%D0%B4%D0%B5%D1%80%D0%B6%D0%BA%D0%B0."
+           class="partner-support-btn" id="partnerSupportBtn" target="_blank" rel="noopener">
+          <i class="fab fa-whatsapp"></i> <span data-i18n="partner_support">Связаться с разработчиком</span>
+        </a>
+
+        <button class="btn-outline" id="partnerLogoutBtn"><i class="fas fa-right-from-bracket"></i> <span data-i18n="partner_logout">Выйти</span></button>
+      </div>
+    </div>
+
+    <div class="partner-tabs">
+      <button type="button" class="partner-tab active" data-tab="list"><i class="fas fa-box"></i> <span data-i18n="partner_tab_my">Мои товары</span></button>
+      <button type="button" class="partner-tab" data-tab="add"><i class="fas fa-plus"></i> <span data-i18n="partner_tab_add">Добавить товар</span></button>
+    </div>
+
+    <div id="partnerListTab"><div id="partnerProductsContainer" class="partner-products-grid"></div></div>
+
+    <div id="partnerAddTab" style="display:none;">
+      <div class="partner-add-form">
+        <h3 data-i18n="partner_new_product">Новый товар</h3>
+
+        <div class="partner-field">
+          <label for="partnerProductName" data-i18n="partner_field_name">Название *</label>
+          <input type="text" id="partnerProductName" maxlength="120" data-i18n-placeholder="partner_ph_name" placeholder="Например: Носки Nike белые">
+        </div>
+        <div class="partner-field">
+          <label for="partnerProductDesc" data-i18n="partner_field_desc">Описание</label>
+          <textarea id="partnerProductDesc" rows="3" data-i18n-placeholder="partner_ph_desc" placeholder="Опишите товар, материал, особенности..."></textarea>
+        </div>
+
+        <div class="partner-row-2">
+          <div class="partner-field">
+            <label for="partnerProductCategory" data-i18n="partner_field_cat">Категория *</label>
+            <select id="partnerProductCategory">
+              <option value="socks" data-i18n="cat_socks">Носки</option>
+              <option value="tshirts" data-i18n="cat_tshirts">Футболки</option>
+              <option value="underwear" data-i18n="cat_underwear">Трусы</option>
+            </select>
+          </div>
+          <div class="partner-field">
+            <label for="partnerProductAudience" data-i18n="partner_field_aud">Аудитория *</label>
+            <select id="partnerProductAudience">
+              <option value="" data-i18n="partner_ph_aud">— Выберите —</option>
+              <option value="male" data-i18n="aud_male">Мужские</option>
+              <option value="female" data-i18n="aud_female">Женские</option>
+              <option value="kids" data-i18n="aud_kids">Детские</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="partner-field">
+          <label data-i18n="partner_field_sizes">Выбор размера (можно выбрать несколько)</label>
+          <div class="partner-size-grid" id="partnerSizeGrid">
+            <label class="partner-size-item"><input type="checkbox" value="41-43" data-aud="male"><span data-i18n="size_male_socks">Мужские носки 41-43</span></label>
+            <label class="partner-size-item"><input type="checkbox" value="37-39" data-aud="female"><span data-i18n="size_female_socks">Женские носки 37-39</span></label>
+            <label class="partner-size-item"><input type="checkbox" value="68-80" data-aud="kids"><span data-i18n="size_kid_1">Детские 0-1 год: рост 68-80</span></label>
+            <label class="partner-size-item"><input type="checkbox" value="92-98" data-aud="kids"><span data-i18n="size_kid_2">Детские 2-3 года: рост 92-98 см</span></label>
+            <label class="partner-size-item"><input type="checkbox" value="104-116" data-aud="kids"><span data-i18n="size_kid_3">Детские 4-6 лет: рост 104-116 см</span></label>
+            <label class="partner-size-item"><input type="checkbox" value="122-128" data-aud="kids"><span data-i18n="size_kid_4">Детские 7-8 лет: рост 122-128 см</span></label>
+          </div>
+        </div>
+
+        <div class="partner-row-2">
+          <div class="partner-field">
+            <label for="partnerProductBrand" data-i18n="partner_field_brand">Бренд</label>
+            <input type="text" id="partnerProductBrand" maxlength="60" data-i18n-placeholder="partner_ph_brand" placeholder="Например: Nike">
+          </div>
+          <div class="partner-field">
+            <label for="partnerProductWeight" data-i18n="partner_field_weight">Вес (грамм)</label>
+            <input type="number" id="partnerProductWeight" placeholder="0" min="0" step="0.1">
+          </div>
+        </div>
+
+        <!-- ===== НОВОЕ ПОЛЕ: МАТЕРИАЛ ===== -->
+        <div class="partner-field">
+          <label for="partnerProductMaterial" data-i18n="partner_field_material">Материал</label>
+          <input type="text" id="partnerProductMaterial" maxlength="120" data-i18n-placeholder="partner_ph_material" placeholder="Например: Хлопок 80%, эластан 20%">
+        </div>
+        <!-- ===== /НОВОЕ ПОЛЕ: МАТЕРИАЛ ===== -->
+
+        <div class="partner-field">
+          <label for="partnerProductColor" data-i18n="partner_field_color">Цвет</label>
+          <select id="partnerProductColor">
+            <option value="" data-i18n="partner_color_none">— Не указан —</option>
+            <option value="Белый">Белый</option>
+            <option value="Чёрный">Чёрный</option>
+            <option value="Шоколадный">Шоколадный</option>
+            <option value="Серый">Серый</option>
+            <option value="Бежевый">Бежевый</option>
+            <option value="Тёмно-синий">Тёмно-синий</option>
+          </select>
+        </div>
+
+        <div class="partner-row-2">
+          <div class="partner-field">
+            <label for="partnerProductPrice" data-i18n="partner_field_price">Цена (₽)</label>
+            <input type="number" id="partnerProductPrice" placeholder="0" min="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="partner-field">
+          <label data-i18n="partner_field_images">Изображения товара (до 10, до 8 МБ каждое)</label>
+          <div class="admin-image-upload" id="partnerImageUploadBox">
+            <input type="file" id="partnerImageFile" accept="image/jpeg,image/jpg,image/png,image/webp" multiple style="display:none;">
+            <div id="partnerUploadPrompt">
+              <i class="fas fa-cloud-arrow-up" style="font-size:1.75rem; color:var(--accent); margin-bottom:10px; display:block;"></i>
+              <span style="font-weight:600;" data-i18n="partner_ph_upload">Нажмите для загрузки изображений</span>
+              <div style="font-size:.75rem; color:var(--text-secondary); margin-top:4px;">JPG, PNG, WEBP · <span data-i18n="partner_ph_upload_limit">до 8 МБ · до 10 шт</span></div>
+            </div>
+            <div class="admin-upload-progress" id="partnerUploadProgress"></div>
+          </div>
+          <div class="partner-images-grid" id="partnerImagesGrid"></div>
+          <div class="partner-images-counter" id="partnerImagesCounter" style="display:none;"><i class="fas fa-images"></i><span id="partnerImagesCounterText">Загружено 0 из 10</span></div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
+          <button class="btn" id="partnerAddBtn" style="flex:1; min-width:180px;"><i class="fas fa-plus"></i> <span data-i18n="partner_add_btn">Добавить товар</span></button>
+          <button class="btn-outline" id="partnerClearBtn" style="flex:1; min-width:120px;" data-i18n="partner_clear">Очистить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="orderModal">
+  <div class="modal-content">
+    <span class="modal-close" id="closeOrderModal">&times;</span>
+    <h3 style="margin-bottom:20px;" data-i18n="order_title">Ваш заказ</h3>
+    <div id="orderContent"></div>
+    <div class="cart-total" id="orderTotalBlock"></div>
+    <div style="display:flex; gap:12px; margin-top:24px; flex-wrap:wrap;">
+      <button class="btn" id="sendWhatsApp" style="flex:1;"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+      <button class="btn" id="sendTelegram" style="flex:1;"><i class="fab fa-telegram-plane"></i> Telegram</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="authModal">
+  <div class="modal-content">
+    <span class="modal-close" id="closeAuthModal">&times;</span>
+    <div class="auth-tabs" style="display:flex; gap:8px; margin-bottom:24px;">
+      <div class="auth-tab active" data-tab="email" style="flex:1; text-align:center; padding:11px; border-radius:12px; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; font-size:.875rem;">Email</div>
+      <div class="auth-tab" data-tab="phone" style="flex:1; text-align:center; padding:11px; border-radius:12px; background:var(--bg-primary); border:1px solid var(--border-light); cursor:pointer; font-weight:600; font-size:.875rem;">Телефон</div>
+    </div>
+    <div id="emailForms">
+      <div id="loginForm">
+        <h4 style="margin-bottom:16px;">Вход по Email</h4>
+        <input type="email" id="loginEmail" placeholder="Email" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <input type="password" id="loginPassword" placeholder="Пароль" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <button class="btn" id="loginSubmit" style="width:100%; margin-top:12px;">Войти</button>
+        <div id="loginError" style="color:var(--danger); margin-top:10px; text-align:center; font-size:.8125rem;"></div>
+        <div class="toggle-link" id="switchToRegisterEmail" style="text-align:center; margin-top:16px; color:var(--accent); cursor:pointer; font-weight:600; font-size:.875rem;">Нет аккаунта? Зарегистрироваться</div>
+      </div>
+      <div id="registerFormEmail" style="display:none;">
+        <h4 style="margin-bottom:16px;">Регистрация по Email</h4>
+        <input type="text" id="regNameEmail" placeholder="Ваше имя" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <input type="email" id="regEmailEmail" placeholder="Email" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <input type="password" id="regPasswordEmail" placeholder="Пароль (мин. 6 символов)" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <input type="date" id="regBirthdateEmail" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <button class="btn" id="registerSubmitEmail" style="width:100%; margin-top:12px;">Зарегистрироваться</button>
+        <div id="registerError" style="color:var(--danger); margin-top:10px; text-align:center; font-size:.8125rem;"></div>
+        <div class="toggle-link" id="switchToLoginEmail" style="text-align:center; margin-top:16px; color:var(--accent); cursor:pointer; font-weight:600; font-size:.875rem;">Уже есть аккаунт? Войти</div>
+      </div>
+    </div>
+    <div id="phoneForms" style="display:none;">
+      <div id="loginPhoneForm">
+        <h4 style="margin-bottom:16px;">Вход по номеру</h4>
+        <input type="tel" id="loginPhone" placeholder="+7XXXXXXXXXX" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <button class="btn" id="getCodeBtn" style="width:100%; margin-top:8px;">Получить код</button>
+        <input type="text" id="loginCode" placeholder="Код 1234" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <button class="btn" id="loginPhoneSubmit" style="width:100%;">Войти</button>
+        <div class="toggle-link" id="switchToRegisterPhone" style="text-align:center; margin-top:16px; color:var(--accent); cursor:pointer; font-weight:600; font-size:.875rem;">Нет аккаунта? Зарегистрироваться</div>
+      </div>
+      <div id="registerPhoneForm" style="display:none;">
+        <h4 style="margin-bottom:16px;">Регистрация по телефону</h4>
+        <input type="text" id="regNamePhone" placeholder="Ваше имя" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <input type="tel" id="regPhonePhone" placeholder="+7XXXXXXXXXX" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <input type="date" id="regBirthdatePhone" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <button class="btn" id="getCodeRegisterBtn" style="width:100%; margin-top:8px;">Получить код</button>
+        <input type="text" id="regCodePhone" placeholder="Код 1234" style="width:100%; padding:13px 16px; margin:7px 0; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
+        <button class="btn" id="registerSubmitPhone" style="width:100%;">Зарегистрироваться</button>
+        <div class="toggle-link" id="switchToLoginPhone" style="text-align:center; margin-top:16px; color:var(--accent); cursor:pointer; font-weight:600; font-size:.875rem;">Уже есть аккаунт? Войти</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="orderDetailModal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('orderDetailModal')">&times;</span>
+    <h3 style="margin-bottom:18px;" data-i18n="order_details">Детали заказа</h3>
+    <div id="orderDetailContent"></div>
+  </div>
+</div>
+
+<div class="modal" id="productGalleryModal">
+  <div class="modal-content wide">
+    <span class="modal-close" onclick="closeModal('productGalleryModal')">&times;</span>
+    <div style="display:flex; gap:28px; align-items:stretch;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:12px; min-width:0;">
+        <div class="gallery-slider-wrapper">
+          <div class="gallery-slider" id="gallerySlider"><div class="gallery-slides" id="gallerySlides"></div></div>
+          <button class="gallery-btn gallery-btn--prev" id="galleryPrevBtn"><i class="fas fa-chevron-left"></i></button>
+          <button class="gallery-btn gallery-btn--next" id="galleryNextBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="gallery-dots" id="galleryDots"></div>
+      </div>
+      <div style="flex:0 0 300px; display:flex; flex-direction:column; gap:16px;">
+        <div><h3 id="galleryProductName" style="margin:0 0 8px 0; font-size:1.25rem;">Название</h3><div style="color:var(--text-secondary); font-size:.875rem;" id="galleryProductBrand"></div></div>
+        <div><div style="font-family:var(--font-display); font-size:2rem; font-weight:800; letter-spacing:-.03em; color:var(--accent); margin-bottom:6px;" id="galleryProductPrice">0 ₽</div>
+          <div style="font-size:.875rem; color:var(--text-secondary);"><i class="fas fa-star" style="color:#F59E0B;"></i> <span id="galleryRatingValue">0</span></div></div>
+        <div style="padding:16px; background:var(--bg-secondary); border-radius:16px; font-size:.875rem; line-height:1.9;">
+          <div><strong data-i18n="pd_material">Материал:</strong> <span id="galleryProductMaterial">—</span></div>
+          <div><strong data-i18n="pd_size">Размер:</strong> <span id="galleryProductSize">—</span></div>
+          <div><strong data-i18n="pd_brand">Бренд:</strong> <span id="galleryProductBrandInfo">—</span></div>
+        </div>
+        <div id="galleryProductDesc" style="color:var(--text-secondary); font-size:.875rem; line-height:1.6;"></div>
+        <div style="display:flex; gap:10px; margin-top:auto;">
+          <input type="number" id="galleryQtyInput" value="1" min="1" max="999" style="width:72px; padding:12px 8px; border-radius:12px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary); text-align:center; font-weight:600;">
+          <button class="btn" id="galleryAddToCartBtn" style="flex:1;"><i class="fas fa-shopping-cart"></i> <span data-i18n="btn_cart">В корзину</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bottom-nav__item" data-action="home"><i class="fas fa-house"></i><span data-i18n="bn_home">Главная</span></button>
+  <button class="bottom-nav__item" data-action="favorites"><i class="far fa-heart"></i><span data-i18n="bn_fav">Избранное</span></button>
+  <button class="bottom-nav__item" data-action="cart" id="bottomCartBtn"><i class="fas fa-cart-shopping"></i><span data-i18n="bn_cart">Корзина</span><span class="bottom-nav__badge" id="bottomCartBadge">0</span></button>
+  <button class="bottom-nav__item" data-action="profile"><i class="fas fa-user"></i><span data-i18n="bn_profile">Профиль</span></button>
+</nav>
+<a href="https://wa.me/998958239490" class="float-wa" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i> <span data-i18n="float_write">Написать</span></a>
+
+<div class="menu-overlay" id="menuOverlay"></div>
+<div class="mobile-menu-panel" id="mobileMenuPanel">
+  <button class="close-menu" id="closeMobileMenu" aria-label="Close">&times;</button>
+  <a href="#catalog" class="mobile-menu-link" data-i18n="nav_catalog">Каталог</a>
+  <a href="#wholesale" class="mobile-menu-link" data-i18n="nav_wholesale">Оптовые условия</a>
+  <a href="#reviews" class="mobile-menu-link" data-i18n="nav_reviews">Отзывы</a>
+  <a href="#contact" class="mobile-menu-link" data-i18n="nav_contacts">Контакты</a>
+  <a href="#" id="mobileAdminLink" class="mobile-menu-link" style="display:none;" data-i18n="nav_admin">Админ-панель</a>
+  <a href="#" id="mobilePartnerLink" class="mobile-menu-link" data-i18n="footer_partner">Для производителей</a>
+  <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+    <div class="lang-inline" style="justify-content:center;" id="mobileLangSwitch">
+      <button type="button" data-lang="ru">RU</button>
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="uz">UZ</button>
+    </div>
+  </div>
+</div>
+<script src="assets/js/app.js?v=1790464774"></script>
+</body>
+</html>
