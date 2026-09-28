@@ -1086,11 +1086,11 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
           <input type="number" id="adminBag1Price" placeholder="0" min="0" step="0.01" value="0" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
         </div>
         <div>
-          <label for="adminBag2Price" data-i18n="bag_2">Мешок 2 (1200 пар) — ₽</label>
+          <label for="adminBag2Price" data-i18n="bag_2">Мешок 2 (5000 пар) — ₽</label>
           <input type="number" id="adminBag2Price" placeholder="0" min="0" step="0.01" value="0" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
         </div>
         <div>
-          <label for="adminBag3Price" data-i18n="bag_3">Мешок 3 (2000 пар) — ₽</label>
+          <label for="adminBag3Price" data-i18n="bag_3">Мешок 3 (10000 пар) — ₽</label>
           <input type="number" id="adminBag3Price" placeholder="0" min="0" step="0.01" value="0" style="width:100%; padding:12px 16px; border-radius:14px; border:1px solid var(--border-light); background:var(--bg-primary); color:var(--text-primary);">
         </div>
       </div>
@@ -1239,11 +1239,11 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
             <input type="number" id="partnerBag1Price" placeholder="0" min="0" step="0.01" value="0">
           </div>
           <div class="partner-field">
-            <label for="partnerBag2Price">Мешок 2 (1200 пар) — ₽</label>
+            <label for="partnerBag2Price">Мешок 2 (5000 пар) — ₽</label>
             <input type="number" id="partnerBag2Price" placeholder="0" min="0" step="0.01" value="0">
           </div>
           <div class="partner-field">
-            <label for="partnerBag3Price">Мешок 3 (2000 пар) — ₽</label>
+            <label for="partnerBag3Price">Мешок 3 (10000 пар) — ₽</label>
             <input type="number" id="partnerBag3Price" placeholder="0" min="0" step="0.01" value="0">
           </div>
         </div>
@@ -1463,7 +1463,7 @@ const I18N = {
     admin_manage: 'Управление товарами', admin_add_new: 'Добавить товар', admin_add_btn: 'Добавить товар', admin_orders: 'Заказы',
     order_title: 'Ваш заказ', order_details: 'Детали заказа',
     bn_home: 'Главная', bn_fav: 'Избранное', bn_cart: 'Корзина', bn_profile: 'Профиль', float_write: 'Написать',
-    gen_desc: 'Сгенерировать описание', bag_1: 'Мешок 1 (700 пар)', bag_2: 'Мешок 2 (1200 пар)', bag_3: 'Мешок 3 (2000 пар)',
+    gen_desc: 'Сгенерировать описание', bag_1: 'Мешок 1 (700 пар)', bag_2: 'Мешок 2 (5000 пар)', bag_3: 'Мешок 3 (10000 пар)',
     bags_label: 'Выберите мешок', partner_markup_note: 'На сайте цена +15%',
     partner_title: 'Панель производителя', partner_login_sub: 'Вход для партнёров FULL SELLER',
     partner_login: 'Логин', partner_password: 'Пароль', partner_enter: 'Войти', partner_back_home: 'На главную',
@@ -1863,8 +1863,8 @@ const IMGBB_KEYS = ['044c84fb33e068293052ead694715174','ae79450043550a3062e2c2d4
 /* --- BAGS (3 мешка) --- */
 const BAG_OPTIONS = [
   { key: 'bag1', labelKey: 'bag_1', size: 700,  priceField: 'bag1Price' },
-  { key: 'bag2', labelKey: 'bag_2', size: 1200, priceField: 'bag2Price' },
-  { key: 'bag3', labelKey: 'bag_3', size: 2000, priceField: 'bag3Price' }
+  { key: 'bag2', labelKey: 'bag_2', size: 5000, priceField: 'bag2Price' },
+  { key: 'bag3', labelKey: 'bag_3', size: 10000, priceField: 'bag3Price' }
 ];
 
 /* --- Size helpers --- */
