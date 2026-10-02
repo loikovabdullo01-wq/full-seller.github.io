@@ -665,6 +665,123 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .banner-slider{margin:12px 0 4px;border-radius:var(--r-lg)}
   .category-filter{margin:16px 0 8px}
 }
+   /* ============================================================
+   SIZE / OPTION SELECTOR в карточке товара — перекрывающий блок
+   Применяется к .product-page__bags .bag-option (текущий селектор
+   вариантов в карточке). Старые правила не удаляем — просто
+   перекрываем их этими.
+   ============================================================ */
+.product-page__bags { margin-bottom: 24px; }
+
+.product-page__bags-label {
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.product-page__bags-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bag-option {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 96px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .18s var(--ease),
+              background .18s var(--ease),
+              box-shadow .18s var(--ease),
+              transform .12s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bag-option:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.bag-option.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.bag-option__name {
+  font-family: var(--font-body);
+  font-size: .8125rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.bag-option.active .bag-option__name { color: var(--accent-600); }
+
+.bag-option__size {
+  font-size: .6875rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.bag-option__price {
+  font-family: var(--font-display);
+  font-size: .8125rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--accent);
+  margin-top: 4px;
+}
+.bag-option__price.is-zero {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.bag-option input { display: none; }
+
+/* Недоступный вариант — просто добавляете класс .is-disabled в разметку/JS
+   или используете существующий .bag-option__price.is-zero как индикатор */
+.bag-option.is-disabled,
+.bag-option[aria-disabled="true"] {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: var(--border);
+  background: var(--bg-sunken);
+  box-shadow: none;
+}
+.bag-option.is-disabled .bag-option__name,
+.bag-option[aria-disabled="true"] .bag-option__name { color: var(--muted); }
+
+/* Адаптив: на узких экранах — сетка 3 / 2 колонки, компактнее */
+@media (max-width: 560px) {
+  .product-page__bags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .bag-option {
+    min-width: 0;
+    padding: 9px 10px;
+    border-radius: 10px;
+  }
+  .bag-option__name { font-size: .75rem; }
+  .bag-option__size { font-size: .625rem; }
+  .bag-option__price { font-size: .75rem; }
+}
+@media (max-width: 380px) {
+  .product-page__bags-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 </style>
 </head>
 <body>
