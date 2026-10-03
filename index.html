@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#E85D04">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FULL SELLER">
+<meta name="mobile-web-app-capable" content="yes">
 <title>FULL SELLER — оптовые носки, футболки, бельё напрямую от фабрик</title>
 <meta name="description" content="Оптовый поставщик носков, футболок и белья из Узбекистана. От 13 ₽/шт, минимальный заказ 1 мешок = 700 пар, доставка карго в Россию и Таджикистан.">
 <link rel="icon" href="/иконнка.jpg" type="image/png" sizes="48x48 96x96 144x144">
@@ -930,6 +935,121 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
 @media (max-width: 380px) {
   .product-page__bags-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ============================================================
+   PATCH (TASK 1): мобильный переключатель валют + PATCH (TASK 4): install prompt
+   ============================================================ */
+.mobile-currency-switch__label {
+  text-align: center;
+  font-size: .6875rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-weight: 700;
+}
+.mobile-currency-switch {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 10px;
+}
+.mobile-currency-switch button {
+  flex: 1;
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: .8125rem;
+  font-weight: 700;
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  background: var(--card);
+  transition: .2s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-currency-switch button.active {
+  background: var(--grad-accent);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--sh-accent);
+}
+.install-prompt {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 78px;
+  z-index: 998;
+  display: none;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.install-prompt.active {
+  display: block;
+  animation: installIn .35s var(--ease);
+}
+@keyframes installIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@media (min-width: 769px) {
+  .install-prompt { left: auto; right: 24px; bottom: 24px; max-width: 400px; }
+}
+.install-prompt__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--modal);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg);
+  position: relative;
+}
+.install-prompt__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--accent-soft);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+.install-prompt__icon img { width: 100%; height: 100%; object-fit: cover; }
+.install-prompt__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.install-prompt__text strong { font-size: .9375rem; font-weight: 700; color: var(--text); }
+.install-prompt__text span { font-size: .75rem; color: var(--muted); line-height: 1.3; }
+.install-prompt__btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--grad-accent);
+  color: #fff;
+  font-size: .8125rem;
+  font-weight: 700;
+  box-shadow: var(--sh-accent);
+  flex-shrink: 0;
+  border: none;
+  min-height: auto;
+}
+.install-prompt__close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.install-prompt__close:hover { color: var(--text); background: var(--bg-sunken); }
 </style>
 </head>
 <body>
@@ -1665,6 +1785,28 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
       <button type="button" data-lang="uz">UZ</button>
     </div>
   </div>
+  <!-- PATCH (TASK 1): мобильный переключатель валют -->
+  <div style="margin-top:14px;">
+    <div class="mobile-currency-switch__label" data-i18n="currency_label">Валюта</div>
+    <div class="mobile-currency-switch" id="mobileCurrencySwitch">
+      <button type="button" data-cur="RUB">₽</button>
+      <button type="button" data-cur="USD">$</button>
+      <button type="button" data-cur="UZS">so'm</button>
+    </div>
+  </div>
+</div>
+
+<!-- PATCH (TASK 4): install prompt -->
+<div class="install-prompt" id="installPrompt">
+  <div class="install-prompt__inner">
+    <div class="install-prompt__icon"><img src="/иконнка.jpg" alt="FULL SELLER" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=&quot;fas fa-mobile-alt&quot;></i>';"></div>
+    <div class="install-prompt__text">
+      <strong data-i18n="install_title">Установить приложение</strong>
+      <span id="installPromptHint" data-i18n="install_hint">Добавьте FULL SELLER на главный экран</span>
+    </div>
+    <button class="install-prompt__btn" id="installPromptBtn" data-i18n="install_btn">Установить</button>
+    <button class="install-prompt__close" id="installPromptClose" aria-label="Close">&times;</button>
+  </div>
 </div>
 
 <script>
@@ -1752,7 +1894,12 @@ const I18N = {
     size_male_socks: 'Мужские носки 41-43', size_female_socks: 'Женские носки 37-39',
     size_kid_1: 'Детские 0-1 год: рост 68-80', size_kid_2: 'Детские 2-3 года: рост 92-98 см',
     size_kid_3: 'Детские 4-6 лет: рост 104-116 см', size_kid_4: 'Детские 7-8 лет: рост 122-128 см',
-    support_whatsapp_text: 'Здравствуйте! Я производитель, нужна поддержка.'
+    support_whatsapp_text: 'Здравствуйте! Я производитель, нужна поддержка.',
+    /* PATCH (TASK 1, TASK 4): новые ключи */
+    currency_label: 'Валюта',
+    install_title: 'Установить приложение',
+    install_hint: 'Добавьте FULL SELLER на главный экран',
+    install_btn: 'Установить'
   },
   en: {
     nav_catalog: 'Catalog', nav_wholesale: 'Terms', nav_reviews: 'Reviews', nav_contacts: 'Contacts', nav_admin: 'Admin',
@@ -1835,7 +1982,11 @@ const I18N = {
     size_male_socks: 'Men socks 41-43', size_female_socks: 'Women socks 37-39',
     size_kid_1: 'Kids 0-1 year: height 68-80', size_kid_2: 'Kids 2-3 years: height 92-98 cm',
     size_kid_3: 'Kids 4-6 years: height 104-116 cm', size_kid_4: 'Kids 7-8 years: height 122-128 cm',
-    support_whatsapp_text: "Hello! I'm a manufacturer, I need support."
+    support_whatsapp_text: "Hello! I'm a manufacturer, I need support.",
+    currency_label: 'Currency',
+    install_title: 'Install app',
+    install_hint: 'Add FULL SELLER to your home screen',
+    install_btn: 'Install'
   },
   uz: {
     nav_catalog: 'Katalog', nav_wholesale: 'Shartlar', nav_reviews: 'Sharhlar', nav_contacts: 'Kontaktlar', nav_admin: 'Admin',
@@ -1918,7 +2069,11 @@ const I18N = {
     size_male_socks: 'Erkaklar paypoqi 41-43', size_female_socks: 'Ayollar paypoqi 37-39',
     size_kid_1: 'Bolalar 0-1 yosh: bo‘y 68-80', size_kid_2: 'Bolalar 2-3 yosh: bo‘y 92-98 sm',
     size_kid_3: 'Bolalar 4-6 yosh: bo‘y 104-116 sm', size_kid_4: 'Bolalar 7-8 yosh: bo‘y 122-128 sm',
-    support_whatsapp_text: 'Assalomu alaykum! Men ishlab chiqaruvchiman, yordam kerak.'
+    support_whatsapp_text: 'Assalomu alaykum! Men ishlab chiqaruvchiman, yordam kerak.',
+    currency_label: 'Valyuta',
+    install_title: 'Ilovani o‘rnatish',
+    install_hint: 'FULL SELLER-ni asosiy ekranga qo‘shing',
+    install_btn: 'O‘rnatish'
   }
 };
 
@@ -2045,20 +2200,30 @@ function renderPartnerProductCardsLocale() {
   }
 }
 
+/* ============================================================
+   PATCH (TASK 2): Автоопределение языка и валюты по стране
+   ============================================================ */
 async function initGeoIP() {
-  if (localStorage.getItem(LANG_KEY)) return;
+  const hasLang = !!localStorage.getItem(LANG_KEY);
+  const hasCur = !!localStorage.getItem('fullseller_currency');
+  if (hasLang && hasCur) return;
 
-  const CIS = new Set(['RU','KZ','KG','TJ','BY','AM','AZ','MD']);
-  const mapCC = (cc) => {
+  const CIS = ['RU','BY','KZ','KG','TJ','AM','AZ','GE','MD','TM','UA'];
+  const EU = ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','GB','CH','NO','IS','LI','MC','AD','SM','VA'];
+  const AM = ['US','CA','MX','AR','BO','BR','CL','CO','CR','CU','DO','EC','SV','GT','GY','HN','HT','JM','NI','PA','PE','PR','PY','SR','TT','UY','VE','BZ','BB','BS','GD','DM','LC','VC','AG','KN'];
+  const OC = ['AU','NZ','FJ','PG','WS','TO','VU','SB','NC','PF'];
+
+  const decide = (cc) => {
     const code = String(cc || '').toUpperCase();
-    if (code === 'UZ') return 'uz';
-    if (CIS.has(code)) return 'ru';
-    return 'en';
+    if (code === 'UZ') return { lang: 'uz', cur: 'UZS' };
+    if (CIS.includes(code)) return { lang: 'ru', cur: 'RUB' };
+    if (EU.includes(code) || AM.includes(code) || OC.includes(code)) return { lang: 'en', cur: 'USD' };
+    return { lang: 'ru', cur: 'RUB' };
   };
 
-  const fetchJson = async (url, pick) => {
+  const fetchJson = async (url, pick, timeoutMs) => {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 4000);
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs || 3000);
     try {
       const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
       const data = await res.json();
@@ -2068,21 +2233,23 @@ async function initGeoIP() {
     }
   };
 
-  let lang = 'ru';
+  let decision = { lang: 'ru', cur: 'RUB' };
   try {
-    lang = mapCC(await fetchJson('https://ipapi.co/json/', d => d && d.country_code));
+    const cc = await fetchJson('https://ipapi.co/json/', d => d && d.country_code, 3000);
+    decision = decide(cc);
   } catch (e1) {
     try {
-      lang = mapCC(await fetchJson('https://ipwho.is/', d => d && d.country_code));
+      const cc = await fetchJson('https://ipwho.is/', d => d && d.country_code, 3000);
+      decision = decide(cc);
     } catch (e2) {
-      try {
-        lang = mapCC(await fetchJson('https://ipinfo.io/json', d => d && d.country));
-      } catch (e3) {
-        lang = 'ru';
-      }
+      decision = { lang: 'ru', cur: 'RUB' };
     }
   }
-  await setLanguage(lang, false);
+
+  if (!hasLang) await setLanguage(decision.lang, false);
+  if (!hasCur) {
+    try { setCurrency(decision.cur, false); } catch (e) { console.warn('geo currency set failed', e); }
+  }
 }
 
 /* ============================================================
@@ -2242,6 +2409,14 @@ async function writeFirestoreWithAuth(doWrite) {
   }
 }
 
+/* ============================================================
+   PATCH (TASK 3): RATES — единый объект курсов валют.
+   Базовая валюта — рубль. Меняй значения здесь.
+   ============================================================ */
+const RATES = { RUB: 1, USD: 0.0125, UZS: 155 };
+const CURRENCY_LABELS = { RUB: '₽', USD: '$', UZS: "so'm" };
+const CURRENCY_ORDER = ['RUB', 'USD', 'UZS'];
+
 const State = {
   percentageDiscount: 0, fixedDiscountRub: 0, rating: 4.2,
   currency: localStorage.getItem('fullseller_currency') || 'RUB',
@@ -2351,8 +2526,29 @@ function showToast(msg) {
 function getProductById(id) { for (const cat in allProducts) { const p = allProducts[cat].find(x => x.id === id); if (p) return p; } return null; }
 function shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function getFinalPrice(p) { if (!p) return 0; let base = p.price || 0; base = applyPartnerMarkup(base, p); let dp = State.percentageDiscount; if (dp >= 100) dp = 0; const final = (base * (1 - dp / 100)) - State.fixedDiscountRub; return Math.max(0.01, Math.round(final * 100) / 100); }
-function finalPriceStr(v) { if (State.currency === 'USD') return '$' + (v / State.exchangeRate).toFixed(2); const r = Math.round(v * 100) / 100; return Number.isInteger(r) ? r + ' ₽' : r.toFixed(2) + ' ₽'; }
-function formatPrice(rub) { if (rub == null || isNaN(rub)) return State.currency === 'USD' ? '$0.00' : '0 ₽'; if (State.currency === 'USD') return '$' + (rub / State.exchangeRate).toFixed(2); const r = Math.round(rub * 100) / 100; return Number.isInteger(r) ? r + ' ₽' : r.toFixed(2) + ' ₽'; }
+
+/* ============================================================
+   PATCH (TASK 1, TASK 3): форматирование цены для 3 валют через RATES.
+   Базовая валюта — рубль (₽).
+   ============================================================ */
+function finalPriceStr(v) {
+  const cur = State.currency || 'RUB';
+  const rate = (RATES[cur] != null) ? RATES[cur] : 1;
+  const converted = (Number(v) || 0) * rate;
+  if (cur === 'USD') return '$' + converted.toFixed(2);
+  if (cur === 'UZS') return Math.round(converted).toLocaleString('ru-RU') + " so'm";
+  const r = Math.round(converted * 100) / 100;
+  return Number.isInteger(r) ? r + ' ₽' : r.toFixed(2) + ' ₽';
+}
+function formatPrice(rub) {
+  if (rub == null || isNaN(rub)) {
+    const cur = State.currency || 'RUB';
+    if (cur === 'USD') return '$0.00';
+    if (cur === 'UZS') return "0 so'm";
+    return '0 ₽';
+  }
+  return finalPriceStr(rub);
+}
 function getBagDisplayPrice(p, bag) { if (!p || !bag) return 0; const raw = p[bag.priceField]; if (raw == null || raw === '') return 0; return applyPartnerMarkup(Number(raw) || 0, p); }
 
 function setBodyPageClass(pageName) {
@@ -2742,15 +2938,72 @@ function subscribeToAllProducts() {
   mergeFirestore('underwear', 'underwear');
 }
 
-/* ============ CURRENCY / THEME ============ */
-function toggleCurrency() {
-  State.currency = State.currency === 'RUB' ? 'USD' : 'RUB';
-  localStorage.setItem('fullseller_currency', State.currency);
-  document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
-  renderCatalog();
+/* ============================================================
+   PATCH (TASK 1): setCurrency — единая функция смены валюты,
+   используется и десктопным, и мобильным переключателем.
+   ============================================================ */
+function setCurrency(code, save) {
+  if (!RATES[code]) code = 'RUB';
+  State.currency = code;
+  if (save !== false) localStorage.setItem('fullseller_currency', code);
+
+  const btn = document.getElementById('currencyBtn');
+  if (btn) btn.textContent = CURRENCY_LABELS[code] || '₽';
+
+  document.querySelectorAll('#mobileCurrencySwitch button').forEach(b => {
+    b.classList.toggle('active', b.dataset.cur === code);
+  });
+
+  // Re-render current views
+  try { renderCatalog(); } catch (e) {}
   if (document.getElementById('favoritesPage').classList.contains('active')) renderFavoritesModal();
   if (document.getElementById('cartPage').classList.contains('active')) renderCartModal();
-  if (document.getElementById('productDetailPage').classList.contains('active')) { const id = document.getElementById('productDetailPage').dataset.currentId; if (id) openProductPage(id); }
+  if (document.getElementById('productDetailPage').classList.contains('active')) {
+    const id = document.getElementById('productDetailPage').dataset.currentId;
+    const p = id ? getProductById(id) : null;
+    if (p) {
+      const bag = BAG_OPTIONS[selectedBagIndex];
+      const bagPrice = getBagDisplayPrice(p, bag);
+      const finalPrice = getFinalPrice(p);
+      const basePrice = applyPartnerMarkup(p.price || 0, p);
+      const priceEl = document.getElementById('productPagePrice');
+      if (priceEl) {
+        if (bagPrice > 0) {
+          priceEl.innerHTML = formatPrice(bagPrice);
+        } else {
+          priceEl.innerHTML = formatPrice(finalPrice) + (finalPrice < basePrice ? `<span class="old">${formatPrice(basePrice)}</span>` : '');
+        }
+      }
+      const bagGrid = document.getElementById('bagOptionsGrid');
+      if (bagGrid) {
+        bagGrid.querySelectorAll('.bag-option').forEach((opt, i) => {
+          const b = BAG_OPTIONS[i];
+          const price = getBagDisplayPrice(p, b);
+          const priceEl2 = opt.querySelector('.bag-option__price');
+          if (priceEl2) {
+            priceEl2.textContent = formatPrice(price);
+            priceEl2.classList.toggle('is-zero', !price || price <= 0);
+          }
+        });
+      }
+    }
+  }
+  // Калькулятор доставки: пересчитать, если результат уже виден
+  try {
+    const resultsEl = document.getElementById('cargo-calc-results');
+    if (resultsEl && resultsEl.style.display !== 'none') {
+      const calcBtn = document.getElementById('cargo-calc-btn');
+      if (calcBtn) calcBtn.click();
+    }
+  } catch (e) {}
+}
+
+/* PATCH (TASK 1): расширенный цикл по 3 валютам. Оставляем имя toggleCurrency
+   для совместимости со старым кодом — теперь он просто циклично переключает. */
+function toggleCurrency() {
+  const idx = CURRENCY_ORDER.indexOf(State.currency);
+  const next = CURRENCY_ORDER[(idx + 1) % CURRENCY_ORDER.length];
+  setCurrency(next, true);
 }
 
 /* ============ ORDER MODAL ============ */
@@ -3280,7 +3533,14 @@ lightBtn.addEventListener('click', () => setTheme('light'));
 darkBtn.addEventListener('click', () => setTheme('dark'));
 setTheme(localStorage.getItem('fullseller_theme') || 'light');
 document.getElementById('currencyBtn').addEventListener('click', toggleCurrency);
-document.getElementById('currencyBtn').textContent = State.currency === 'RUB' ? '₽' : '$';
+/* PATCH (TASK 1): инициализация иконки валюты из localStorage */
+document.getElementById('currencyBtn').textContent = CURRENCY_LABELS[State.currency] || '₽';
+
+/* PATCH (TASK 1): обработчики мобильного переключателя валют */
+document.querySelectorAll('#mobileCurrencySwitch button').forEach(btn => {
+  btn.addEventListener('click', () => setCurrency(btn.dataset.cur, true));
+  btn.classList.toggle('active', btn.dataset.cur === State.currency);
+});
 
 /* ============ SCROLL HEADER ============ */
 (function () {
@@ -3435,9 +3695,11 @@ profileRemoveAvatarBtn.addEventListener('click', async () => {
     const priceEl = document.getElementById('cargo-calc-product-price');
     const shippingEl = document.getElementById('cargo-calc-shipping');
     if (selectedCountry === 'russia') {
+      /* PATCH (TASK 1): калькулятор показывает цены в выбранной валюте */
       const productTotal = qty * unitPrice; const shippingCostRub = totalWeight * 1.30 * EXCHANGE_RATE; const totalRub = productTotal + shippingCostRub;
-      priceEl.textContent = productTotal.toFixed(2) + ' ₽'; shippingEl.textContent = shippingCostRub.toFixed(2) + ' ₽';
-      totalContainer.innerHTML = `<span>Total</span><span style="font-family:var(--font-display); font-size:1.5rem; font-weight:800; color:var(--accent);">${totalRub.toFixed(2)} ₽</span>`;
+      priceEl.textContent = finalPriceStr(productTotal);
+      shippingEl.textContent = finalPriceStr(shippingCostRub);
+      totalContainer.innerHTML = `<span>Total</span><span style="font-family:var(--font-display); font-size:1.5rem; font-weight:800; color:var(--accent);">${finalPriceStr(totalRub)}</span>`;
     } else {
       const productSomoni = (qty * unitPrice) / SOMONI_TO_RUB; const shippingSomoni = totalWeight * 7; const totalSomoni = productSomoni + shippingSomoni;
       priceEl.textContent = productSomoni.toFixed(2) + ' somoni'; shippingEl.textContent = shippingSomoni.toFixed(2) + ' somoni';
@@ -3784,6 +4046,106 @@ document.querySelectorAll('#mobileLangSwitch button').forEach(btn => {
 });
 
 /* ============================================================
+   PATCH (TASK 4): PWA install prompt (iOS + Android)
+   Показывает предложение установить приложение как ярлык на главный экран.
+   ============================================================ */
+(function () {
+  // 1. Динамически подключаем манифест через Blob URL
+  try {
+    const manifest = {
+      name: 'FULL SELLER',
+      short_name: 'FULL SELLER',
+      description: 'Оптовые носки, футболки и бельё напрямую от фабрик',
+      start_url: (location.pathname || '/'),
+      scope: '/',
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#ffffff',
+      theme_color: '#E85D04',
+      lang: 'ru',
+      icons: [
+        { src: '/иконнка.jpg', sizes: '48x48',   type: 'image/jpeg', purpose: 'any' },
+        { src: '/иконнка.jpg', sizes: '96x96',   type: 'image/jpeg', purpose: 'any' },
+        { src: '/иконнка.jpg', sizes: '144x144', type: 'image/jpeg', purpose: 'any' },
+        { src: '/иконнка.jpg', sizes: '192x192', type: 'image/jpeg', purpose: 'any' },
+        { src: '/иконнка.jpg', sizes: '512x512', type: 'image/jpeg', purpose: 'any' }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+    const url = URL.createObjectURL(blob);
+    let link = document.querySelector('link[rel="manifest"]');
+    if (!link) { link = document.createElement('link'); link.rel = 'manifest'; document.head.appendChild(link); }
+    link.href = url;
+  } catch (e) { /* ignore */ }
+
+  const prompt = document.getElementById('installPrompt');
+  const promptBtn = document.getElementById('installPromptBtn');
+  const promptClose = document.getElementById('installPromptClose');
+  const hintEl = document.getElementById('installPromptHint');
+  if (!prompt) return;
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) return;
+  if (sessionStorage.getItem('fullseller_install_dismissed') === '1') return;
+
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  const isAndroid = /Android/i.test(ua);
+  const isMobile = isIOS || isAndroid;
+
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (isAndroid && !prompt.classList.contains('active')) {
+      showInstallPrompt('android');
+    }
+  });
+
+  function showInstallPrompt(platform) {
+    if (platform === 'ios') {
+      if (hintEl) hintEl.textContent = 'В меню «Поделиться» выберите «На экран Домой»';
+      if (promptBtn) promptBtn.textContent = 'Как?';
+    } else {
+      if (hintEl) hintEl.textContent = 'Добавьте FULL SELLER на главный экран';
+      if (promptBtn) promptBtn.textContent = 'Установить';
+    }
+    setTimeout(() => prompt.classList.add('active'), 600);
+  }
+
+  // iOS — показываем через 2 секунды после загрузки
+  if (isIOS) {
+    setTimeout(() => showInstallPrompt('ios'), 1800);
+  } else if (!isMobile) {
+    // На десктопе — показываем в течение 4 секунд, если есть deferredPrompt
+    setTimeout(() => { if (deferredPrompt) showInstallPrompt('android'); }, 2500);
+  }
+
+  if (promptBtn) {
+    promptBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        try { await deferredPrompt.userChoice; } catch (e) {}
+        deferredPrompt = null;
+        prompt.classList.remove('active');
+        return;
+      }
+      if (isIOS) {
+        alert('Откройте меню «Поделиться» (квадрат со стрелкой) и выберите «На экран Домой».');
+      }
+    });
+  }
+
+  if (promptClose) {
+    promptClose.addEventListener('click', () => {
+      prompt.classList.remove('active');
+      try { sessionStorage.setItem('fullseller_install_dismissed', '1'); } catch (e) {}
+    });
+  }
+})();
+
+/* ============================================================
    INIT
    ============================================================ */
 updateCartUI();
@@ -3797,6 +4159,9 @@ trackPageView('home');
 applyTranslations();
 updateLangSwitchers();
 updatePartnerSupportLink();
+
+/* PATCH (TASK 1): синхронизировать состояние мобильного переключателя валют */
+try { setCurrency(State.currency, false); } catch (e) {}
 
 initGeoIP();
 
