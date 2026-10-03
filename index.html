@@ -16,7 +16,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
-   <script>
+<script>
 /* ============================================================
    SWIPE-ГАЛЕРЕЯ В КАРТОЧКЕ ТОВАРА — самодостаточный патч.
    Не изменяет существующий код. Только добавляет поведение.
@@ -813,7 +813,7 @@ body.dark .order-status.cancelled{background:#5C1A1A;color:#FCA5A5}
   .banner-slider{margin:12px 0 4px;border-radius:var(--r-lg)}
   .category-filter{margin:16px 0 8px}
 }
-   /* ============================================================
+/* ============================================================
    SIZE / OPTION SELECTOR в карточке товара — перекрывающий блок
    Применяется к .product-page__bags .bag-option (текущий селектор
    вариантов в карточке). Старые правила не удаляем — просто
@@ -2135,8 +2135,8 @@ const BAG_OPTIONS = [
 
 /* --- Size helpers --- */
 const SIZE_OPTIONS = [
-  { value: '41-43',  audience: 'male',   label: 'size_male_socks'   },
-  { value: '37-39',  audience: 'female', label: 'size_female_socks' },
+  { value: '41-47',  audience: 'male',   label: 'size_male_socks'   },
+  { value: '36-41',  audience: 'female', label: 'size_female_socks' },
   { value: '68-80',  audience: 'kids',   label: 'size_kid_1'        },
   { value: '92-98',  audience: 'kids',   label: 'size_kid_2'        },
   { value: '104-116',audience: 'kids',   label: 'size_kid_3'        },
@@ -2150,8 +2150,8 @@ function getSizeDisplayForProduct(p) {
   const isSocks = category === 'socks' || category === 'regular';
   if (Array.isArray(p.sizes) && p.sizes.length) return p.sizes.join(', ');
   if (isSocks) {
-    if (audience === 'male')   return '41-43';
-    if (audience === 'female') return '37-39';
+    if (audience === 'male')   return '41-47';
+    if (audience === 'female') return '36-41';
     if (audience === 'kids')   return '68-80, 92-98, 104-116, 122-128';
     return p.size || '38-44';
   }
